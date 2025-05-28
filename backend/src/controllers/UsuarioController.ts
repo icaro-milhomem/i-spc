@@ -1,0 +1,205 @@
+import { Request, Response } from 'express';
+import { prisma } from '../database/prismaClient';
+import { AppError } from '../utils/AppError';
+import { hash } from 'bcryptjs';
+
+export class UsuarioController {
+  async criar(req: Request, res: Response) {
+    try {
+      const { nome, email, senha, papeis } = req.body;
+
+      if (!nome || !email || !senha) {
+        throw new AppError('Nome, email e senha são obrigatórios', 400);
+      }
+
+      const usuarioExistente = await prisma.usuario.findUnique({
+        where: { email }
+      });
+
+      if (usuarioExistente) {
+        throw new AppError('Email já cadastrado', 400);
+      }
+
+      const senhaHash = await hash(senha, 8);
+
+      const usuario = await prisma.usuario.create({
+        data: {
+          nome,
+          email,
+          senha: senhaHash,
+          papeis: {
+            connect: papeis?.map((id: number) => ({ id })) || []
+          }
+        },
+        include: {
+          papeis: {
+            include: {
+              permissoes: true
+            }
+          }
+        }
+      });
+
+      return res.status(201).json({
+        id: usuario.id,
+        nome: usuario.nome,
+        email: usuario.email,
+        papeis: usuario.papeis
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({ error: error.message });
+      }
+      console.error('Erro ao criar usuário:', error);
+      return res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
+  async listar(req: Request, res: Response) {
+    try {
+      const usuarios = await prisma.usuario.findMany({
+        include: {
+          papeis: {
+            include: {
+              permissoes: true
+            }
+          }
+        }
+      });
+
+      return res.json(usuarios.map(usuario => ({
+        id: usuario.id,
+        nome: usuario.nome,
+        email: usuario.email,
+        papeis: usuario.papeis
+      })));
+    } catch (error) {
+      console.error('Erro ao listar usuários:', error);
+      return res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
+  async buscarPorId(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+
+      const usuario = await prisma.usuario.findUnique({
+        where: { id: Number(id) },
+        include: {
+          papeis: {
+            include: {
+              permissoes: true
+            }
+          }
+        }
+      });
+
+      if (!usuario) {
+        throw new AppError('Usuário não encontrado', 404);
+      }
+
+      return res.json({
+        id: usuario.id,
+        nome: usuario.nome,
+        email: usuario.email,
+        papeis: usuario.papeis
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({ error: error.message });
+      }
+      console.error('Erro ao buscar usuário:', error);
+      return res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
+  async atualizar(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const { nome, email, senha, papeis } = req.body;
+
+      if (!nome || !email) {
+        throw new AppError('Nome e email são obrigatórios', 400);
+      }
+
+      const usuario = await prisma.usuario.findUnique({
+        where: { id: Number(id) }
+      });
+
+      if (!usuario) {
+        throw new AppError('Usuário não encontrado', 404);
+      }
+
+      const usuarioExistente = await prisma.usuario.findUnique({
+        where: { email }
+      });
+
+      if (usuarioExistente && usuarioExistente.id !== Number(id)) {
+        throw new AppError('Email já cadastrado', 400);
+      }
+
+      const data: any = {
+        nome,
+        email,
+        papeis: {
+          set: papeis?.map((id: number) => ({ id })) || []
+        }
+      };
+
+      if (senha) {
+        data.senha = await hash(senha, 8);
+      }
+
+      const usuarioAtualizado = await prisma.usuario.update({
+        where: { id: Number(id) },
+        data,
+        include: {
+          papeis: {
+            include: {
+              permissoes: true
+            }
+          }
+        }
+      });
+
+      return res.json({
+        id: usuarioAtualizado.id,
+        nome: usuarioAtualizado.nome,
+        email: usuarioAtualizado.email,
+        papeis: usuarioAtualizado.papeis
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({ error: error.message });
+      }
+      console.error('Erro ao atualizar usuário:', error);
+      return res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
+  async deletar(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+
+      const usuario = await prisma.usuario.findUnique({
+        where: { id: Number(id) }
+      });
+
+      if (!usuario) {
+        throw new AppError('Usuário não encontrado', 404);
+      }
+
+      await prisma.usuario.delete({
+        where: { id: Number(id) }
+      });
+
+      return res.status(204).send();
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({ error: error.message });
+      }
+      console.error('Erro ao deletar usuário:', error);
+      return res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+} 

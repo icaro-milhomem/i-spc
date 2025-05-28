@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  # Adicione aqui outros serviços que você queira manter, como backend ou frontend
+  # Exemplo:
+  # backend:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   container_name: ispc-backend
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - NODE_ENV=development
+  #     - DATABASE_URL=postgresql://pspc_user:pspc_pass@localhost:5432/pspc_db
+  #   volumes:
+  #     - ./backend:/app
+  #     - /app/node_modules
+
+volumes:
+  # Removido o volume do postgres 

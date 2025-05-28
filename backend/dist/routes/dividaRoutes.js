@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const DividaController_1 = require("../controllers/DividaController");
+const auth_1 = require("../middleware/auth");
+const router = (0, express_1.Router)();
+const dividaController = new DividaController_1.DividaController();
+router.post('/', auth_1.authenticateJWT, dividaController.criar);
+router.get('/cliente/:cliente_id', auth_1.authenticateJWT, dividaController.buscarPorCliente);
+router.patch('/:id/status', auth_1.authenticateJWT, dividaController.atualizarStatus);
+router.put('/:id', auth_1.authenticateJWT, dividaController.atualizar);
+router.get('/:id', auth_1.authenticateJWT, dividaController.buscarPorId);
+exports.default = router;

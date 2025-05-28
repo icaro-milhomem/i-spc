@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const BackupController_1 = require("../controllers/BackupController");
+const auth_1 = require("../middleware/auth");
+const router = (0, express_1.Router)();
+const backupController = new BackupController_1.BackupController();
+router.post('/', auth_1.authenticateJWT, auth_1.isAdmin, backupController.criar);
+router.get('/', auth_1.authenticateJWT, auth_1.isAdmin, backupController.listar);
+router.get('/:id', auth_1.authenticateJWT, auth_1.isAdmin, backupController.buscarPorId);
+router.delete('/:id', auth_1.authenticateJWT, auth_1.isAdmin, backupController.deletar);
+exports.default = router;

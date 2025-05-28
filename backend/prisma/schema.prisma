@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  email     String   @unique
+  senha     String
+  perfil    String   @default("usuario")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  backups   Backup[]
+  logs      Log[]
+  papeis    Papel[]  @relation("UsuarioPapel")
+
+  @@map("usuarios")
+}
+
+model Papel {
+  id         Int         @id @default(autoincrement())
+  nome       String      @unique
+  descricao  String?
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+  permissoes Permissao[] @relation("PapelPermissao")
+  usuarios   Usuario[]   @relation("UsuarioPapel")
+
+  @@map("papeis")
+}
+
+model Permissao {
+  id        Int      @id @default(autoincrement())
+  codigo    String   @unique
+  descricao String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  papeis    Papel[]  @relation("PapelPermissao")
+
+  @@map("permissoes")
+}
+
+model Cliente {
+  id           Int           @id @default(autoincrement())
+  nome         String
+  cpf          String        @unique
+  email        String?
+  telefone     String?
+  endereco     String?
+  status       String        @default("ativo")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  dividas      Divida[]
+  notificacoes Notificacao[]
+
+  @@map("clientes")
+}
+
+model Divida {
+  id              Int           @id @default(autoincrement())
+  cliente_id      Int
+  valor           Float
+  data_vencimento DateTime      @map("data_vencimento")
+  descricao       String?
+  status          String        @default("pendente")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  cliente         Cliente       @relation(fields: [cliente_id], references: [id])
+  notificacoes    Notificacao[]
+
+  @@map("dividas")
+}
+
+model Notificacao {
+  id         Int      @id @default(autoincrement())
+  cliente_id Int
+  tipo       String
+  mensagem   String
+  status     String   @default("pendente")
+  data       DateTime @default(now())
+  divida_id  Int?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  cliente    Cliente  @relation(fields: [cliente_id], references: [id])
+  divida     Divida?  @relation(fields: [divida_id], references: [id])
+
+  @@map("notificacoes")
+}
+
+model Configuracao {
+  chave     String   @id
+  valor     String
+  descricao String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("configuracoes")
+}
+
+model Backup {
+  id         Int      @id @default(autoincrement())
+  data       DateTime @default(now())
+  status     String   @default("pendente")
+  usuario_id Int
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  usuario    Usuario  @relation(fields: [usuario_id], references: [id])
+
+  @@map("backups")
+}
+
+model Log {
+  id         Int      @id @default(autoincrement())
+  acao       String
+  detalhes   String?
+  usuario_id Int
+  createdAt  DateTime @default(now()) @map("created_at")
+  usuario    Usuario  @relation(fields: [usuario_id], references: [id])
+
+  @@map("logs")
+}

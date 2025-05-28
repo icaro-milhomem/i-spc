@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const LogController_1 = require("../controllers/LogController");
+const auth_1 = require("../middleware/auth");
+const router = (0, express_1.Router)();
+const logController = new LogController_1.LogController();
+router.get('/', auth_1.authenticateJWT, auth_1.isAdmin, logController.listar);
+router.get('/:id', auth_1.authenticateJWT, auth_1.isAdmin, logController.buscarPorId);
+router.delete('/:id', auth_1.authenticateJWT, auth_1.isAdmin, logController.deletar);
+exports.default = router;

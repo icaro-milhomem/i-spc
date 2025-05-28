@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const PermissaoController_1 = require("../controllers/PermissaoController");
+const auth_1 = require("../middleware/auth");
+const router = (0, express_1.Router)();
+const permissaoController = new PermissaoController_1.PermissaoController();
+router.post('/', auth_1.authenticateJWT, auth_1.isAdmin, permissaoController.criar);
+router.get('/', auth_1.authenticateJWT, permissaoController.listar);
+router.get('/:id', auth_1.authenticateJWT, permissaoController.buscarPorId);
+router.put('/:id', auth_1.authenticateJWT, auth_1.isAdmin, permissaoController.atualizar);
+router.delete('/:id', auth_1.authenticateJWT, auth_1.isAdmin, permissaoController.deletar);
+exports.default = router;

@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const PapelController_1 = require("../controllers/PapelController");
+const auth_1 = require("../middleware/auth");
+const router = (0, express_1.Router)();
+const papelController = new PapelController_1.PapelController();
+router.post('/', auth_1.authenticateJWT, auth_1.isAdmin, papelController.criar);
+router.get('/', auth_1.authenticateJWT, papelController.listar);
+router.get('/:id', auth_1.authenticateJWT, papelController.buscarPorId);
+router.put('/:id', auth_1.authenticateJWT, auth_1.isAdmin, papelController.atualizar);
+router.delete('/:id', auth_1.authenticateJWT, auth_1.isAdmin, papelController.deletar);
+exports.default = router;

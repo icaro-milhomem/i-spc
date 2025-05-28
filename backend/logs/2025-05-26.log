@@ -1,0 +1,731 @@
+[2025-05-26 18:34:00] REQUEST: GET /api/usuarios/me - IP: ::1
+[2025-05-26 18:34:00] REQUEST: GET /api/usuarios/me - IP: ::1
+[2025-05-26 18:34:01] RESPONSE: GET /usuarios/me - Status: 500 - Duration: 28ms
+[2025-05-26 18:34:01] RESPONSE BODY: {"error":"Erro ao buscar usuário"}
+[2025-05-26 18:34:01] RESPONSE: GET /usuarios/me - Status: 500 - Duration: 44ms
+[2025-05-26 18:34:01] RESPONSE BODY: {"error":"Erro ao buscar usuário"}
+[2025-05-26 18:34:21] REQUEST: POST /api/auth/login - IP: ::1
+[2025-05-26 18:34:21] REQUEST BODY: {"email":"admin@pspc.com","senha":"******"}
+[2025-05-26 18:34:48] REQUEST: POST /api/auth/login - IP: ::1
+[2025-05-26 18:34:48] REQUEST BODY: {"email":"admin@pspc.com","senha":"******"}
+[2025-05-26 18:35:59] REQUEST: POST /api/login - IP: ::1
+[2025-05-26 18:35:59] REQUEST BODY: {"email":"admin@pspc.com","senha":"******"}
+[2025-05-26 18:35:59] RESPONSE: POST /login - Status: 200 - Duration: 115ms
+[2025-05-26 18:35:59] RESPONSE BODY: {"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBwc3BjLmNvbSIsInBlcmZpbCI6ImFkbWluIiwiaWF0IjoxNzQ4Mjg0NTU5LCJleHAiOjE3NDgzNzA5NTl9.wsNh3uJRkuLwoNGKsWYXsKmV6KmOYvp5LifiPis2YCo","usuario":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin"}}
+[2025-05-26 18:39:11] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:39:11] RESPONSE: GET /auth/me - Status: 200 - Duration: 6ms
+[2025-05-26 18:39:11] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748284559,"exp":1748370959}
+[2025-05-26 18:39:11] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:39:11] RESPONSE: GET /auth/me - Status: 200 - Duration: 2ms
+[2025-05-26 18:39:11] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748284559,"exp":1748370959}
+[2025-05-26 18:39:12] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:39:12] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 18:39:12] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748284559,"exp":1748370959}
+[2025-05-26 18:39:12] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:39:12] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 18:39:12] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748284559,"exp":1748370959}
+[2025-05-26 18:39:26] REQUEST: POST /api/login - IP: ::1
+[2025-05-26 18:39:26] REQUEST BODY: {"email":"admin@pspc.com","senha":"******"}
+[2025-05-26 18:39:26] RESPONSE: POST /login - Status: 200 - Duration: 111ms
+[2025-05-26 18:39:26] RESPONSE BODY: {"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBwc3BjLmNvbSIsInBlcmZpbCI6ImFkbWluIiwiaWF0IjoxNzQ4Mjg0NzY2LCJleHAiOjE3NDgzNzExNjZ9.hsNF284qky-kiPhU24R4Jap7WjI93QJZ3b-AGtinOvE","usuario":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin"}}
+[2025-05-26 18:42:18] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:42:18] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 18:42:18] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748284766,"exp":1748371166}
+[2025-05-26 18:44:06] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:44:06] RESPONSE: GET /auth/me - Status: 200 - Duration: 4ms
+[2025-05-26 18:44:06] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748284766,"exp":1748371166}
+[2025-05-26 18:44:06] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:44:06] RESPONSE: GET /auth/me - Status: 200 - Duration: 2ms
+[2025-05-26 18:44:06] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748284766,"exp":1748371166}
+[2025-05-26 18:44:13] REQUEST: POST /api/login - IP: ::1
+[2025-05-26 18:44:13] REQUEST BODY: {"email":"admin@pspc.com","senha":"******"}
+[2025-05-26 18:44:13] RESPONSE: POST /login - Status: 200 - Duration: 118ms
+[2025-05-26 18:44:13] RESPONSE BODY: {"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBwc3BjLmNvbSIsInBlcmZpbCI6ImFkbWluIiwiaWF0IjoxNzQ4Mjg1MDUzLCJleHAiOjE3NDgzNzE0NTN9.FkrZ_qDAUgGPgLatdJoYmI_ivJufW5PYkG7vqVU9qgI","usuario":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin"}}
+[2025-05-26 18:44:13] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 18:44:13] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 18:45:39] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 18:45:39] RESPONSE: GET /usuarios - Status: 500 - Duration: 20ms
+[2025-05-26 18:45:39] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 18:45:39] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 18:45:39] RESPONSE: GET /usuarios - Status: 500 - Duration: 11ms
+[2025-05-26 18:45:39] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 18:45:43] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 18:45:43] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 18:45:45] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 18:45:45] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 18:47:17] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 18:47:17] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 18:47:36] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:47:36] RESPONSE: GET /auth/me - Status: 200 - Duration: 2ms
+[2025-05-26 18:47:36] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748285053,"exp":1748371453}
+[2025-05-26 18:47:36] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:47:36] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 18:47:36] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748285053,"exp":1748371453}
+[2025-05-26 18:47:36] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 18:47:36] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 18:47:37] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:47:37] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 18:47:37] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748285053,"exp":1748371453}
+[2025-05-26 18:47:37] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:47:37] RESPONSE: GET /auth/me - Status: 200 - Duration: 2ms
+[2025-05-26 18:47:37] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748285053,"exp":1748371453}
+[2025-05-26 18:47:37] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 18:47:37] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 18:47:41] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:47:41] RESPONSE: GET /auth/me - Status: 200 - Duration: 2ms
+[2025-05-26 18:47:41] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748285053,"exp":1748371453}
+[2025-05-26 18:47:41] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:47:41] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 18:47:41] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748285053,"exp":1748371453}
+[2025-05-26 18:47:41] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 18:47:41] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 18:47:46] REQUEST: POST /api/login - IP: ::1
+[2025-05-26 18:47:46] REQUEST BODY: {"email":"admin@pspc.com","senha":"******"}
+[2025-05-26 18:47:46] RESPONSE: POST /login - Status: 200 - Duration: 95ms
+[2025-05-26 18:47:46] RESPONSE BODY: {"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBwc3BjLmNvbSIsInBlcmZpbCI6ImFkbWluIiwiaWF0IjoxNzQ4Mjg1MjY2LCJleHAiOjE3NDgzNzE2NjZ9.41IrImXmgErZE1R9w5USEZ5RtY-uKFNc--bmix_kCrk","usuario":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin"}}
+[2025-05-26 18:47:46] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 18:47:46] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 18:47:51] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 18:47:51] RESPONSE: GET /usuarios - Status: 500 - Duration: 3ms
+[2025-05-26 18:47:51] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 18:47:51] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 18:47:51] RESPONSE: GET /usuarios - Status: 500 - Duration: 12ms
+[2025-05-26 18:47:51] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 18:49:45] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 18:49:45] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 18:49:50] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 18:49:50] RESPONSE: GET /usuarios - Status: 500 - Duration: 11ms
+[2025-05-26 18:49:50] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 18:49:50] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 18:49:50] RESPONSE: GET /usuarios - Status: 500 - Duration: 13ms
+[2025-05-26 18:49:50] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 18:56:30] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:56:30] RESPONSE: GET /auth/me - Status: 200 - Duration: 3ms
+[2025-05-26 18:56:30] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748285266,"exp":1748371666}
+[2025-05-26 18:56:30] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:56:30] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 18:56:30] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748285266,"exp":1748371666}
+[2025-05-26 18:56:30] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 18:56:30] RESPONSE: GET /usuarios - Status: 500 - Duration: 14ms
+[2025-05-26 18:56:30] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 18:56:30] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 18:56:30] RESPONSE: GET /usuarios - Status: 500 - Duration: 12ms
+[2025-05-26 18:56:30] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 18:56:33] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:56:33] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 18:56:33] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748285266,"exp":1748371666}
+[2025-05-26 18:56:33] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:56:33] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 18:56:33] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748285266,"exp":1748371666}
+[2025-05-26 18:56:33] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 18:56:33] RESPONSE: GET /usuarios - Status: 500 - Duration: 12ms
+[2025-05-26 18:56:33] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 18:56:33] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 18:56:33] RESPONSE: GET /usuarios - Status: 500 - Duration: 11ms
+[2025-05-26 18:56:33] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 18:56:35] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:56:35] RESPONSE: GET /auth/me - Status: 200 - Duration: 2ms
+[2025-05-26 18:56:35] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748285266,"exp":1748371666}
+[2025-05-26 18:56:35] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:56:35] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 18:56:35] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748285266,"exp":1748371666}
+[2025-05-26 18:56:35] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 18:56:35] RESPONSE: GET /usuarios - Status: 500 - Duration: 17ms
+[2025-05-26 18:56:35] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 18:56:35] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 18:56:35] RESPONSE: GET /usuarios - Status: 500 - Duration: 10ms
+[2025-05-26 18:56:35] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 18:57:01] REQUEST: POST /api/login - IP: ::1
+[2025-05-26 18:57:01] REQUEST BODY: {"email":"admin@pspc.com","senha":"******"}
+[2025-05-26 18:57:01] RESPONSE: POST /login - Status: 200 - Duration: 114ms
+[2025-05-26 18:57:01] RESPONSE BODY: {"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBwc3BjLmNvbSIsInBlcmZpbCI6ImFkbWluIiwiaWF0IjoxNzQ4Mjg1ODIxLCJleHAiOjE3NDgzNzIyMjF9.kvdJBPB_LVhkVSecn2OHhEpKE_KTgk8p4may_sE21F4","usuario":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin"}}
+[2025-05-26 18:57:01] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 18:57:01] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 18:57:03] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 18:57:03] RESPONSE: GET /usuarios - Status: 500 - Duration: 6ms
+[2025-05-26 18:57:03] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 18:57:03] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 18:57:03] RESPONSE: GET /usuarios - Status: 500 - Duration: 13ms
+[2025-05-26 18:57:03] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 18:57:14] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:57:14] RESPONSE: GET /auth/me - Status: 200 - Duration: 2ms
+[2025-05-26 18:57:14] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748285821,"exp":1748372221}
+[2025-05-26 18:57:14] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:57:14] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 18:57:14] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748285821,"exp":1748372221}
+[2025-05-26 18:57:14] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 18:57:14] RESPONSE: GET /usuarios - Status: 500 - Duration: 12ms
+[2025-05-26 18:57:14] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 18:57:14] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 18:57:14] RESPONSE: GET /usuarios - Status: 500 - Duration: 12ms
+[2025-05-26 18:57:14] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 18:57:15] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:57:15] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 18:57:15] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748285821,"exp":1748372221}
+[2025-05-26 18:57:15] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 18:57:15] RESPONSE: GET /auth/me - Status: 200 - Duration: 2ms
+[2025-05-26 18:57:15] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748285821,"exp":1748372221}
+[2025-05-26 18:57:15] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 18:57:15] RESPONSE: GET /usuarios - Status: 500 - Duration: 12ms
+[2025-05-26 18:57:15] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 18:57:15] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 18:57:15] RESPONSE: GET /usuarios - Status: 500 - Duration: 10ms
+[2025-05-26 18:57:15] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 19:02:01] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 19:02:01] RESPONSE: GET /auth/me - Status: 200 - Duration: 5ms
+[2025-05-26 19:02:01] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748285821,"exp":1748372221}
+[2025-05-26 19:02:01] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 19:02:01] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 19:02:01] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748285821,"exp":1748372221}
+[2025-05-26 19:02:01] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:02:01] RESPONSE: GET /usuarios - Status: 500 - Duration: 27ms
+[2025-05-26 19:02:01] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 19:02:01] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:02:01] RESPONSE: GET /usuarios - Status: 500 - Duration: 11ms
+[2025-05-26 19:02:01] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 19:02:02] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 19:02:02] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 19:02:02] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748285821,"exp":1748372221}
+[2025-05-26 19:02:02] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 19:02:02] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 19:02:02] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748285821,"exp":1748372221}
+[2025-05-26 19:02:02] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:02:02] RESPONSE: GET /usuarios - Status: 500 - Duration: 12ms
+[2025-05-26 19:02:02] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 19:02:02] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:02:02] RESPONSE: GET /usuarios - Status: 500 - Duration: 10ms
+[2025-05-26 19:02:02] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 19:02:12] REQUEST: POST /api/login - IP: ::1
+[2025-05-26 19:02:12] REQUEST BODY: {"email":"admin@pspc.com","senha":"******"}
+[2025-05-26 19:02:12] RESPONSE: POST /login - Status: 200 - Duration: 96ms
+[2025-05-26 19:02:12] RESPONSE BODY: {"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBwc3BjLmNvbSIsInBlcmZpbCI6ImFkbWluIiwiaWF0IjoxNzQ4Mjg2MTMyLCJleHAiOjE3NDgzNzI1MzJ9.dDxJQbIWv5qv83VNAqDvwhpa83vE83nImHyPKdQiOc8","usuario":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin"}}
+[2025-05-26 19:02:12] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:02:12] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:05:56] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 19:05:56] RESPONSE: GET /auth/me - Status: 200 - Duration: 4ms
+[2025-05-26 19:05:56] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748286132,"exp":1748372532}
+[2025-05-26 19:05:56] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 19:05:56] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 19:05:56] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748286132,"exp":1748372532}
+[2025-05-26 19:05:56] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:05:56] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:06:14] REQUEST: POST /api/login - IP: ::1
+[2025-05-26 19:06:14] REQUEST BODY: {"email":"admin@pspc.com","senha":"******"}
+[2025-05-26 19:06:15] RESPONSE: POST /login - Status: 200 - Duration: 111ms
+[2025-05-26 19:06:15] RESPONSE BODY: {"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBwc3BjLmNvbSIsInBlcmZpbCI6ImFkbWluIiwiaWF0IjoxNzQ4Mjg2Mzc1LCJleHAiOjE3NDgzNzI3NzV9.WUQ0UV0dW-qr8p7ROigr7I2LBtawsRLwKXZsCXXngBU","usuario":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin"}}
+[2025-05-26 19:06:15] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:06:15] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:06:21] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:06:21] RESPONSE: GET /usuarios - Status: 500 - Duration: 5ms
+[2025-05-26 19:06:21] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 19:06:21] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:06:21] RESPONSE: GET /usuarios - Status: 500 - Duration: 13ms
+[2025-05-26 19:06:21] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 19:06:28] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:06:28] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:06:32] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:06:32] RESPONSE: GET /usuarios - Status: 500 - Duration: 9ms
+[2025-05-26 19:06:32] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 19:06:32] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:06:32] RESPONSE: GET /usuarios - Status: 500 - Duration: 11ms
+[2025-05-26 19:06:32] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 19:06:33] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:06:33] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:06:35] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:06:35] RESPONSE: GET /usuarios - Status: 500 - Duration: 17ms
+[2025-05-26 19:06:35] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 19:06:35] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:06:35] RESPONSE: GET /usuarios - Status: 500 - Duration: 12ms
+[2025-05-26 19:06:35] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 19:20:25] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 19:20:25] RESPONSE: GET /auth/me - Status: 200 - Duration: 7ms
+[2025-05-26 19:20:25] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748286375,"exp":1748372775}
+[2025-05-26 19:20:25] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 19:20:25] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 19:20:25] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748286375,"exp":1748372775}
+[2025-05-26 19:20:25] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:20:25] RESPONSE: GET /usuarios - Status: 500 - Duration: 31ms
+[2025-05-26 19:20:25] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 19:20:25] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:20:25] RESPONSE: GET /usuarios - Status: 500 - Duration: 12ms
+[2025-05-26 19:20:25] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 19:20:26] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 19:20:26] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 19:20:26] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748286375,"exp":1748372775}
+[2025-05-26 19:20:26] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 19:20:26] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 19:20:26] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748286375,"exp":1748372775}
+[2025-05-26 19:20:26] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:20:26] RESPONSE: GET /usuarios - Status: 500 - Duration: 13ms
+[2025-05-26 19:20:26] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 19:20:26] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:20:26] RESPONSE: GET /usuarios - Status: 500 - Duration: 15ms
+[2025-05-26 19:20:26] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 19:20:29] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:20:29] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:20:41] REQUEST: POST /api/login - IP: ::1
+[2025-05-26 19:20:41] REQUEST BODY: {"email":"admin@pspc.com","senha":"******"}
+[2025-05-26 19:20:41] RESPONSE: POST /login - Status: 200 - Duration: 99ms
+[2025-05-26 19:20:41] RESPONSE BODY: {"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBwc3BjLmNvbSIsInBlcmZpbCI6ImFkbWluIiwiaWF0IjoxNzQ4Mjg3MjQxLCJleHAiOjE3NDgzNzM2NDF9.cCfVz1315eQTf37l3Wki3SzYZPDJS2C0e0kwjU6P7Zc","usuario":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin"}}
+[2025-05-26 19:20:41] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:20:41] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:20:45] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:20:45] RESPONSE: GET /usuarios - Status: 500 - Duration: 3ms
+[2025-05-26 19:20:45] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 19:20:45] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:20:45] RESPONSE: GET /usuarios - Status: 500 - Duration: 12ms
+[2025-05-26 19:20:45] RESPONSE BODY: {"error":"Erro ao listar usuários"}
+[2025-05-26 19:26:27] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 19:26:27] RESPONSE: GET /auth/me - Status: 200 - Duration: 5ms
+[2025-05-26 19:26:27] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748287241,"exp":1748373641}
+[2025-05-26 19:26:27] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 19:26:27] RESPONSE: GET /auth/me - Status: 200 - Duration: 3ms
+[2025-05-26 19:26:27] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748287241,"exp":1748373641}
+[2025-05-26 19:26:27] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:26:27] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 38ms
+[2025-05-26 19:26:27] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 19:26:27] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:26:27] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 3ms
+[2025-05-26 19:26:27] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 19:26:30] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:26:30] RESPONSE: GET /usuarios - Status: 200 - Duration: 4ms
+[2025-05-26 19:26:30] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 19:26:30] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:26:30] RESPONSE: GET /usuarios - Status: 200 - Duration: 2ms
+[2025-05-26 19:26:30] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 19:26:35] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:26:35] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 4ms
+[2025-05-26 19:26:35] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 19:26:35] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:26:35] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 6ms
+[2025-05-26 19:26:35] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 19:26:38] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:26:38] RESPONSE: GET /usuarios - Status: 200 - Duration: 3ms
+[2025-05-26 19:26:38] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 19:26:38] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:26:38] RESPONSE: GET /usuarios - Status: 200 - Duration: 2ms
+[2025-05-26 19:26:38] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 19:26:46] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:26:46] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 8ms
+[2025-05-26 19:26:46] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 19:26:46] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:26:46] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 5ms
+[2025-05-26 19:26:46] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 19:50:49] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 19:50:49] RESPONSE: GET /auth/me - Status: 401 - Duration: 2ms
+[2025-05-26 19:50:49] RESPONSE BODY: {"error":"Token não fornecido"}
+[2025-05-26 19:50:49] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 19:50:49] RESPONSE: GET /auth/me - Status: 401 - Duration: 0ms
+[2025-05-26 19:50:49] RESPONSE BODY: {"error":"Token não fornecido"}
+[2025-05-26 19:51:08] REQUEST: POST /api/login - IP: ::1
+[2025-05-26 19:51:08] REQUEST BODY: {"email":"admin@pspc.com","senha":"******"}
+[2025-05-26 19:51:08] RESPONSE: POST /login - Status: 200 - Duration: 119ms
+[2025-05-26 19:51:08] RESPONSE BODY: {"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBwc3BjLmNvbSIsInBlcmZpbCI6ImFkbWluIiwiaWF0IjoxNzQ4Mjg5MDY4LCJleHAiOjE3NDgzNzU0Njh9.xNjT5qeibkbGrJh5XyzjAWT_QLlT-uLtC4x8XDhkw6M","usuario":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin"}}
+[2025-05-26 19:51:08] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:51:08] RESPONSE: GET /dashboard/stats - Status: 401 - Duration: 1ms
+[2025-05-26 19:51:08] RESPONSE BODY: {"error":"Token não fornecido"}
+[2025-05-26 19:51:08] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:51:08] RESPONSE: GET /dashboard/stats - Status: 401 - Duration: 1ms
+[2025-05-26 19:51:08] RESPONSE BODY: {"error":"Token não fornecido"}
+[2025-05-26 19:51:09] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 19:51:09] RESPONSE: GET /auth/me - Status: 401 - Duration: 0ms
+[2025-05-26 19:51:09] RESPONSE BODY: {"error":"Token não fornecido"}
+[2025-05-26 19:51:09] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 19:51:09] RESPONSE: GET /auth/me - Status: 401 - Duration: 1ms
+[2025-05-26 19:51:09] RESPONSE BODY: {"error":"Token não fornecido"}
+[2025-05-26 19:51:22] REQUEST: POST /api/login - IP: ::1
+[2025-05-26 19:51:22] REQUEST BODY: {"email":"admin@pspc.com","senha":"******"}
+[2025-05-26 19:51:22] RESPONSE: POST /login - Status: 200 - Duration: 92ms
+[2025-05-26 19:51:22] RESPONSE BODY: {"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBwc3BjLmNvbSIsInBlcmZpbCI6ImFkbWluIiwiaWF0IjoxNzQ4Mjg5MDgyLCJleHAiOjE3NDgzNzU0ODJ9.AAhifpSOssQj4AGRVLqqTwal-pd4SwJBfuEomqT6u6E","usuario":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin"}}
+[2025-05-26 19:51:22] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:51:22] RESPONSE: GET /dashboard/stats - Status: 401 - Duration: 0ms
+[2025-05-26 19:51:22] RESPONSE BODY: {"error":"Token não fornecido"}
+[2025-05-26 19:51:22] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:51:22] RESPONSE: GET /dashboard/stats - Status: 401 - Duration: 0ms
+[2025-05-26 19:51:22] RESPONSE BODY: {"error":"Token não fornecido"}
+[2025-05-26 19:51:23] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 19:51:23] RESPONSE: GET /auth/me - Status: 401 - Duration: 0ms
+[2025-05-26 19:51:23] RESPONSE BODY: {"error":"Token não fornecido"}
+[2025-05-26 19:51:23] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 19:51:23] RESPONSE: GET /auth/me - Status: 401 - Duration: 0ms
+[2025-05-26 19:51:23] RESPONSE BODY: {"error":"Token não fornecido"}
+[2025-05-26 19:52:39] REQUEST: POST /api/auth/login - IP: ::1
+[2025-05-26 19:52:39] REQUEST BODY: {"email":"admin@pspc.com","senha":"******"}
+[2025-05-26 19:52:44] REQUEST: POST /api/auth/login - IP: ::1
+[2025-05-26 19:52:44] REQUEST BODY: {"email":"admin@pspc.com","senha":"******"}
+[2025-05-26 19:52:59] REQUEST: POST /api/auth/login - IP: ::1
+[2025-05-26 19:52:59] REQUEST BODY: {"email":"admin@pspc.com","senha":"******"}
+[2025-05-26 19:54:20] REQUEST: POST /api/login - IP: ::1
+[2025-05-26 19:54:20] REQUEST BODY: {"email":"admin@pspc.com","senha":"******"}
+[2025-05-26 19:54:20] RESPONSE: POST /login - Status: 200 - Duration: 112ms
+[2025-05-26 19:54:20] RESPONSE BODY: {"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBwc3BjLmNvbSIsInBlcmZpbCI6ImFkbWluIiwiaWF0IjoxNzQ4Mjg5MjYwLCJleHAiOjE3NDgzNzU2NjB9.PZ-HmQbVbZ_cPXcGboC58t8qB_PVg325D-G9k1m7-Fo","usuario":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin"}}
+[2025-05-26 19:54:20] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:54:20] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 9ms
+[2025-05-26 19:54:20] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 19:54:20] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:54:20] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 6ms
+[2025-05-26 19:54:20] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 19:54:24] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 19:54:24] RESPONSE: GET /inadimplentes - Status: 500 - Duration: 6ms
+[2025-05-26 19:54:24] RESPONSE BODY: {"error":"Erro ao gerar relatório de inadimplentes"}
+[2025-05-26 19:54:24] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 19:54:24] RESPONSE: GET /inadimplentes - Status: 500 - Duration: 13ms
+[2025-05-26 19:54:24] RESPONSE BODY: {"error":"Erro ao gerar relatório de inadimplentes"}
+[2025-05-26 19:54:33] REQUEST: GET /api/relatorios/dividas - IP: ::1
+[2025-05-26 19:54:33] RESPONSE: GET /dividas - Status: 200 - Duration: 16ms
+[2025-05-26 19:54:33] RESPONSE BODY: {"totalDividas":0,"valorTotal":0,"dividasPorStatus":{"pendente":0,"pago":0,"cancelado":0},"dividas":[]}
+[2025-05-26 19:54:33] REQUEST: GET /api/relatorios/dividas - IP: ::1
+[2025-05-26 19:54:33] RESPONSE: GET /dividas - Status: 200 - Duration: 3ms
+[2025-05-26 19:54:33] RESPONSE BODY: {"totalDividas":0,"valorTotal":0,"dividasPorStatus":{"pendente":0,"pago":0,"cancelado":0},"dividas":[]}
+[2025-05-26 19:54:32] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 19:54:32] RESPONSE: GET /inadimplentes - Status: 500 - Duration: 3ms
+[2025-05-26 19:54:32] RESPONSE BODY: {"error":"Erro ao gerar relatório de inadimplentes"}
+[2025-05-26 19:54:32] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 19:54:32] RESPONSE: GET /inadimplentes - Status: 500 - Duration: 20ms
+[2025-05-26 19:54:32] RESPONSE BODY: {"error":"Erro ao gerar relatório de inadimplentes"}
+[2025-05-26 19:54:34] REQUEST: GET /api/relatorios/dividas - IP: ::1
+[2025-05-26 19:54:34] RESPONSE: GET /dividas - Status: 200 - Duration: 13ms
+[2025-05-26 19:54:34] RESPONSE BODY: {"totalDividas":0,"valorTotal":0,"dividasPorStatus":{"pendente":0,"pago":0,"cancelado":0},"dividas":[]}
+[2025-05-26 19:54:34] REQUEST: GET /api/relatorios/dividas - IP: ::1
+[2025-05-26 19:54:34] RESPONSE: GET /dividas - Status: 200 - Duration: 4ms
+[2025-05-26 19:54:34] RESPONSE BODY: {"totalDividas":0,"valorTotal":0,"dividasPorStatus":{"pendente":0,"pago":0,"cancelado":0},"dividas":[]}
+[2025-05-26 19:54:35] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:54:35] RESPONSE: GET /usuarios - Status: 200 - Duration: 3ms
+[2025-05-26 19:54:35] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 19:54:35] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:54:35] RESPONSE: GET /usuarios - Status: 200 - Duration: 2ms
+[2025-05-26 19:54:35] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 19:54:40] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:54:40] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 5ms
+[2025-05-26 19:54:40] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 19:54:40] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:54:40] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 4ms
+[2025-05-26 19:54:40] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 19:54:46] REQUEST: GET /api/consultas/01052471382 - IP: ::1
+[2025-05-26 19:54:50] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:54:50] RESPONSE: GET /usuarios - Status: 200 - Duration: 10ms
+[2025-05-26 19:54:50] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 19:54:50] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:54:50] RESPONSE: GET /usuarios - Status: 200 - Duration: 2ms
+[2025-05-26 19:54:50] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 19:55:00] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 19:55:00] RESPONSE: GET /inadimplentes - Status: 500 - Duration: 4ms
+[2025-05-26 19:55:00] RESPONSE BODY: {"error":"Erro ao gerar relatório de inadimplentes"}
+[2025-05-26 19:55:00] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 19:55:00] RESPONSE: GET /inadimplentes - Status: 500 - Duration: 14ms
+[2025-05-26 19:55:00] RESPONSE BODY: {"error":"Erro ao gerar relatório de inadimplentes"}
+[2025-05-26 19:55:24] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:55:24] RESPONSE: GET /usuarios - Status: 200 - Duration: 9ms
+[2025-05-26 19:55:24] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 19:55:24] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:55:24] RESPONSE: GET /usuarios - Status: 200 - Duration: 3ms
+[2025-05-26 19:55:24] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 19:55:30] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:55:30] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 5ms
+[2025-05-26 19:55:30] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 19:55:30] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:55:30] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 3ms
+[2025-05-26 19:55:30] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 19:57:14] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:57:14] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 10ms
+[2025-05-26 19:57:14] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 19:57:14] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:57:14] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 4ms
+[2025-05-26 19:57:14] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 19:57:19] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 19:57:19] RESPONSE: GET /inadimplentes - Status: 500 - Duration: 3ms
+[2025-05-26 19:57:19] RESPONSE BODY: {"error":"Erro ao gerar relatório de inadimplentes"}
+[2025-05-26 19:57:19] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 19:57:19] RESPONSE: GET /inadimplentes - Status: 500 - Duration: 13ms
+[2025-05-26 19:57:19] RESPONSE BODY: {"error":"Erro ao gerar relatório de inadimplentes"}
+[2025-05-26 19:58:49] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 19:58:49] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 19:58:49] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748289260,"exp":1748375660}
+[2025-05-26 19:58:49] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 19:58:49] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 19:58:49] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748289260,"exp":1748375660}
+[2025-05-26 19:58:49] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:58:49] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 10ms
+[2025-05-26 19:58:49] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 19:58:49] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 19:58:49] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 3ms
+[2025-05-26 19:58:49] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 19:58:53] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:58:53] RESPONSE: GET /usuarios - Status: 200 - Duration: 2ms
+[2025-05-26 19:58:53] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 19:58:53] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 19:58:53] RESPONSE: GET /usuarios - Status: 200 - Duration: 2ms
+[2025-05-26 19:58:53] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 19:58:54] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 19:58:54] RESPONSE: GET /inadimplentes - Status: 500 - Duration: 3ms
+[2025-05-26 19:58:54] RESPONSE BODY: {"error":"Erro ao gerar relatório de inadimplentes"}
+[2025-05-26 19:58:54] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 19:58:54] RESPONSE: GET /inadimplentes - Status: 500 - Duration: 10ms
+[2025-05-26 19:58:54] RESPONSE BODY: {"error":"Erro ao gerar relatório de inadimplentes"}
+[2025-05-26 19:58:56] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 19:58:56] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 19:58:56] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748289260,"exp":1748375660}
+[2025-05-26 19:58:56] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 19:58:56] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 19:58:56] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748289260,"exp":1748375660}
+[2025-05-26 19:58:56] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 19:58:56] RESPONSE: GET /inadimplentes - Status: 500 - Duration: 10ms
+[2025-05-26 19:58:56] RESPONSE BODY: {"error":"Erro ao gerar relatório de inadimplentes"}
+[2025-05-26 19:58:56] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 19:58:56] RESPONSE: GET /inadimplentes - Status: 500 - Duration: 10ms
+[2025-05-26 19:58:56] RESPONSE BODY: {"error":"Erro ao gerar relatório de inadimplentes"}
+[2025-05-26 19:59:11] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 19:59:11] RESPONSE: GET /inadimplentes - Status: 500 - Duration: 23ms
+[2025-05-26 19:59:11] RESPONSE BODY: {"error":"Erro ao gerar relatório de inadimplentes"}
+[2025-05-26 19:59:11] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 19:59:11] RESPONSE: GET /inadimplentes - Status: 500 - Duration: 14ms
+[2025-05-26 19:59:11] RESPONSE BODY: {"error":"Erro ao gerar relatório de inadimplentes"}
+[2025-05-26 20:00:15] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 20:00:15] RESPONSE: GET /auth/me - Status: 200 - Duration: 3ms
+[2025-05-26 20:00:15] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748289260,"exp":1748375660}
+[2025-05-26 20:00:15] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 20:00:15] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 20:00:15] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748289260,"exp":1748375660}
+[2025-05-26 20:00:15] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 20:00:15] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 30ms
+[2025-05-26 20:00:15] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 20:00:15] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 20:00:15] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 4ms
+[2025-05-26 20:00:15] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 20:00:25] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 20:00:25] RESPONSE: GET /inadimplentes - Status: 500 - Duration: 16ms
+[2025-05-26 20:00:25] RESPONSE BODY: {"error":"Erro ao gerar relatório de inadimplentes"}
+[2025-05-26 20:00:25] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 20:00:25] RESPONSE: GET /inadimplentes - Status: 500 - Duration: 12ms
+[2025-05-26 20:00:25] RESPONSE BODY: {"error":"Erro ao gerar relatório de inadimplentes"}
+[2025-05-26 20:08:03] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 20:08:03] RESPONSE: GET /auth/me - Status: 200 - Duration: 5ms
+[2025-05-26 20:08:03] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748289260,"exp":1748375660}
+[2025-05-26 20:08:03] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 20:08:03] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 20:08:03] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748289260,"exp":1748375660}
+[2025-05-26 20:08:03] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 20:08:03] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 32ms
+[2025-05-26 20:08:03] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 20:08:03] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 20:08:03] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 5ms
+[2025-05-26 20:08:03] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 20:08:03] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 20:08:03] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 20:08:03] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748289260,"exp":1748375660}
+[2025-05-26 20:08:03] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 20:08:03] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 20:08:03] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748289260,"exp":1748375660}
+[2025-05-26 20:08:03] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 20:08:03] RESPONSE: GET /inadimplentes - Status: 500 - Duration: 8ms
+[2025-05-26 20:08:03] RESPONSE BODY: {"error":"Erro ao gerar relatório de inadimplentes"}
+[2025-05-26 20:08:03] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 20:08:03] RESPONSE: GET /inadimplentes - Status: 500 - Duration: 14ms
+[2025-05-26 20:08:03] RESPONSE BODY: {"error":"Erro ao gerar relatório de inadimplentes"}
+[2025-05-26 20:08:07] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 20:08:07] RESPONSE: GET /auth/me - Status: 200 - Duration: 2ms
+[2025-05-26 20:08:07] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748289260,"exp":1748375660}
+[2025-05-26 20:08:07] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 20:08:07] RESPONSE: GET /auth/me - Status: 200 - Duration: 2ms
+[2025-05-26 20:08:07] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748289260,"exp":1748375660}
+[2025-05-26 20:08:07] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 20:08:07] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 20:08:07] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 15ms
+[2025-05-26 20:08:07] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 20:08:07] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 18ms
+[2025-05-26 20:08:07] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 20:08:09] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 20:08:09] RESPONSE: GET /usuarios - Status: 200 - Duration: 4ms
+[2025-05-26 20:08:09] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 20:08:09] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 20:08:09] RESPONSE: GET /usuarios - Status: 200 - Duration: 3ms
+[2025-05-26 20:08:09] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 20:08:11] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 20:08:11] RESPONSE: GET /inadimplentes - Status: 500 - Duration: 4ms
+[2025-05-26 20:08:11] RESPONSE BODY: {"error":"Erro ao gerar relatório de inadimplentes"}
+[2025-05-26 20:08:11] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 20:08:11] RESPONSE: GET /inadimplentes - Status: 500 - Duration: 4ms
+[2025-05-26 20:08:11] RESPONSE BODY: {"error":"Erro ao gerar relatório de inadimplentes"}
+[2025-05-26 20:11:46] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 20:11:46] RESPONSE: GET /auth/me - Status: 200 - Duration: 4ms
+[2025-05-26 20:11:46] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748289260,"exp":1748375660}
+[2025-05-26 20:11:46] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 20:11:46] RESPONSE: GET /auth/me - Status: 200 - Duration: 2ms
+[2025-05-26 20:11:46] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748289260,"exp":1748375660}
+[2025-05-26 20:11:46] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 20:11:46] RESPONSE: GET /inadimplentes - Status: 200 - Duration: 36ms
+[2025-05-26 20:11:46] RESPONSE BODY: {"totalInadimplentes":0,"valorTotalDividas":0,"inadimplentes":[]}
+[2025-05-26 20:11:46] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 20:11:46] RESPONSE: GET /inadimplentes - Status: 200 - Duration: 5ms
+[2025-05-26 20:11:46] RESPONSE BODY: {"totalInadimplentes":0,"valorTotalDividas":0,"inadimplentes":[]}
+[2025-05-26 20:11:47] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 20:11:47] RESPONSE: GET /auth/me - Status: 200 - Duration: 2ms
+[2025-05-26 20:11:47] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748289260,"exp":1748375660}
+[2025-05-26 20:11:47] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 20:11:47] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 20:11:47] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748289260,"exp":1748375660}
+[2025-05-26 20:11:47] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 20:11:47] RESPONSE: GET /inadimplentes - Status: 200 - Duration: 2ms
+[2025-05-26 20:11:47] RESPONSE BODY: {"totalInadimplentes":0,"valorTotalDividas":0,"inadimplentes":[]}
+[2025-05-26 20:11:47] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 20:11:47] RESPONSE: GET /inadimplentes - Status: 200 - Duration: 2ms
+[2025-05-26 20:11:47] RESPONSE BODY: {"totalInadimplentes":0,"valorTotalDividas":0,"inadimplentes":[]}
+[2025-05-26 20:12:01] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 20:12:01] RESPONSE: GET /inadimplentes - Status: 200 - Duration: 16ms
+[2025-05-26 20:12:01] RESPONSE BODY: {"totalInadimplentes":0,"valorTotalDividas":0,"inadimplentes":[]}
+[2025-05-26 20:12:01] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 20:12:01] RESPONSE: GET /inadimplentes - Status: 200 - Duration: 6ms
+[2025-05-26 20:12:01] RESPONSE BODY: {"totalInadimplentes":0,"valorTotalDividas":0,"inadimplentes":[]}
+[2025-05-26 20:12:07] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 20:12:07] RESPONSE: GET /usuarios - Status: 200 - Duration: 4ms
+[2025-05-26 20:12:07] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 20:12:07] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 20:12:07] RESPONSE: GET /usuarios - Status: 200 - Duration: 2ms
+[2025-05-26 20:12:07] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 20:15:03] REQUEST: POST /api/login - IP: ::1
+[2025-05-26 20:15:03] REQUEST BODY: {"email":"admin@pspc.com","senha":"******"}
+[2025-05-26 20:15:03] RESPONSE: POST /login - Status: 200 - Duration: 99ms
+[2025-05-26 20:15:03] RESPONSE BODY: {"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBwc3BjLmNvbSIsInBlcmZpbCI6ImFkbWluIiwiaWF0IjoxNzQ4MjkwNTAzLCJleHAiOjE3NDgzNzY5MDN9.wNoNPl5P-_tI_rhm6ZxZt0Pw_AqVXiu8vgMRtSyMvA0","usuario":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin"}}
+[2025-05-26 20:15:03] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 20:15:03] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 5ms
+[2025-05-26 20:15:03] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 20:15:03] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 20:15:03] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 5ms
+[2025-05-26 20:15:03] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 20:15:07] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 20:15:07] RESPONSE: GET /usuarios - Status: 200 - Duration: 2ms
+[2025-05-26 20:15:07] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 20:15:07] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 20:15:07] RESPONSE: GET /usuarios - Status: 200 - Duration: 2ms
+[2025-05-26 20:15:07] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 20:15:12] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 20:15:12] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 3ms
+[2025-05-26 20:15:12] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 20:15:12] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 20:15:12] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 3ms
+[2025-05-26 20:15:12] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 20:15:13] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 20:15:13] RESPONSE: GET /usuarios - Status: 200 - Duration: 2ms
+[2025-05-26 20:15:13] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 20:15:13] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 20:15:13] RESPONSE: GET /usuarios - Status: 200 - Duration: 2ms
+[2025-05-26 20:15:13] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 20:15:14] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 20:15:14] RESPONSE: GET /inadimplentes - Status: 200 - Duration: 4ms
+[2025-05-26 20:15:14] RESPONSE BODY: {"totalInadimplentes":0,"valorTotalDividas":0,"inadimplentes":[]}
+[2025-05-26 20:15:14] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 20:15:14] RESPONSE: GET /inadimplentes - Status: 200 - Duration: 3ms
+[2025-05-26 20:15:14] RESPONSE BODY: {"totalInadimplentes":0,"valorTotalDividas":0,"inadimplentes":[]}
+[2025-05-26 20:28:17] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 20:28:17] RESPONSE: GET /auth/me - Status: 200 - Duration: 3ms
+[2025-05-26 20:28:17] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748289260,"exp":1748375660}
+[2025-05-26 20:28:17] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 20:28:17] RESPONSE: GET /auth/me - Status: 200 - Duration: 1ms
+[2025-05-26 20:28:17] RESPONSE BODY: {"id":1,"email":"admin@pspc.com","perfil":"admin","iat":1748289260,"exp":1748375660}
+[2025-05-26 20:28:17] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 20:28:17] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 50ms
+[2025-05-26 20:28:17] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 20:28:17] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 20:28:17] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 3ms
+[2025-05-26 20:28:17] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 20:28:20] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 20:28:20] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 4ms
+[2025-05-26 20:28:20] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 20:28:20] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 20:28:20] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 4ms
+[2025-05-26 20:28:20] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 20:28:21] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 20:28:21] RESPONSE: GET /usuarios - Status: 200 - Duration: 7ms
+[2025-05-26 20:28:21] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 20:28:21] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 20:28:21] RESPONSE: GET /usuarios - Status: 200 - Duration: 3ms
+[2025-05-26 20:28:21] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 20:28:23] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 20:28:23] RESPONSE: GET /inadimplentes - Status: 200 - Duration: 9ms
+[2025-05-26 20:28:23] RESPONSE BODY: {"totalInadimplentes":0,"valorTotalDividas":0,"inadimplentes":[]}
+[2025-05-26 20:28:23] REQUEST: GET /api/relatorios/inadimplentes - IP: ::1
+[2025-05-26 20:28:23] RESPONSE: GET /inadimplentes - Status: 200 - Duration: 2ms
+[2025-05-26 20:28:23] RESPONSE BODY: {"totalInadimplentes":0,"valorTotalDividas":0,"inadimplentes":[]}
+[2025-05-26 20:28:24] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 20:28:24] RESPONSE: GET /usuarios - Status: 200 - Duration: 2ms
+[2025-05-26 20:28:24] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 20:28:24] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 20:28:24] RESPONSE: GET /usuarios - Status: 200 - Duration: 2ms
+[2025-05-26 20:28:24] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 20:28:25] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 20:28:25] RESPONSE: GET /usuarios - Status: 200 - Duration: 3ms
+[2025-05-26 20:28:25] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 20:28:25] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 20:28:25] RESPONSE: GET /usuarios - Status: 200 - Duration: 4ms
+[2025-05-26 20:28:25] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 20:28:27] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 20:28:27] RESPONSE: GET /usuarios - Status: 200 - Duration: 2ms
+[2025-05-26 20:28:27] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 20:28:27] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 20:28:27] RESPONSE: GET /usuarios - Status: 200 - Duration: 2ms
+[2025-05-26 20:28:27] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 20:32:58] REQUEST: GET /api/auth/me - IP: ::1
+[2025-05-26 20:32:58] RESPONSE: GET /auth/me - Status: 401 - Duration: 1ms
+[2025-05-26 20:32:58] RESPONSE BODY: {"error":"Token não fornecido"}
+[2025-05-26 20:48:20] REQUEST: POST /auth/login - IP: ::ffff:127.0.0.1
+[2025-05-26 20:48:20] REQUEST BODY: {"email":"test@example.com","senha":"******"}
+[2025-05-26 20:48:20] REQUEST: POST /auth/login - IP: ::ffff:127.0.0.1
+[2025-05-26 20:48:20] REQUEST BODY: {"email":"test@example.com","senha":"******"}
+[2025-05-26 21:15:10] REQUEST: POST /api/auth/login - IP: ::1
+[2025-05-26 21:15:10] REQUEST BODY: {"email":"admin@pspc.com","senha":"******"}
+[2025-05-26 21:15:23] REQUEST: POST /api/auth/login - IP: ::1
+[2025-05-26 21:15:23] REQUEST BODY: {"email":"admin@pspc.com","senha":"******"}
+[2025-05-26 21:17:29] REQUEST: POST /api/login - IP: ::1
+[2025-05-26 21:17:29] REQUEST BODY: {"email":"admin@pspc.com","senha":"******"}
+[2025-05-26 21:17:29] RESPONSE: POST /login - Status: 200 - Duration: 129ms
+[2025-05-26 21:17:29] RESPONSE BODY: {"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBwc3BjLmNvbSIsInBlcmZpbCI6ImFkbWluIiwiaWF0IjoxNzQ4Mjk0MjQ5LCJleHAiOjE3NDgzODA2NDl9.B5MpMrghhKZZ1IAA954isPBiRXc1b2Q2-nMHA4K_fKc","usuario":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin"}}
+[2025-05-26 21:19:49] REQUEST: POST /api/login - IP: ::1
+[2025-05-26 21:19:49] REQUEST BODY: {"email":"admin@pspc.com","senha":"******"}
+[2025-05-26 21:19:49] RESPONSE: POST /login - Status: 200 - Duration: 113ms
+[2025-05-26 21:19:49] RESPONSE BODY: {"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBwc3BjLmNvbSIsInBlcmZpbCI6ImFkbWluIiwiaWF0IjoxNzQ4Mjk0Mzg5LCJleHAiOjE3NDgzODA3ODl9.QzjB491APQJGXlCO1784hNLXZYpwv_P7KjGtTgQFKQ4","usuario":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin"}}
+[2025-05-26 21:19:49] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 21:19:49] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 12ms
+[2025-05-26 21:19:49] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 21:19:49] REQUEST: GET /api/dashboard/stats - IP: ::1
+[2025-05-26 21:19:49] RESPONSE: GET /dashboard/stats - Status: 200 - Duration: 5ms
+[2025-05-26 21:19:49] RESPONSE BODY: {"totalUsuarios":1,"totalDividas":0,"totalConsultas":1,"valorTotalDividas":0}
+[2025-05-26 21:19:52] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 21:19:52] RESPONSE: GET /usuarios - Status: 200 - Duration: 3ms
+[2025-05-26 21:19:52] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 21:19:52] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 21:19:52] RESPONSE: GET /usuarios - Status: 200 - Duration: 1ms
+[2025-05-26 21:19:52] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 21:19:54] REQUEST: GET /api/clientes - IP: ::1
+[2025-05-26 21:19:54] REQUEST: GET /api/clientes - IP: ::1
+[2025-05-26 21:19:54] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 21:19:54] RESPONSE: GET /usuarios - Status: 200 - Duration: 2ms
+[2025-05-26 21:19:54] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 21:19:54] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 21:19:54] RESPONSE: GET /usuarios - Status: 200 - Duration: 2ms
+[2025-05-26 21:19:54] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 21:19:55] REQUEST: GET /api/clientes - IP: ::1
+[2025-05-26 21:19:55] REQUEST: GET /api/clientes - IP: ::1
+[2025-05-26 21:19:55] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 21:19:55] RESPONSE: GET /usuarios - Status: 200 - Duration: 3ms
+[2025-05-26 21:19:55] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 21:19:55] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 21:19:55] RESPONSE: GET /usuarios - Status: 200 - Duration: 3ms
+[2025-05-26 21:19:55] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 21:19:57] REQUEST: GET /api/clientes - IP: ::1
+[2025-05-26 21:19:57] REQUEST: GET /api/clientes - IP: ::1
+[2025-05-26 21:19:57] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 21:19:57] RESPONSE: GET /usuarios - Status: 200 - Duration: 3ms
+[2025-05-26 21:19:57] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 21:19:57] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 21:19:57] RESPONSE: GET /usuarios - Status: 200 - Duration: 1ms
+[2025-05-26 21:19:57] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 21:19:58] REQUEST: GET /api/clientes - IP: ::1
+[2025-05-26 21:19:58] REQUEST: GET /api/clientes - IP: ::1
+[2025-05-26 21:20:16] REQUEST: GET /api/clientes - IP: ::1
+[2025-05-26 21:20:16] REQUEST: GET /api/clientes - IP: ::1
+[2025-05-26 21:20:14] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 21:20:14] RESPONSE: GET /usuarios - Status: 200 - Duration: 11ms
+[2025-05-26 21:20:14] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}
+[2025-05-26 21:20:14] REQUEST: GET /api/usuarios - IP: ::1
+[2025-05-26 21:20:14] RESPONSE: GET /usuarios - Status: 200 - Duration: 3ms
+[2025-05-26 21:20:14] RESPONSE BODY: {"0":{"id":1,"nome":"Administrador","email":"admin@pspc.com","perfil":"admin","status":"ativo","created_at":"2025-05-26T20:13:12.269Z","updated_at":"2025-05-26T22:22:50.044Z"}}

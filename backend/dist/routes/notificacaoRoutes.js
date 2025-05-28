@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const NotificacaoController_1 = require("../controllers/NotificacaoController");
+const auth_1 = require("../middleware/auth");
+const router = (0, express_1.Router)();
+const notificacaoController = new NotificacaoController_1.NotificacaoController();
+router.get('/', auth_1.authenticateJWT, notificacaoController.listar);
+router.post('/', auth_1.authenticateJWT, notificacaoController.criar);
+router.patch('/:id/status', auth_1.authenticateJWT, notificacaoController.atualizarStatus);
+exports.default = router;
