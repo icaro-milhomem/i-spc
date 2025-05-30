@@ -22,10 +22,6 @@ interface Divida {
   valor: number;
   dataVencimento: string;
   status: string;
-  provedor: {
-    nome: string;
-    cnpj: string;
-  };
 }
 
 interface ConsultaResult {
@@ -38,18 +34,19 @@ export const ConsultaCPF: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cpf, setCpf] = useState('');
+  const [nome, setNome] = useState('');
   const [cpfError, setCpfError] = useState('');
   const [result, setResult] = useState<ConsultaResult | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!cpf.trim()) {
-      setCpfError('CPF é obrigatório');
+    if (!cpf.trim() && !nome.trim()) {
+      setCpfError('Informe o CPF ou o nome');
       return;
     }
 
-    if (!validateCPF(cpf)) {
+    if (cpf && !validateCPF(cpf)) {
       setCpfError('CPF inválido');
       return;
     }
@@ -58,11 +55,20 @@ export const ConsultaCPF: React.FC = () => {
       setLoading(true);
       setError(null);
       setResult(null);
-      const response = await api.get(`/consultas/${cpf}`);
-      setResult(response.data);
+      const params: any = {};
+      if (cpf) params.cpf = cpf;
+      if (nome) params.nome = nome;
+      const response = await api.get('/clientes/consulta', { params });
+      setResult({
+        ...response.data,
+        dividas: response.data.dividas.map((d: any) => ({
+          ...d,
+          dataVencimento: d.dataVencimento || d.data_vencimento
+        }))
+      });
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao consultar CPF. Tente novamente mais tarde.');
-      console.error('Erro ao consultar CPF:', err);
+      setError(err.response?.data?.error || 'Erro ao consultar. Tente novamente mais tarde.');
+      console.error('Erro ao consultar:', err);
     } finally {
       setLoading(false);
     }
@@ -71,7 +77,7 @@ export const ConsultaCPF: React.FC = () => {
   return (
     <Box>
       <Typography variant="h5" gutterBottom>
-        Consulta de CPF
+        Consulta de Cliente
       </Typography>
 
       <Paper sx={{ p: 3, mt: 2 }}>
@@ -94,6 +100,15 @@ export const ConsultaCPF: React.FC = () => {
             helperText={cpfError}
             margin="normal"
             placeholder="000.000.000-00"
+          />
+
+          <TextField
+            fullWidth
+            label="Nome"
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+            margin="normal"
+            placeholder="Nome do cliente"
           />
 
           <Button
@@ -126,8 +141,6 @@ export const ConsultaCPF: React.FC = () => {
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Provedor</TableCell>
-                      <TableCell>CNPJ</TableCell>
                       <TableCell>Valor</TableCell>
                       <TableCell>Vencimento</TableCell>
                       <TableCell>Status</TableCell>
@@ -136,8 +149,6 @@ export const ConsultaCPF: React.FC = () => {
                   <TableBody>
                     {result.dividas.map((divida) => (
                       <TableRow key={divida.id}>
-                        <TableCell>{divida.provedor.nome}</TableCell>
-                        <TableCell>{divida.provedor.cnpj}</TableCell>
                         <TableCell>
                           {new Intl.NumberFormat('pt-BR', {
                             style: 'currency',
@@ -155,7 +166,7 @@ export const ConsultaCPF: React.FC = () => {
               </TableContainer>
             ) : (
               <Alert severity="info" sx={{ mt: 2 }}>
-                Nenhuma dívida encontrada para este CPF.
+                Nenhuma dívida encontrada para este cliente.
               </Alert>
             )}
           </Box>

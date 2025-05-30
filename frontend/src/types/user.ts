@@ -5,6 +5,7 @@ export interface User {
   nome: string;
   email: string;
   perfil: UserProfile;
+  role?: string; // superadmin, admin, user
   createdAt: string;
   updatedAt: string;
 }

@@ -1,11 +1,3 @@
-import { Pool } from 'pg';
-import dotenv from 'dotenv';
-dotenv.config();
+import { PrismaClient } from '@prisma/client';
 
-export const db = new Pool({
-  user: process.env.DB_USER || 'ispc',
-  host: process.env.DB_HOST || 'postgres',
-  database: process.env.DB_NAME || 'ispc',
-  password: process.env.DB_PASSWORD || 'ispc123',
-  port: parseInt(process.env.DB_PORT || '5432'),
-}); 
+export const prisma = new PrismaClient(); 

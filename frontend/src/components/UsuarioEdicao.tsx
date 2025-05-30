@@ -8,7 +8,12 @@ import {
   Button,
   Grid,
   Alert,
-  Snackbar
+  Snackbar,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  SelectChangeEvent
 } from '@mui/material';
 import api from '../services/api';
 
@@ -18,6 +23,7 @@ interface Usuario {
   email: string;
   senha?: string;
   ativo: boolean;
+  perfil?: string;
 }
 
 const UsuarioEdicao: React.FC = () => {
@@ -27,7 +33,8 @@ const UsuarioEdicao: React.FC = () => {
     nome: '',
     email: '',
     senha: '',
-    ativo: true
+    ativo: true,
+    perfil: 'usuario',
   });
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -41,7 +48,14 @@ const UsuarioEdicao: React.FC = () => {
   const carregarUsuario = async () => {
     try {
       const response = await api.get(`/usuarios/${id}`);
-      setFormData(response.data);
+      const usuario = response.data;
+      setFormData({
+        nome: usuario.nome,
+        email: usuario.email,
+        senha: '', // Sempre inicializa com string vazia
+        ativo: usuario.ativo,
+        perfil: usuario.papeis && usuario.papeis.length > 0 ? usuario.papeis[0].nome : 'usuario',
+      });
     } catch (error) {
       setError('Erro ao carregar dados do usuário');
       console.error('Erro:', error);
@@ -51,10 +65,16 @@ const UsuarioEdicao: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const dadosParaEnviar = { ...formData };
+      // Se estiver editando e a senha estiver vazia, remove o campo
+      if (id && !dadosParaEnviar.senha) {
+        delete dadosParaEnviar.senha;
+      }
+
       if (id) {
-        await api.put(`/usuarios/${id}`, formData);
+        await api.put(`/usuarios/${id}`, dadosParaEnviar);
       } else {
-        await api.post('/usuarios', formData);
+        await api.post('/usuarios', dadosParaEnviar);
       }
       setSuccess(true);
       setTimeout(() => {
@@ -71,6 +91,13 @@ const UsuarioEdicao: React.FC = () => {
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const handlePerfilChange = (e: SelectChangeEvent<string>) => {
+    setFormData(prev => ({
+      ...prev,
+      perfil: e.target.value
     }));
   };
 
@@ -110,10 +137,26 @@ const UsuarioEdicao: React.FC = () => {
                 label="Senha"
                 name="senha"
                 type="password"
-                value={formData.senha}
+                value={formData.senha || ''}
                 onChange={handleChange}
                 required={!id}
+                helperText={id ? "Deixe em branco para manter a senha atual" : "Obrigatório para novo usuário"}
               />
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Papel</InputLabel>
+                <Select
+                  name="perfil"
+                  value={formData.perfil}
+                  onChange={handlePerfilChange}
+                  label="Papel"
+                  required
+                >
+                  <MenuItem value="admin">Administrador</MenuItem>
+                  <MenuItem value="usuario">Usuário</MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={12}>
               <Button

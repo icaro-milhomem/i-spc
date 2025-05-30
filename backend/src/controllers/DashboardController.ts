@@ -87,4 +87,27 @@ export class DashboardController {
             return res.status(500).json({ error: 'Erro interno do servidor' });
         }
     }
+
+    async obterStats(req: Request, res: Response) {
+        try {
+            const totalUsuarios = await prisma.usuario.count();
+            const totalClientes = await prisma.cliente.count();
+            const totalDividas = await prisma.divida.count();
+            const totalConsultas = await prisma.consulta.count();
+            const valorTotalDividas = await prisma.divida.aggregate({
+                _sum: { valor: true }
+            });
+
+            return res.json({
+                totalUsuarios,
+                totalClientes,
+                totalDividas,
+                totalConsultas,
+                valorTotalDividas: valorTotalDividas._sum.valor || 0
+            });
+        } catch (error) {
+            console.error('Erro ao obter stats:', error);
+            return res.status(500).json({ error: 'Erro interno do servidor' });
+        }
+    }
 } 

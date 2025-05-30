@@ -4,6 +4,18 @@ exports.DividaController = void 0;
 const prismaClient_1 = require("../database/prismaClient");
 const AppError_1 = require("../utils/AppError");
 class DividaController {
+    async atualizarStatusCliente(clienteId) {
+        const dividaPendente = await prismaClient_1.prisma.divida.findFirst({
+            where: {
+                cliente_id: clienteId,
+                status: 'pendente'
+            }
+        });
+        await prismaClient_1.prisma.cliente.update({
+            where: { id: clienteId },
+            data: { status: dividaPendente ? 'inativo' : 'ativo' }
+        });
+    }
     async criar(req, res) {
         try {
             const { cliente_id, valor, data_vencimento, descricao } = req.body;
@@ -25,6 +37,7 @@ class DividaController {
                     status: 'pendente'
                 }
             });
+            await this.atualizarStatusCliente(Number(cliente_id));
             return res.status(201).json(divida);
         }
         catch (error) {
@@ -88,6 +101,7 @@ class DividaController {
                 where: { id: Number(id) },
                 data: { status }
             });
+            await this.atualizarStatusCliente(divida.cliente_id);
             return res.json(dividaAtualizada);
         }
         catch (error) {
@@ -101,7 +115,7 @@ class DividaController {
     async atualizar(req, res) {
         try {
             const { id } = req.params;
-            const { clienteId, valor, dataVencimento, status, descricao, ativo } = req.body;
+            const { cliente_id, valor, data_vencimento, status, descricao, ativo } = req.body;
             const divida = await prismaClient_1.prisma.divida.findUnique({
                 where: { id: Number(id) }
             });
@@ -111,13 +125,14 @@ class DividaController {
             const dividaAtualizada = await prismaClient_1.prisma.divida.update({
                 where: { id: Number(id) },
                 data: {
-                    cliente_id: Number(clienteId),
+                    cliente_id: Number(cliente_id),
                     valor: Number(valor),
-                    data_vencimento: new Date(dataVencimento),
+                    data_vencimento: new Date(data_vencimento),
                     status,
                     descricao,
                 }
             });
+            await this.atualizarStatusCliente(Number(cliente_id));
             return res.json(dividaAtualizada);
         }
         catch (error) {
@@ -144,6 +159,24 @@ class DividaController {
                 return res.status(error.statusCode).json({ error: error.message });
             }
             console.error('Erro ao buscar dívida:', error);
+            return res.status(500).json({ error: 'Erro interno do servidor' });
+        }
+    }
+    async deletar(req, res) {
+        try {
+            const { id } = req.params;
+            const divida = await prismaClient_1.prisma.divida.findUnique({ where: { id: Number(id) } });
+            if (!divida) {
+                throw new AppError_1.AppError('Dívida não encontrada', 404);
+            }
+            await prismaClient_1.prisma.divida.delete({ where: { id: Number(id) } });
+            return res.status(204).send();
+        }
+        catch (error) {
+            if (error instanceof AppError_1.AppError) {
+                return res.status(error.statusCode).json({ error: error.message });
+            }
+            console.error('Erro ao deletar dívida:', error);
             return res.status(500).json({ error: 'Erro interno do servidor' });
         }
     }

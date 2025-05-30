@@ -1,28 +1,39 @@
-import { db } from '../db';
+import { prisma } from '../db';
 
 export interface Consulta {
-  id?: number;
-  cpf_consultado: string;
-  data_consulta: Date;
-  resultado: string;
+  id: number;
+  cliente_id: number;
+  data: Date;
+  tipo: string;
+  observacoes: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  cpf_consultado?: string;
+  data_consulta?: Date;
+  resultado?: string;
 }
 
 export class ConsultaModel {
-  static async registrar(consulta: Consulta): Promise<Consulta> {
-    const { cpf_consultado, data_consulta, resultado } = consulta;
-    const query = `
-      INSERT INTO consultas (cpf_consultado, data_consulta, resultado)
-      VALUES ($1, $2, $3)
-      RETURNING *
-    `;
-    const values = [cpf_consultado, data_consulta, resultado];
-    const result = await db.query(query, values);
-    return result.rows[0];
+  static async criar(cliente_id: number, data: Date, tipo: string, observacoes?: string): Promise<Consulta> {
+    return prisma.consulta.create({
+      data: {
+        cliente_id,
+        data,
+        tipo,
+        observacoes
+      }
+    });
   }
 
-  static async buscarHistorico(cpf: string): Promise<Consulta[]> {
-    const query = 'SELECT * FROM consultas WHERE cpf_consultado = $1 ORDER BY data_consulta DESC';
-    const result = await db.query(query, [cpf]);
-    return result.rows;
+  static async buscarPorCliente(cliente_id: number): Promise<Consulta[]> {
+    return prisma.consulta.findMany({
+      where: { cliente_id }
+    });
+  }
+
+  static async buscarPorId(id: number): Promise<Consulta | null> {
+    return prisma.consulta.findUnique({
+      where: { id }
+    });
   }
 } 

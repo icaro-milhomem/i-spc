@@ -28,6 +28,7 @@ import {
   AccountCircle as AccountCircleIcon
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
+import logo from '../../logo.png';
 
 const drawerWidth = 240;
 
@@ -73,7 +74,12 @@ const Layout: React.FC = () => {
       text: 'Relatórios',
       icon: <AssessmentIcon />,
       path: '/relatorios',
-      adminOnly: false
+      adminOnly: true
+    },
+    {
+      text: 'Consulta de Cliente',
+      icon: <AssessmentIcon />,
+      path: '/consulta'
     },
     {
       text: 'Dashboard',
@@ -91,15 +97,16 @@ const Layout: React.FC = () => {
 
   const drawer = (
     <div>
-      <Toolbar>
-        <Typography variant="h6" noWrap component="div">
-          i-SPC
-        </Typography>
-      </Toolbar>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', p: 3, pb: 0 }}>
+        <img src={logo} alt="Logo" style={{ width: 128, height: 128, objectFit: 'contain' }} />
+      </Box>
       <Divider />
       <List>
         {menuItems
-          .filter(item => !item.adminOnly || user?.perfil === 'admin')
+          .filter(item => {
+            if (item.adminOnly) return user?.perfil === 'admin';
+            return true;
+          })
           .map(item => (
             <ListItem key={item.text} disablePadding>
               <ListItemButton

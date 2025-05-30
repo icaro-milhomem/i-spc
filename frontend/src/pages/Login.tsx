@@ -9,6 +9,7 @@ import {
   Alert
 } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
+import api from '../services/api';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -18,12 +19,26 @@ const Login: React.FC = () => {
     senha: ''
   });
   const [error, setError] = useState<string | null>(null);
+  const [, setUser] = useState<any>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await signIn(formData.email, formData.senha);
-      navigate('/dashboard');
+      const storedToken = localStorage.getItem('token');
+      if (storedToken) {
+        const response = await api.get('/auth/me', {
+          headers: { Authorization: `Bearer ${storedToken}` }
+        });
+        setUser(response.data);
+        if ((response.data as any).role === 'superadmin') {
+          navigate('/admin/tenants');
+        } else {
+          navigate('/dashboard');
+        }
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       setError('Email ou senha inválidos');
     }

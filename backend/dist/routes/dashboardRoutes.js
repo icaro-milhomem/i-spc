@@ -9,11 +9,5 @@ router.get('/resumo', auth_1.authenticateJWT, dashboardController.obterResumo);
 router.get('/dividas-vencidas', auth_1.authenticateJWT, dashboardController.obterDividasVencidas);
 router.get('/dividas-por-status', auth_1.authenticateJWT, dashboardController.obterDividasPorStatus);
 router.get('/dividas-por-mes', auth_1.authenticateJWT, dashboardController.obterDividasPorMes);
-router.get('/stats', auth_1.authenticateJWT, async (req, res) => {
-    res.json({
-        totalUsuarios: 10,
-        totalClientes: 20,
-        totalDividas: 5
-    });
-});
+router.get('/stats', auth_1.authenticateJWT, dashboardController.obterStats.bind(dashboardController));
 exports.default = router;

@@ -33,7 +33,7 @@ interface Divida {
   descricao: string;
   data_vencimento: string;
   status: 'pendente' | 'pago' | 'atrasado';
-  created_at: string;
+  createdAt: string;
 }
 
 interface PaginatedResponse<T> {
@@ -90,8 +90,14 @@ const DividaLista: React.FC = () => {
       await api.delete(`/dividas/${selectedDivida.id}`);
       setSuccessMessage('Dívida excluída com sucesso!');
       fetchDividas();
-    } catch (err) {
-      setError('Erro ao excluir dívida');
+    } catch (err: any) {
+      if (err.response && err.response.status === 404) {
+        setSuccessMessage('Dívida já foi excluída ou não existe. Lista atualizada.');
+        setError(null);
+        fetchDividas();
+      } else {
+        setError('Erro ao excluir dívida. Tente novamente.');
+      }
     } finally {
       setDeleteDialogOpen(false);
       setSelectedDivida(null);
@@ -171,7 +177,7 @@ const DividaLista: React.FC = () => {
                     size="small"
                   />
                 </TableCell>
-                <TableCell>{formatDate(divida.created_at)}</TableCell>
+                <TableCell>{formatDate(divida.createdAt)}</TableCell>
                 <TableCell align="right">
                   <IconButton
                     color="primary"
@@ -221,10 +227,12 @@ const DividaLista: React.FC = () => {
       <Snackbar
         open={!!error || !!successMessage}
         autoHideDuration={6000}
-        onClose={() => {
+        onClose={(_event, reason) => {
+          if (reason === 'clickaway') return;
           setError(null);
           setSuccessMessage(null);
         }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <Alert
           onClose={() => {
@@ -233,6 +241,7 @@ const DividaLista: React.FC = () => {
           }}
           severity={error ? 'error' : 'success'}
           sx={{ width: '100%' }}
+          variant="filled"
         >
           {error || successMessage}
         </Alert>
@@ -241,4 +250,4 @@ const DividaLista: React.FC = () => {
   );
 };
 
-export default DividaLista; 
+export default DividaLista;

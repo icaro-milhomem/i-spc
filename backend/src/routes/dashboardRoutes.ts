@@ -11,13 +11,6 @@ router.get('/dividas-vencidas', authenticateJWT, dashboardController.obterDivida
 router.get('/dividas-por-status', authenticateJWT, dashboardController.obterDividasPorStatus);
 router.get('/dividas-por-mes', authenticateJWT, dashboardController.obterDividasPorMes);
 
-router.get('/stats', authenticateJWT, async (req, res) => {
-  // Exemplo de resposta fake, ajuste conforme sua lógica
-  res.json({
-    totalUsuarios: 10,
-    totalClientes: 20,
-    totalDividas: 5
-  });
-});
+router.get('/stats', authenticateJWT, dashboardController.obterStats.bind(dashboardController));
 
 export default router; 

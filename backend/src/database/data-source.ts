@@ -1,22 +1,19 @@
-import { DataSource } from "typeorm";
-import { CreateInitialSchema1700000000000 } from "./migrations/1700000000000-CreateInitialSchema";
-import { CreateInitialData1700000000001 } from "./migrations/1700000000001-CreateInitialData";
-import { CreateSampleData1700000000002 } from "./migrations/1700000000002-CreateSampleData";
+import "reflect-metadata"
+import { DataSource } from "typeorm"
+import { config } from "dotenv"
+
+config()
 
 export const AppDataSource = new DataSource({
     type: "postgres",
     host: process.env.DB_HOST || "localhost",
     port: parseInt(process.env.DB_PORT || "5432"),
-    username: process.env.DB_USER || "pspc",
-    password: process.env.DB_PASS || "pspc",
-    database: process.env.DB_NAME || "postgres",
+    username: process.env.DB_USER || "postgres",
+    password: process.env.DB_PASSWORD || "postgres",
+    database: process.env.DB_NAME || "ispc",
     synchronize: false,
-    logging: process.env.NODE_ENV === "development",
+    logging: true,
     entities: ["src/entities/**/*.ts"],
-    migrations: [
-        CreateInitialSchema1700000000000,
-        CreateInitialData1700000000001,
-        CreateSampleData1700000000002
-    ],
-    subscribers: ["src/subscribers/**/*.ts"],
-}); 
+    migrations: ["src/database/migrations/**/*.ts"],
+    subscribers: [],
+}) 

@@ -18,6 +18,7 @@ import configuracaoRoutes from './configuracaoRoutes';
 import backupRoutes from './backupRoutes';
 import logRoutes from './logRoutes';
 import dashboardRoutes from './dashboardRoutes';
+import tenantRoutes from './tenantRoutes';
 
 const router = Router();
 
@@ -53,6 +54,9 @@ router.use('/logs', logRoutes);
 
 // Rotas de Dashboard
 router.use('/dashboard', dashboardRoutes);
+
+// Rotas de Tenant
+router.use('/tenants', tenantRoutes);
 
 // Rotas de Consulta
 router.get('/consulta/:cpf', authenticateJWT, ConsultaController.consultarCPF);

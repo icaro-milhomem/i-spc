@@ -46,7 +46,11 @@ class RelatorioController {
             if (!dataInicio || !dataFim) {
                 return res.status(400).json({ error: 'Data início e data fim são obrigatórias' });
             }
-            const relatorio = await RelatorioController.relatorioService.gerarRelatorioConsultas(new Date(dataInicio), new Date(dataFim));
+            const inicio = new Date(dataInicio);
+            inicio.setHours(0, 0, 0, 0);
+            const fim = new Date(dataFim);
+            fim.setHours(23, 59, 59, 999);
+            const relatorio = await RelatorioController.relatorioService.gerarRelatorioConsultas(inicio, fim);
             res.json(relatorio);
         }
         catch (error) {
@@ -60,7 +64,11 @@ class RelatorioController {
             if (!dataInicio || !dataFim) {
                 return res.status(400).json({ error: 'Data início e data fim são obrigatórias' });
             }
-            const relatorio = await RelatorioController.relatorioService.gerarRelatorioConsultas(new Date(dataInicio), new Date(dataFim));
+            const inicio = new Date(dataInicio);
+            inicio.setHours(0, 0, 0, 0);
+            const fim = new Date(dataFim);
+            fim.setHours(23, 59, 59, 999);
+            const relatorio = await RelatorioController.relatorioService.gerarRelatorioConsultas(inicio, fim);
             const pdfBuffer = await RelatorioController.exportacaoService.exportarConsultasPDF(relatorio);
             res.setHeader('Content-Type', 'application/pdf');
             res.setHeader('Content-Disposition', 'attachment; filename=consultas.pdf');
@@ -77,7 +85,11 @@ class RelatorioController {
             if (!dataInicio || !dataFim) {
                 return res.status(400).json({ error: 'Data início e data fim são obrigatórias' });
             }
-            const relatorio = await RelatorioController.relatorioService.gerarRelatorioConsultas(new Date(dataInicio), new Date(dataFim));
+            const inicio = new Date(dataInicio);
+            inicio.setHours(0, 0, 0, 0);
+            const fim = new Date(dataFim);
+            fim.setHours(23, 59, 59, 999);
+            const relatorio = await RelatorioController.relatorioService.gerarRelatorioConsultas(inicio, fim);
             const excelBuffer = await RelatorioController.exportacaoService.exportarConsultasExcel(relatorio);
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             res.setHeader('Content-Disposition', 'attachment; filename=consultas.xlsx');

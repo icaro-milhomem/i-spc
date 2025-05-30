@@ -21,7 +21,7 @@ const UsuarioCadastro: React.FC = () => {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [perfil, setPerfil] = useState('operador');
+  const [perfil, setPerfil] = useState('usuario');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -57,7 +57,7 @@ const UsuarioCadastro: React.FC = () => {
       setNome('');
       setEmail('');
       setSenha('');
-      setPerfil('operador');
+      setPerfil('usuario');
     } catch (err: any) {
       setError(err.response?.data?.error || err.message);
     } finally {
@@ -127,16 +127,16 @@ const UsuarioCadastro: React.FC = () => {
           />
 
           <FormControl fullWidth margin="normal">
-            <InputLabel>Perfil</InputLabel>
+            <InputLabel>Papel</InputLabel>
             <Select
               value={perfil}
               onChange={(e) => setPerfil(e.target.value)}
-              label="Perfil"
+              label="Papel"
               required
               disabled={loading}
             >
               <MenuItem value="admin">Administrador</MenuItem>
-              <MenuItem value="operador">Operador</MenuItem>
+              <MenuItem value="usuario">Usuário</MenuItem>
             </Select>
           </FormControl>
 

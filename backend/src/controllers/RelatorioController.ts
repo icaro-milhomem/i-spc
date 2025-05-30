@@ -52,10 +52,13 @@ export class RelatorioController {
         return res.status(400).json({ error: 'Data início e data fim são obrigatórias' });
       }
 
-      const relatorio = await RelatorioController.relatorioService.gerarRelatorioConsultas(
-        new Date(dataInicio as string),
-        new Date(dataFim as string)
-      );
+      const inicio = new Date(dataInicio as string);
+      inicio.setHours(0, 0, 0, 0);
+      
+      const fim = new Date(dataFim as string);
+      fim.setHours(23, 59, 59, 999);
+
+      const relatorio = await RelatorioController.relatorioService.gerarRelatorioConsultas(inicio, fim);
       
       res.json(relatorio);
     } catch (error) {
@@ -72,10 +75,13 @@ export class RelatorioController {
         return res.status(400).json({ error: 'Data início e data fim são obrigatórias' });
       }
 
-      const relatorio = await RelatorioController.relatorioService.gerarRelatorioConsultas(
-        new Date(dataInicio as string),
-        new Date(dataFim as string)
-      );
+      const inicio = new Date(dataInicio as string);
+      inicio.setHours(0, 0, 0, 0);
+      
+      const fim = new Date(dataFim as string);
+      fim.setHours(23, 59, 59, 999);
+
+      const relatorio = await RelatorioController.relatorioService.gerarRelatorioConsultas(inicio, fim);
       
       const pdfBuffer = await RelatorioController.exportacaoService.exportarConsultasPDF(relatorio);
       
@@ -96,10 +102,13 @@ export class RelatorioController {
         return res.status(400).json({ error: 'Data início e data fim são obrigatórias' });
       }
 
-      const relatorio = await RelatorioController.relatorioService.gerarRelatorioConsultas(
-        new Date(dataInicio as string),
-        new Date(dataFim as string)
-      );
+      const inicio = new Date(dataInicio as string);
+      inicio.setHours(0, 0, 0, 0);
+      
+      const fim = new Date(dataFim as string);
+      fim.setHours(23, 59, 59, 999);
+
+      const relatorio = await RelatorioController.relatorioService.gerarRelatorioConsultas(inicio, fim);
       
       const excelBuffer = await RelatorioController.exportacaoService.exportarConsultasExcel(relatorio);
       

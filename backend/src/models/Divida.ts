@@ -1,36 +1,40 @@
-import { db } from '../db';
+import { prisma } from '../db';
 
 export interface Divida {
-  id?: number;
+  id: number;
   cliente_id: number;
-  descricao: string;
   valor: number;
-  data: Date;
-  status: 'pendente' | 'paga' | 'cancelada';
+  data_vencimento: Date;
+  descricao: string | null;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+  data?: Date;
 }
 
 export class DividaModel {
-  static async criar(divida: Divida): Promise<Divida> {
-    const { cliente_id, descricao, valor, data, status } = divida;
-    const query = `
-      INSERT INTO dividas (cliente_id, descricao, valor, data, status)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING *
-    `;
-    const values = [cliente_id, descricao, valor, data, status];
-    const result = await db.query(query, values);
-    return result.rows[0];
+  static async criar(cliente_id: number, valor: number, data_vencimento: Date, descricao?: string): Promise<Divida> {
+    return prisma.divida.create({
+      data: {
+        cliente_id,
+        valor,
+        data_vencimento,
+        descricao,
+        status: 'pendente'
+      }
+    });
   }
 
   static async buscarPorCliente(cliente_id: number): Promise<Divida[]> {
-    const query = 'SELECT * FROM dividas WHERE cliente_id = $1 ORDER BY data DESC';
-    const result = await db.query(query, [cliente_id]);
-    return result.rows;
+    return prisma.divida.findMany({
+      where: { cliente_id }
+    });
   }
 
-  static async atualizarStatus(id: number, status: Divida['status']): Promise<Divida> {
-    const query = 'UPDATE dividas SET status = $1 WHERE id = $2 RETURNING *';
-    const result = await db.query(query, [status, id]);
-    return result.rows[0];
+  static async atualizarStatus(id: number, status: string): Promise<Divida> {
+    return prisma.divida.update({
+      where: { id },
+      data: { status }
+    });
   }
 } 

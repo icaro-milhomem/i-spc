@@ -57,14 +57,22 @@ export const UsuarioLista: React.FC = () => {
   const fetchUsuarios = async () => {
     try {
       setLoading(true);
-      const response = await api.get<PaginatedResponse<Usuario>>('/usuarios', {
+      const response = await api.get<PaginatedResponse<Usuario> | Usuario[]>('/usuarios', {
         params: {
           page: page + 1,
           limit: rowsPerPage,
         },
       });
-      setUsuarios(response.data.data);
-      setTotalItems(response.data.total);
+      
+      // Verifica se a resposta é paginada ou um array direto
+      if ('data' in response.data) {
+        setUsuarios(response.data.data);
+        setTotalItems(response.data.total);
+      } else {
+        setUsuarios(response.data);
+        setTotalItems(response.data.length);
+      }
+      
       setError(null);
     } catch (err) {
       setError('Erro ao carregar usuários');
@@ -152,7 +160,7 @@ export const UsuarioLista: React.FC = () => {
               <TableRow key={usuario.id}>
                 <TableCell>{usuario.nome}</TableCell>
                 <TableCell>{usuario.email}</TableCell>
-                <TableCell>{usuario.perfil === 'admin' ? 'Administrador' : 'Operador'}</TableCell>
+                <TableCell>{usuario.perfil === 'admin' ? 'Administrador' : usuario.perfil === 'operador' ? 'Operador' : usuario.perfil}</TableCell>
                 <TableCell>{usuario.ativo ? 'Ativo' : 'Inativo'}</TableCell>
                 <TableCell align="right">
                   <IconButton

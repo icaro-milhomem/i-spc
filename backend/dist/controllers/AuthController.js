@@ -32,7 +32,7 @@ class AuthController {
             if (!senhaValida) {
                 throw new AppError_1.AppError('Senha inválida', 401);
             }
-            const token = jsonwebtoken_1.default.sign({ id: usuario.id, email: usuario.email }, process.env.JWT_SECRET || 'default_secret', { expiresIn: '24h' });
+            const token = jsonwebtoken_1.default.sign({ id: usuario.id, email: usuario.email, perfil: usuario.perfil, role: usuario.role }, process.env.JWT_SECRET || 'default_secret', { expiresIn: '24h' });
             const permissoes = usuario.papeis.flatMap(papel => papel.permissoes.map(permissao => permissao.codigo));
             return res.json({
                 usuario: {
@@ -40,6 +40,7 @@ class AuthController {
                     nome: usuario.nome,
                     email: usuario.email,
                     perfil: usuario.perfil,
+                    role: usuario.role,
                     permissoes
                 },
                 token
@@ -82,7 +83,7 @@ class AuthController {
             if (!usuario) {
                 throw new AppError_1.AppError('Usuário não encontrado', 401);
             }
-            const newToken = jsonwebtoken_1.default.sign({ id: usuario.id, email: usuario.email }, process.env.JWT_SECRET || 'default_secret', { expiresIn: '24h' });
+            const newToken = jsonwebtoken_1.default.sign({ id: usuario.id, email: usuario.email, perfil: usuario.perfil, role: usuario.role }, process.env.JWT_SECRET || 'default_secret', { expiresIn: '24h' });
             const permissoes = usuario.papeis.flatMap(papel => papel.permissoes.map(permissao => permissao.codigo));
             return res.json({
                 usuario: {
@@ -90,6 +91,7 @@ class AuthController {
                     nome: usuario.nome,
                     email: usuario.email,
                     perfil: usuario.perfil,
+                    role: usuario.role,
                     permissoes
                 },
                 token: newToken
@@ -129,6 +131,7 @@ class AuthController {
                 nome: usuario.nome,
                 email: usuario.email,
                 perfil: usuario.perfil,
+                role: usuario.role,
                 permissoes
             });
         }

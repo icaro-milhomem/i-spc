@@ -22,6 +22,13 @@ interface ClienteForm {
   email: string;
   telefone: string;
   ativo: boolean;
+  cep?: string;
+  rua?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
+  cidade?: string;
+  estado?: string;
 }
 
 const ClienteForm: React.FC = () => {
@@ -34,7 +41,14 @@ const ClienteForm: React.FC = () => {
     cpf: '',
     email: '',
     telefone: '',
-    ativo: true
+    ativo: true,
+    cep: '',
+    rua: '',
+    numero: '',
+    complemento: '',
+    bairro: '',
+    cidade: '',
+    estado: ''
   });
 
   const [loading, setLoading] = useState(false);
@@ -44,6 +58,8 @@ const ClienteForm: React.FC = () => {
     message: '',
     severity: 'success'
   });
+
+  const [buscandoCep, setBuscandoCep] = useState(false);
 
   useEffect(() => {
     if (isEditing) {
@@ -61,7 +77,14 @@ const ClienteForm: React.FC = () => {
         cpf: cliente.cpf,
         email: cliente.email,
         telefone: cliente.telefone,
-        ativo: cliente.ativo
+        ativo: cliente.ativo,
+        cep: cliente.cep,
+        rua: cliente.rua,
+        numero: cliente.numero,
+        complemento: cliente.complemento,
+        bairro: cliente.bairro,
+        cidade: cliente.cidade,
+        estado: cliente.estado
       });
     } catch (err) {
       setError('Erro ao carregar cliente');
@@ -134,7 +157,14 @@ const ClienteForm: React.FC = () => {
         cpf: formData.cpf.replace(/\D/g, ''),
         email: formData.email,
         telefone: formData.telefone.replace(/\D/g, ''),
-        ativo: formData.ativo
+        ativo: formData.ativo,
+        cep: formData.cep,
+        rua: formData.rua,
+        numero: formData.numero,
+        complemento: formData.complemento,
+        bairro: formData.bairro,
+        cidade: formData.cidade,
+        estado: formData.estado
       };
 
       if (isEditing) {
@@ -153,8 +183,12 @@ const ClienteForm: React.FC = () => {
         });
       }
       navigate('/clientes');
-    } catch (err) {
-      setError('Erro ao salvar cliente');
+    } catch (err: any) {
+      if (err.response && err.response.data && err.response.data.error && err.response.data.error.toLowerCase().includes('cpf')) {
+        setError('CPF já em uso');
+      } else {
+        setError('Erro ao salvar cliente');
+      }
       console.error(err);
     } finally {
       setLoading(false);
@@ -163,6 +197,31 @@ const ClienteForm: React.FC = () => {
 
   const handleSnackbarClose = () => {
     setSnackbar({ ...snackbar, open: false });
+  };
+
+  const buscarCep = async () => {
+    if (!formData.cep || formData.cep.length < 8) return;
+    setBuscandoCep(true);
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${formData.cep.replace(/\D/g, '')}/json/`);
+      const data = await response.json();
+      if (data.erro) {
+        setError('CEP não encontrado');
+        setFormData(prev => ({ ...prev, rua: '', bairro: '', cidade: '', estado: '' }));
+      } else {
+        setFormData(prev => ({
+          ...prev,
+          rua: data.logradouro || '',
+          bairro: data.bairro || '',
+          cidade: data.localidade || '',
+          estado: data.uf || ''
+        }));
+      }
+    } catch (e) {
+      setError('Erro ao buscar CEP');
+    } finally {
+      setBuscandoCep(false);
+    }
   };
 
   if (loading) {
@@ -222,6 +281,97 @@ const ClienteForm: React.FC = () => {
                 value={formData.email}
                 onChange={handleChange}
                 required
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <TextField
+                fullWidth
+                label="CEP"
+                name="cep"
+                value={formData.cep}
+                onChange={handleChange}
+                onBlur={buscarCep}
+                inputProps={{ maxLength: 9 }}
+                required
+                helperText="Digite o CEP e saia do campo para buscar automaticamente"
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={8}>
+              <Button
+                variant="outlined"
+                onClick={buscarCep}
+                disabled={buscandoCep || !formData.cep || formData.cep.length < 8}
+                sx={{ mt: { xs: 2, sm: 0 } }}
+              >
+                {buscandoCep ? 'Buscando...' : 'Buscar CEP'}
+              </Button>
+            </Grid>
+
+            <Grid item xs={12} sm={8}>
+              <TextField
+                fullWidth
+                label="Rua"
+                name="rua"
+                value={formData.rua}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={2}>
+              <TextField
+                fullWidth
+                label="Número"
+                name="numero"
+                value={formData.numero}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={2}>
+              <TextField
+                fullWidth
+                label="Complemento"
+                name="complemento"
+                value={formData.complemento}
+                onChange={handleChange}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <TextField
+                fullWidth
+                label="Bairro"
+                name="bairro"
+                value={formData.bairro}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Cidade"
+                name="cidade"
+                value={formData.cidade}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={2}>
+              <TextField
+                fullWidth
+                label="Estado"
+                name="estado"
+                value={formData.estado}
+                onChange={handleChange}
+                required
+                inputProps={{ maxLength: 2 }}
               />
             </Grid>
 

@@ -27,7 +27,8 @@ class ExportacaoService {
                 doc.moveDown();
                 doc.text('Dívidas:');
                 inadimplente.dividas.forEach((divida) => {
-                    doc.text(`- ${divida.descricao}: ${(0, formatters_1.formatCurrency)(divida.valor)} (Vencimento: ${divida.data.toLocaleDateString()})`);
+                    var _a;
+                    doc.text(`- ${divida.descricao}: ${(0, formatters_1.formatCurrency)(divida.valor)} (Vencimento: ${((_a = divida.data) === null || _a === void 0 ? void 0 : _a.toLocaleDateString()) || 'N/A'})`);
                 });
                 doc.moveDown();
             });
@@ -52,8 +53,9 @@ class ExportacaoService {
             doc.moveDown();
             doc.text('Detalhamento das Consultas:');
             relatorio.consultas.forEach((consulta) => {
+                var _a;
                 doc.text(`CPF: ${consulta.cpf_consultado}`);
-                doc.text(`Data: ${consulta.data_consulta.toLocaleDateString()}`);
+                doc.text(`Data: ${((_a = consulta.data_consulta) === null || _a === void 0 ? void 0 : _a.toLocaleDateString()) || 'N/A'}`);
                 doc.text(`Resultado: ${consulta.resultado}`);
                 doc.moveDown();
             });
@@ -79,9 +81,10 @@ class ExportacaoService {
             doc.moveDown();
             doc.text('Detalhamento das Dívidas:');
             relatorio.dividas.forEach((divida) => {
+                var _a;
                 doc.text(`Descrição: ${divida.descricao}`);
                 doc.text(`Valor: ${(0, formatters_1.formatCurrency)(divida.valor)}`);
-                doc.text(`Vencimento: ${divida.data.toLocaleDateString()}`);
+                doc.text(`Vencimento: ${((_a = divida.data) === null || _a === void 0 ? void 0 : _a.toLocaleDateString()) || 'N/A'}`);
                 doc.text(`Status: ${divida.status}`);
                 doc.moveDown();
             });
@@ -119,8 +122,9 @@ class ExportacaoService {
             { header: 'Resultado', key: 'resultado', width: 30 }
         ];
         relatorio.consultas.forEach((consulta) => {
+            var _a;
             worksheet.addRow({
-                data: consulta.data_consulta.toLocaleDateString(),
+                data: ((_a = consulta.data_consulta) === null || _a === void 0 ? void 0 : _a.toLocaleDateString()) || 'N/A',
                 cpf: consulta.cpf_consultado,
                 resultado: consulta.resultado
             });
@@ -137,14 +141,145 @@ class ExportacaoService {
             { header: 'Status', key: 'status', width: 15 }
         ];
         relatorio.dividas.forEach((divida) => {
+            var _a;
             worksheet.addRow({
                 descricao: divida.descricao,
                 valor: divida.valor,
-                vencimento: divida.data.toLocaleDateString(),
+                vencimento: ((_a = divida.data) === null || _a === void 0 ? void 0 : _a.toLocaleDateString()) || 'N/A',
                 status: divida.status
             });
         });
         return workbook.xlsx.writeBuffer();
+    }
+    static async exportarCliente(cliente, dividas) {
+        const doc = new pdfkit_1.default();
+        const chunks = [];
+        doc.on('data', chunk => chunks.push(chunk));
+        return new Promise((resolve, reject) => {
+            doc.on('end', () => resolve(Buffer.concat(chunks)));
+            doc.on('error', reject);
+            doc.fontSize(20).text('Relatório de Cliente', { align: 'center' });
+            doc.moveDown();
+            doc.fontSize(16).text('Dados do Cliente');
+            doc.fontSize(12);
+            doc.text(`Nome: ${cliente.nome}`);
+            doc.text(`CPF: ${cliente.cpf}`);
+            if (cliente.email)
+                doc.text(`Email: ${cliente.email}`);
+            if (cliente.telefone)
+                doc.text(`Telefone: ${cliente.telefone}`);
+            if (cliente.endereco)
+                doc.text(`Endereço: ${cliente.endereco}`);
+            doc.text(`Status: ${cliente.status}`);
+            doc.moveDown();
+            if (dividas.length > 0) {
+                doc.fontSize(16).text('Dívidas');
+                doc.fontSize(12);
+                dividas.forEach(divida => {
+                    var _a;
+                    doc.text(`- ${divida.descricao}: ${(0, formatters_1.formatCurrency)(divida.valor)} (Vencimento: ${((_a = divida.data_vencimento) === null || _a === void 0 ? void 0 : _a.toLocaleDateString()) || 'N/A'})`);
+                });
+            }
+            doc.end();
+        });
+    }
+    static async exportarConsulta(consulta) {
+        const doc = new pdfkit_1.default();
+        const chunks = [];
+        doc.on('data', chunk => chunks.push(chunk));
+        return new Promise((resolve, reject) => {
+            var _a;
+            doc.on('end', () => resolve(Buffer.concat(chunks)));
+            doc.on('error', reject);
+            doc.fontSize(20).text('Relatório de Consulta', { align: 'center' });
+            doc.moveDown();
+            doc.fontSize(16).text('Detalhes da Consulta');
+            doc.fontSize(12);
+            doc.text(`Data: ${((_a = consulta.data) === null || _a === void 0 ? void 0 : _a.toLocaleDateString()) || 'N/A'}`);
+            doc.text(`Tipo: ${consulta.tipo}`);
+            if (consulta.observacoes)
+                doc.text(`Observações: ${consulta.observacoes}`);
+            doc.end();
+        });
+    }
+    static async exportarInadimplentes(inadimplentes) {
+        const doc = new pdfkit_1.default();
+        const chunks = [];
+        doc.on('data', chunk => chunks.push(chunk));
+        return new Promise((resolve, reject) => {
+            doc.on('end', () => resolve(Buffer.concat(chunks)));
+            doc.on('error', reject);
+            doc.fontSize(20).text('Relatório de Inadimplentes', { align: 'center' });
+            doc.moveDown();
+            inadimplentes.forEach(inadimplente => {
+                var _a;
+                doc.fontSize(16).text(`Cliente: ${inadimplente.cliente.nome}`);
+                doc.fontSize(12);
+                doc.text(`CPF: ${inadimplente.cliente.cpf}`);
+                doc.text(`Telefone: ${inadimplente.cliente.telefone}`);
+                doc.text(`Status: ${inadimplente.cliente.status}`);
+                doc.moveDown();
+                doc.text('Dívidas:');
+                inadimplente.dividas.forEach((divida) => {
+                    var _a;
+                    doc.text(`- ${divida.descricao}: ${(0, formatters_1.formatCurrency)(divida.valor)}`);
+                    doc.text(`  Vencimento: ${((_a = divida.data_vencimento) === null || _a === void 0 ? void 0 : _a.toLocaleDateString()) || 'N/A'}`);
+                });
+                if (inadimplente.ultimaConsulta) {
+                    doc.moveDown();
+                    doc.text('Última Consulta:');
+                    doc.text(`Data: ${((_a = inadimplente.ultimaConsulta.data) === null || _a === void 0 ? void 0 : _a.toLocaleDateString()) || 'N/A'}`);
+                    doc.text(`Tipo: ${inadimplente.ultimaConsulta.tipo}`);
+                }
+                doc.moveDown(2);
+            });
+            doc.end();
+        });
+    }
+    static async exportarConsultas(consultas) {
+        const doc = new pdfkit_1.default();
+        const chunks = [];
+        doc.on('data', chunk => chunks.push(chunk));
+        return new Promise((resolve, reject) => {
+            doc.on('end', () => resolve(Buffer.concat(chunks)));
+            doc.on('error', reject);
+            doc.fontSize(20).text('Relatório de Consultas', { align: 'center' });
+            doc.moveDown();
+            consultas.forEach(consulta => {
+                var _a;
+                doc.fontSize(16).text(`Consulta #${consulta.id}`);
+                doc.fontSize(12);
+                doc.text(`Data: ${((_a = consulta.data) === null || _a === void 0 ? void 0 : _a.toLocaleDateString()) || 'N/A'}`);
+                doc.text(`Tipo: ${consulta.tipo}`);
+                if (consulta.observacoes)
+                    doc.text(`Observações: ${consulta.observacoes}`);
+                doc.moveDown(2);
+            });
+            doc.end();
+        });
+    }
+    static async exportarDividas(dividas) {
+        const doc = new pdfkit_1.default();
+        const chunks = [];
+        doc.on('data', chunk => chunks.push(chunk));
+        return new Promise((resolve, reject) => {
+            doc.on('end', () => resolve(Buffer.concat(chunks)));
+            doc.on('error', reject);
+            doc.fontSize(20).text('Relatório de Dívidas', { align: 'center' });
+            doc.moveDown();
+            dividas.forEach(divida => {
+                var _a;
+                doc.fontSize(16).text(`Dívida #${divida.id}`);
+                doc.fontSize(12);
+                doc.text(`Valor: ${(0, formatters_1.formatCurrency)(divida.valor)}`);
+                doc.text(`Vencimento: ${((_a = divida.data_vencimento) === null || _a === void 0 ? void 0 : _a.toLocaleDateString()) || 'N/A'}`);
+                if (divida.descricao)
+                    doc.text(`Descrição: ${divida.descricao}`);
+                doc.text(`Status: ${divida.status}`);
+                doc.moveDown(2);
+            });
+            doc.end();
+        });
     }
 }
 exports.ExportacaoService = ExportacaoService;

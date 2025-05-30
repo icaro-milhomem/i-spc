@@ -4,24 +4,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = require("../db");
-const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
 async function seedAdmin() {
-    const email = 'admin@pspc.com';
-    const senha = '123456';
-    const nome = 'Administrador';
-    const perfil = 'admin';
-    const status = 'ativo';
-    const userExists = await db_1.db.query('SELECT * FROM usuarios WHERE email = $1', [email]);
-    if (userExists.rows.length > 0) {
-        console.log('Usuário admin já existe.');
-        process.exit(0);
+    try {
+        const adminEmail = 'admin@pspc.com';
+        const adminSenha = 'admin123';
+        const adminExistente = await db_1.prisma.usuario.findUnique({
+            where: { email: adminEmail }
+        });
+        if (adminExistente) {
+            console.log('Usuário admin já existe');
+            return;
+        }
+        const senhaHash = await bcrypt_1.default.hash(adminSenha, 10);
+        await db_1.prisma.usuario.create({
+            data: {
+                nome: 'Administrador',
+                email: adminEmail,
+                senha: senhaHash,
+                perfil: 'admin'
+            }
+        });
+        console.log('Usuário admin criado com sucesso');
     }
-    const senhaHash = await bcryptjs_1.default.hash(senha, 10);
-    await db_1.db.query('INSERT INTO usuarios (nome, email, senha, perfil, status) VALUES ($1, $2, $3, $4, $5)', [nome, email, senhaHash, perfil, status]);
-    console.log('Usuário admin criado com sucesso!');
-    process.exit(0);
+    catch (error) {
+        console.error('Erro ao criar usuário admin:', error);
+    }
+    finally {
+        await db_1.prisma.$disconnect();
+    }
 }
-seedAdmin().catch((err) => {
-    console.error('Erro ao criar admin:', err);
-    process.exit(1);
-});
+seedAdmin();

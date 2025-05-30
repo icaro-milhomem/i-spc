@@ -9,8 +9,10 @@ const clienteController = new ClienteController();
 const dividaController = new DividaController();
 
 router.post('/', authenticateJWT, clienteController.criar);
+router.get('/consulta', authenticateJWT, clienteController.consultarPorCpfOuNome);
 router.get('/:cpf', authenticateJWT, clienteController.buscarPorCPF);
 router.patch('/:cpf/status', authenticateJWT, clienteController.atualizarStatus);
+router.put('/:id', authenticateJWT, clienteController.atualizar);
 
 router.get('/', authenticateJWT, async (req, res) => {
   const page = parseInt(req.query.page as string) || 1;

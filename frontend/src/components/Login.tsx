@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import { validateEmail } from '../utils/validators';
+import logo from '../../logo.png';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -82,9 +83,9 @@ const Login: React.FC = () => {
           maxWidth: 400
         }}
       >
-        <Typography variant="h4" component="h1" gutterBottom align="center">
-          i-SPC
-        </Typography>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
+          <img src={logo} alt="Logo" style={{ width: 180, marginBottom: 16 }} />
+        </Box>
         <Typography variant="h6" gutterBottom align="center">
           Login
         </Typography>

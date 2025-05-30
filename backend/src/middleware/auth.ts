@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { prisma } from '../database/prismaClient';
 
 interface JwtPayload {
   id: number;
@@ -33,6 +34,7 @@ export function authenticateJWT(req: Request, res: Response, next: NextFunction)
 }
 
 export function isAdmin(req: Request, res: Response, next: NextFunction) {
+  console.log('DEBUG isAdmin req.user:', req.user); // Debug do conteúdo do usuário autenticado
   if (!req.user) {
     return res.status(401).json({ error: 'Não autorizado' });
   }
@@ -42,4 +44,50 @@ export function isAdmin(req: Request, res: Response, next: NextFunction) {
   }
 
   next();
-} 
+}
+
+export function hasPermission(permissionCode: string) {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Não autorizado' });
+    }
+
+    try {
+      console.log('Verificando permissão para usuário:', req.user.id);
+      
+      const usuario = await prisma.usuario.findUnique({
+        where: { id: req.user.id },
+        include: {
+          papeis: {
+            include: {
+              permissoes: true
+            }
+          }
+        }
+      });
+
+      if (!usuario) {
+        console.error('Usuário não encontrado:', req.user.id);
+        return res.status(401).json({ error: 'Usuário não encontrado' });
+      }
+
+      console.log('Papeis do usuário:', usuario.papeis);
+      console.log('Permissões do usuário:', usuario.papeis.flatMap(p => p.permissoes));
+
+      const temPermissao = usuario.papeis.some(papel =>
+        papel.permissoes.some(permissao => permissao.codigo === permissionCode)
+      );
+
+      console.log('Tem permissão?', temPermissao);
+
+      if (!temPermissao) {
+        return res.status(403).json({ error: 'Acesso negado. Você não tem permissão para acessar este recurso.' });
+      }
+
+      next();
+    } catch (error) {
+      console.error('Erro ao verificar permissão:', error);
+      return res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  };
+}

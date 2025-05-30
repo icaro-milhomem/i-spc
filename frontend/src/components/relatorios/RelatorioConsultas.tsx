@@ -51,8 +51,8 @@ export const RelatorioConsultas: React.FC = () => {
       setLoading(true);
       const response = await api.get<RelatorioConsultas>('/relatorios/consultas', {
         params: {
-          dataInicio: dataInicio.toISOString(),
-          dataFim: dataFim.toISOString()
+          dataInicio: dataInicio.toISOString().split('T')[0],
+          dataFim: dataFim.toISOString().split('T')[0]
         }
       });
       setRelatorio(response.data);
@@ -77,8 +77,8 @@ export const RelatorioConsultas: React.FC = () => {
       const response = await api.get('/relatorios/consultas/pdf', {
         responseType: 'blob',
         params: {
-          dataInicio: dataInicio.toISOString(),
-          dataFim: dataFim.toISOString()
+          dataInicio: dataInicio.toISOString().split('T')[0],
+          dataFim: dataFim.toISOString().split('T')[0]
         }
       });
       
@@ -101,8 +101,8 @@ export const RelatorioConsultas: React.FC = () => {
       const response = await api.get('/relatorios/consultas/excel', {
         responseType: 'blob',
         params: {
-          dataInicio: dataInicio.toISOString(),
-          dataFim: dataFim.toISOString()
+          dataInicio: dataInicio.toISOString().split('T')[0],
+          dataFim: dataFim.toISOString().split('T')[0]
         }
       });
       

@@ -6,10 +6,11 @@ import { hash } from 'bcryptjs';
 export class UsuarioController {
   async criar(req: Request, res: Response) {
     try {
-      const { nome, email, senha, papeis } = req.body;
+      console.log('REQ BODY:', req.body);
+      const { nome, email, senha, perfil } = req.body;
 
-      if (!nome || !email || !senha) {
-        throw new AppError('Nome, email e senha são obrigatórios', 400);
+      if (!nome || !email || !senha || !perfil) {
+        throw new AppError('Nome, email, senha e perfil são obrigatórios', 400);
       }
 
       const usuarioExistente = await prisma.usuario.findUnique({
@@ -22,13 +23,22 @@ export class UsuarioController {
 
       const senhaHash = await hash(senha, 8);
 
+      // Buscar o papel conforme o perfil
+      const papel = await prisma.papel.findUnique({
+        where: { nome: perfil }
+      });
+
+      if (!papel) {
+        throw new AppError('Papel não encontrado', 500);
+      }
+
       const usuario = await prisma.usuario.create({
         data: {
           nome,
           email,
           senha: senhaHash,
           papeis: {
-            connect: papeis?.map((id: number) => ({ id })) || []
+            connect: [{ id: papel.id }]
           }
         },
         include: {
@@ -44,6 +54,8 @@ export class UsuarioController {
         id: usuario.id,
         nome: usuario.nome,
         email: usuario.email,
+        perfil: usuario.perfil,
+        ativo: usuario.ativo,
         papeis: usuario.papeis
       });
     } catch (error) {
@@ -58,6 +70,12 @@ export class UsuarioController {
   async listar(req: Request, res: Response) {
     try {
       const usuarios = await prisma.usuario.findMany({
+        where: {
+          OR: [
+            { role: null },
+            { role: { not: 'superadmin' } }
+          ]
+        },
         include: {
           papeis: {
             include: {
@@ -71,6 +89,8 @@ export class UsuarioController {
         id: usuario.id,
         nome: usuario.nome,
         email: usuario.email,
+        perfil: usuario.perfil,
+        ativo: usuario.ativo,
         papeis: usuario.papeis
       })));
     } catch (error) {
@@ -102,6 +122,8 @@ export class UsuarioController {
         id: usuario.id,
         nome: usuario.nome,
         email: usuario.email,
+        perfil: usuario.perfil,
+        ativo: usuario.ativo,
         papeis: usuario.papeis
       });
     } catch (error) {
@@ -166,6 +188,8 @@ export class UsuarioController {
         id: usuarioAtualizado.id,
         nome: usuarioAtualizado.nome,
         email: usuarioAtualizado.email,
+        perfil: usuarioAtualizado.perfil,
+        ativo: usuarioAtualizado.ativo,
         papeis: usuarioAtualizado.papeis
       });
     } catch (error) {

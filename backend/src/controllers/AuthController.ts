@@ -29,7 +29,7 @@ export class AuthController {
                 throw new AppError('Senha inválida', 401);
             }
             const token = jwt.sign(
-                { id: usuario.id, email: usuario.email },
+                { id: usuario.id, email: usuario.email, perfil: usuario.perfil, role: usuario.role },
                 process.env.JWT_SECRET || 'default_secret',
                 { expiresIn: '24h' }
             );
@@ -42,6 +42,7 @@ export class AuthController {
                     nome: usuario.nome,
                     email: usuario.email,
                     perfil: usuario.perfil,
+                    role: usuario.role,
                     permissoes
                 },
                 token
@@ -85,7 +86,7 @@ export class AuthController {
                 throw new AppError('Usuário não encontrado', 401);
             }
             const newToken = jwt.sign(
-                { id: usuario.id, email: usuario.email },
+                { id: usuario.id, email: usuario.email, perfil: usuario.perfil, role: usuario.role },
                 process.env.JWT_SECRET || 'default_secret',
                 { expiresIn: '24h' }
             );
@@ -98,6 +99,7 @@ export class AuthController {
                     nome: usuario.nome,
                     email: usuario.email,
                     perfil: usuario.perfil,
+                    role: usuario.role,
                     permissoes
                 },
                 token: newToken
@@ -138,6 +140,7 @@ export class AuthController {
                 nome: usuario.nome,
                 email: usuario.email,
                 perfil: usuario.perfil,
+                role: usuario.role,
                 permissoes
             });
         } catch (error) {

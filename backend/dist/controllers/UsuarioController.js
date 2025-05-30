@@ -7,9 +7,10 @@ const bcryptjs_1 = require("bcryptjs");
 class UsuarioController {
     async criar(req, res) {
         try {
-            const { nome, email, senha, papeis } = req.body;
-            if (!nome || !email || !senha) {
-                throw new AppError_1.AppError('Nome, email e senha são obrigatórios', 400);
+            console.log('REQ BODY:', req.body);
+            const { nome, email, senha, perfil } = req.body;
+            if (!nome || !email || !senha || !perfil) {
+                throw new AppError_1.AppError('Nome, email, senha e perfil são obrigatórios', 400);
             }
             const usuarioExistente = await prismaClient_1.prisma.usuario.findUnique({
                 where: { email }
@@ -18,13 +19,19 @@ class UsuarioController {
                 throw new AppError_1.AppError('Email já cadastrado', 400);
             }
             const senhaHash = await (0, bcryptjs_1.hash)(senha, 8);
+            const papel = await prismaClient_1.prisma.papel.findUnique({
+                where: { nome: perfil }
+            });
+            if (!papel) {
+                throw new AppError_1.AppError('Papel não encontrado', 500);
+            }
             const usuario = await prismaClient_1.prisma.usuario.create({
                 data: {
                     nome,
                     email,
                     senha: senhaHash,
                     papeis: {
-                        connect: (papeis === null || papeis === void 0 ? void 0 : papeis.map((id) => ({ id }))) || []
+                        connect: [{ id: papel.id }]
                     }
                 },
                 include: {
@@ -39,6 +46,8 @@ class UsuarioController {
                 id: usuario.id,
                 nome: usuario.nome,
                 email: usuario.email,
+                perfil: usuario.perfil,
+                ativo: usuario.ativo,
                 papeis: usuario.papeis
             });
         }
@@ -53,6 +62,12 @@ class UsuarioController {
     async listar(req, res) {
         try {
             const usuarios = await prismaClient_1.prisma.usuario.findMany({
+                where: {
+                    OR: [
+                        { role: null },
+                        { role: { not: 'superadmin' } }
+                    ]
+                },
                 include: {
                     papeis: {
                         include: {
@@ -65,6 +80,8 @@ class UsuarioController {
                 id: usuario.id,
                 nome: usuario.nome,
                 email: usuario.email,
+                perfil: usuario.perfil,
+                ativo: usuario.ativo,
                 papeis: usuario.papeis
             })));
         }
@@ -93,6 +110,8 @@ class UsuarioController {
                 id: usuario.id,
                 nome: usuario.nome,
                 email: usuario.email,
+                perfil: usuario.perfil,
+                ativo: usuario.ativo,
                 papeis: usuario.papeis
             });
         }
@@ -148,6 +167,8 @@ class UsuarioController {
                 id: usuarioAtualizado.id,
                 nome: usuarioAtualizado.nome,
                 email: usuarioAtualizado.email,
+                perfil: usuarioAtualizado.perfil,
+                ativo: usuarioAtualizado.ativo,
                 papeis: usuarioAtualizado.papeis
             });
         }

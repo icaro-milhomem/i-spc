@@ -35,13 +35,13 @@ interface Cliente {
 }
 
 const DividaForm: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id: clienteId, idDivida } = useParams<{ id: string; idDivida?: string }>();
   const navigate = useNavigate();
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [formData, setFormData] = useState<Divida>({
     clienteId: '',
     valor: 0,
-    dataVencimento: '',
+    dataVencimento: new Date().toISOString().split('T')[0],
     status: 'PENDENTE',
     descricao: '',
     ativo: true
@@ -49,12 +49,13 @@ const DividaForm: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const inicializar = async () => {
       try {
         await carregarClientes();
-        if (id) {
+        if (idDivida && idDivida !== 'nova') {
           await carregarDivida();
         }
       } catch (error) {
@@ -65,13 +66,13 @@ const DividaForm: React.FC = () => {
     };
 
     inicializar();
-  }, [id]);
+  }, [idDivida]);
 
   const carregarClientes = async () => {
     try {
       const response = await api.get('/clientes');
       setClientes(response.data.data);
-      if (!id && response.data.data.length > 0) {
+      if (!idDivida && response.data.data.length > 0) {
         setFormData(prev => ({
           ...prev,
           clienteId: response.data.data[0].id
@@ -85,11 +86,17 @@ const DividaForm: React.FC = () => {
 
   const carregarDivida = async () => {
     try {
-      const response = await api.get(`/dividas/${id}`);
-      setFormData(response.data);
+      const response = await api.get(`/dividas/${idDivida}`);
+      // Converte status para maiúsculo para o Select e garante que ativo seja booleano
+      setFormData({
+        ...response.data,
+        status: response.data.status ? response.data.status.toUpperCase() : 'PENDENTE',
+        ativo: Boolean(response.data.ativo),
+        dataVencimento: response.data.data_vencimento ? new Date(response.data.data_vencimento).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+      });
     } catch (error: any) {
       if (error.response?.status === 404) {
-        navigate('/dividas');
+        navigate(`/clientes/${clienteId}/dividas`);
         return;
       }
       setError('Erro ao carregar dados da dívida');
@@ -100,19 +107,32 @@ const DividaForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return; // Evita duplo submit
+    setSubmitting(true);
+    setError(null);
     try {
-      if (id) {
-        await api.put(`/dividas/${id}`, formData);
+      const payload = {
+        cliente_id: formData.clienteId,
+        valor: formData.valor,
+        data_vencimento: formData.dataVencimento,
+        status: formData.status.toLowerCase(), // Converte para minúsculo
+        descricao: formData.descricao,
+        ativo: formData.ativo
+      };
+      if (idDivida && idDivida !== 'nova') {
+        await api.put(`/dividas/${idDivida}`, payload);
       } else {
-        await api.post('/dividas', formData);
+        await api.post('/dividas', payload);
       }
       setSuccess(true);
       setTimeout(() => {
-        navigate('/dividas');
+        navigate(`/clientes/${formData.clienteId}/dividas`);
       }, 2000);
     } catch (error) {
       setError('Erro ao salvar dívida');
       console.error('Erro:', error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -131,7 +151,7 @@ const DividaForm: React.FC = () => {
       ) : (
         <Paper sx={{ p: 3 }}>
           <Typography variant="h4" gutterBottom>
-            {id ? 'Editar Dívida' : 'Nova Dívida'}
+            {idDivida && idDivida !== 'nova' ? 'Editar Dívida' : 'Nova Dívida'}
           </Typography>
 
           <form onSubmit={handleSubmit}>
@@ -222,8 +242,9 @@ const DividaForm: React.FC = () => {
                   variant="contained"
                   color="primary"
                   fullWidth
+                  disabled={submitting}
                 >
-                  Salvar
+                  {submitting ? 'Salvando...' : 'Salvar'}
                 </Button>
               </Grid>
             </Grid>
@@ -247,4 +268,4 @@ const DividaForm: React.FC = () => {
   );
 };
 
-export default DividaForm; 
+export default DividaForm;
