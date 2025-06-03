@@ -23,9 +23,12 @@ import api from '../../services/api';
 
 interface Consulta {
   id: number;
-  cpf_consultado: string;
-  data_consulta: string;
-  resultado: string;
+  cliente_id: number;
+  data: string;
+  tipo: string;
+  observacoes: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface RelatorioConsultas {
@@ -39,7 +42,7 @@ interface RelatorioConsultas {
 
 export const RelatorioConsultas: React.FC = () => {
   const [relatorio, setRelatorio] = useState<RelatorioConsultas | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dataInicio, setDataInicio] = useState<Date | null>(null);
   const [dataFim, setDataFim] = useState<Date | null>(null);
@@ -47,8 +50,14 @@ export const RelatorioConsultas: React.FC = () => {
   const fetchRelatorio = async () => {
     if (!dataInicio || !dataFim) return;
 
+    if (dataInicio > dataFim) {
+      setError('A data de início não pode ser maior que a data de fim');
+      return;
+    }
+
     try {
       setLoading(true);
+      setError(null);
       const response = await api.get<RelatorioConsultas>('/relatorios/consultas', {
         params: {
           dataInicio: dataInicio.toISOString().split('T')[0],
@@ -56,9 +65,8 @@ export const RelatorioConsultas: React.FC = () => {
         }
       });
       setRelatorio(response.data);
-      setError(null);
-    } catch (err) {
-      setError('Erro ao carregar relatório de consultas');
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Erro ao carregar relatório de consultas');
     } finally {
       setLoading(false);
     }
@@ -119,7 +127,7 @@ export const RelatorioConsultas: React.FC = () => {
   };
 
   return (
-    <Box p={3}>
+    <Box p={0}>
       <Paper sx={{ p: 3 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
           <Typography variant="h4">
@@ -180,28 +188,34 @@ export const RelatorioConsultas: React.FC = () => {
               </Typography>
             </Box>
 
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Data</TableCell>
-                    <TableCell>CPF Consultado</TableCell>
-                    <TableCell>Resultado</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {relatorio.consultas.map((consulta) => (
-                    <TableRow key={consulta.id}>
-                      <TableCell>
-                        {new Date(consulta.data_consulta).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>{consulta.cpf_consultado}</TableCell>
-                      <TableCell>{consulta.resultado}</TableCell>
+            {relatorio.consultas.length === 0 ? (
+              <Alert severity="info" sx={{ mb: 3 }}>
+                Nenhuma consulta encontrada no período selecionado.
+              </Alert>
+            ) : (
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Data</TableCell>
+                      <TableCell>Tipo</TableCell>
+                      <TableCell>Observações</TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                  </TableHead>
+                  <TableBody>
+                    {relatorio.consultas.map((consulta) => (
+                      <TableRow key={consulta.id}>
+                        <TableCell>
+                          {new Date(consulta.data).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>{consulta.tipo}</TableCell>
+                        <TableCell>{consulta.observacoes || '-'}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
           </>
         ) : null}
       </Paper>

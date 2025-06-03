@@ -1,6 +1,6 @@
+import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
 import { prisma } from '../database/prismaClient';
 import { AppError } from '../utils/AppError';
 
@@ -29,7 +29,7 @@ export class AuthController {
                 throw new AppError('Senha inválida', 401);
             }
             const token = jwt.sign(
-                { id: usuario.id, email: usuario.email, perfil: usuario.perfil, role: usuario.role },
+                { id: usuario.id, email: usuario.email, perfil: usuario.perfil, role: usuario.role, tenant_id: usuario.tenant_id },
                 process.env.JWT_SECRET || 'default_secret',
                 { expiresIn: '24h' }
             );
@@ -43,6 +43,7 @@ export class AuthController {
                     email: usuario.email,
                     perfil: usuario.perfil,
                     role: usuario.role,
+                    tenant_id: usuario.tenant_id,
                     permissoes
                 },
                 token
@@ -86,7 +87,7 @@ export class AuthController {
                 throw new AppError('Usuário não encontrado', 401);
             }
             const newToken = jwt.sign(
-                { id: usuario.id, email: usuario.email, perfil: usuario.perfil, role: usuario.role },
+                { id: usuario.id, email: usuario.email, perfil: usuario.perfil, role: usuario.role, tenant_id: usuario.tenant_id },
                 process.env.JWT_SECRET || 'default_secret',
                 { expiresIn: '24h' }
             );
@@ -100,6 +101,7 @@ export class AuthController {
                     email: usuario.email,
                     perfil: usuario.perfil,
                     role: usuario.role,
+                    tenant_id: usuario.tenant_id,
                     permissoes
                 },
                 token: newToken

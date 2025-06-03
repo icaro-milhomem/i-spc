@@ -16,6 +16,13 @@ import {
   CircularProgress,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogActions from '@mui/material/DialogActions';
+import Layout from '../components/Layout';
 
 interface Tenant {
   id: number;
@@ -25,39 +32,65 @@ interface Tenant {
 }
 
 export default function AdminTenants() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [tenants, setTenants] = useState<Tenant[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [editTenant, setEditTenant] = useState<Tenant | null>(null);
+  const [tableLoading, setTableLoading] = useState(true);
+  const [deleteTenant, setDeleteTenant] = useState<Tenant | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  // Log para depuração
+  console.log('Usuário logado:', user);
 
   useEffect(() => {
+    if (loading) return;
     if (!user) return;
-    if ((user as any).role && (user as any).role !== 'superadmin') {
+    const isSuperAdmin = (user as any).role === 'superadmin' || (user as any).perfil === 'superadmin';
+    if (!isSuperAdmin) {
       navigate('/app');
       return;
     }
     fetchTenants();
     // eslint-disable-next-line
-  }, [user]);
+  }, [user, loading]);
 
   const fetchTenants = () => {
-    setLoading(true);
+    setTableLoading(true);
     api.get('/tenants')
       .then(res => setTenants(res.data))
       .catch(() => setError('Erro ao carregar empresas'))
-      .finally(() => setLoading(false));
+      .finally(() => setTableLoading(false));
   };
 
+  const handleDelete = async () => {
+    if (!deleteTenant) return;
+    setDeleteLoading(true);
+    try {
+      await api.delete(`/tenants/${deleteTenant.id}`);
+      setDeleteTenant(null);
+      fetchTenants();
+    } catch (err) {
+      alert('Erro ao excluir empresa');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <Box p={8} textAlign="center" color="primary.main" fontWeight="bold">Carregando...</Box>;
+  }
+
   if (!user) return null;
-  if ((user as any).role && (user as any).role !== 'superadmin') {
+  const isSuperAdmin = (user as any).role === 'superadmin' || (user as any).perfil === 'superadmin';
+  if (!isSuperAdmin) {
     return <Box p={8} textAlign="center" color="error.main" fontWeight="bold">Acesso negado</Box>;
   }
 
   return (
-    <Box minHeight="100vh" bgcolor="#f5f6fa" display="flex" flexDirection="column" alignItems="center" py={6}>
+    <Layout>
       <Paper elevation={2} sx={{ width: '100%', maxWidth: 900, p: 4, borderRadius: 4 }}>
         <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems="center" mb={4} gap={2}>
           <Typography variant="h4" color="primary" fontWeight={700} letterSpacing={-1}>
@@ -66,9 +99,7 @@ export default function AdminTenants() {
           <Button
             variant="contained"
             color="primary"
-            size="large"
             onClick={() => setShowCreate(true)}
-            sx={{ borderRadius: 2, fontWeight: 600, boxShadow: 1 }}
           >
             Nova Empresa
           </Button>
@@ -85,7 +116,7 @@ export default function AdminTenants() {
             </Box>
           </Box>
         )}
-        {loading ? (
+        {tableLoading ? (
           <Box display="flex" justifyContent="center" alignItems="center" py={6}>
             <CircularProgress color="primary" />
           </Box>
@@ -116,6 +147,9 @@ export default function AdminTenants() {
                       <Button size="small" color="primary" startIcon={<EditIcon />} onClick={() => setEditTenant(t)}>
                         Editar
                       </Button>
+                      <Button size="small" color="error" startIcon={<DeleteIcon />} onClick={() => setDeleteTenant(t)} sx={{ ml: 1 }}>
+                        Excluir
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -123,7 +157,22 @@ export default function AdminTenants() {
             </Table>
           </Box>
         )}
+        {/* Diálogo de confirmação de exclusão */}
+        <Dialog open={!!deleteTenant} onClose={() => setDeleteTenant(null)}>
+          <DialogTitle>Excluir empresa</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Tem certeza que deseja excluir a empresa <b>{deleteTenant?.nome}</b>? Esta ação não pode ser desfeita.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDeleteTenant(null)} disabled={deleteLoading}>Cancelar</Button>
+            <Button onClick={handleDelete} color="error" variant="contained" disabled={deleteLoading}>
+              {deleteLoading ? 'Excluindo...' : 'Excluir'}
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Paper>
-    </Box>
+    </Layout>
   );
-} 
+}

@@ -13,4 +13,6 @@ router.get('/consultas/excel', auth_1.authenticateJWT, (0, auth_1.hasPermission)
 router.get('/dividas', auth_1.authenticateJWT, (0, auth_1.hasPermission)('acessar_relatorios'), RelatorioController_1.RelatorioController.dividas);
 router.get('/dividas/pdf', auth_1.authenticateJWT, (0, auth_1.hasPermission)('acessar_relatorios'), RelatorioController_1.RelatorioController.exportarDividasPDF);
 router.get('/dividas/excel', auth_1.authenticateJWT, (0, auth_1.hasPermission)('acessar_relatorios'), RelatorioController_1.RelatorioController.exportarDividasExcel);
+router.get('/debug/consultas', RelatorioController_1.RelatorioController.debugConsultas);
+router.get('/debug/inadimplentes', RelatorioController_1.RelatorioController.debugInadimplentes);
 exports.default = router;

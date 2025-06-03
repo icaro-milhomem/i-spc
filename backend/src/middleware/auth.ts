@@ -2,11 +2,13 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../database/prismaClient';
 
-interface JwtPayload {
+export interface JwtPayload {
   id: number;
   nome: string;
   email: string;
   perfil: string;
+  role?: string;
+  tenant_id?: number;
 }
 
 declare global {
@@ -17,7 +19,7 @@ declare global {
   }
 }
 
-export function authenticateJWT(req: Request, res: Response, next: NextFunction) {
+export async function authenticateJWT(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
     return res.status(401).json({ error: 'Token não fornecido' });
@@ -26,7 +28,34 @@ export function authenticateJWT(req: Request, res: Response, next: NextFunction)
   const token = authHeader.split(' ')[1];
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'segredo') as JwtPayload;
-    req.user = decoded;
+    
+    // Buscar o usuário no banco para garantir que temos o tenant_id
+    const usuario = await prisma.usuario.findUnique({
+      where: { id: decoded.id },
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        perfil: true,
+        role: true,
+        tenant_id: true
+      }
+    });
+
+    if (!usuario) {
+      return res.status(401).json({ error: 'Usuário não encontrado' });
+    }
+
+    // Atribuir os dados do usuário incluindo o tenant_id
+    req.user = {
+      id: usuario.id,
+      nome: usuario.nome,
+      email: usuario.email,
+      perfil: usuario.perfil,
+      role: usuario.role || undefined,
+      tenant_id: usuario.tenant_id || undefined
+    };
+
     next();
   } catch (err) {
     return res.status(401).json({ error: 'Token inválido' });

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { ConsultaModel } from '../models/Consulta';
 import { ClienteModel } from '../models/Cliente';
+import { ConsultaModel } from '../models/Consulta';
 import { DividaModel } from '../models/Divida';
 
 export class ConsultaController {
@@ -59,7 +59,11 @@ export class ConsultaController {
       }
 
       // Busca as dívidas do cliente
-      const dividas = await DividaModel.buscarPorCliente(cliente.id);
+      let dividas = await DividaModel.buscarPorCliente(cliente.id);
+      dividas = dividas.map(d => ({
+        ...d,
+        data_vencimento: d.data_cadastro ? d.data_cadastro.toISOString() : ''
+      }));
 
       // Registra a consulta
       await ConsultaModel.criar(

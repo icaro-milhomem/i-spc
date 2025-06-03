@@ -30,6 +30,9 @@ CREATE TABLE IF NOT EXISTS dividas (
     valor DECIMAL(10,2) NOT NULL,
     data_vencimento DATE NOT NULL,
     status VARCHAR(20) DEFAULT 'pendente' CHECK (status IN ('pendente', 'pago', 'atrasado')),
+    protocolo VARCHAR(50) UNIQUE,
+    empresa VARCHAR(100),
+    cnpj_empresa VARCHAR(20),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

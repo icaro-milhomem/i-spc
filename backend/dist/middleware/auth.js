@@ -8,7 +8,7 @@ exports.isAdmin = isAdmin;
 exports.hasPermission = hasPermission;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const prismaClient_1 = require("../database/prismaClient");
-function authenticateJWT(req, res, next) {
+async function authenticateJWT(req, res, next) {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
         return res.status(401).json({ error: 'Token não fornecido' });
@@ -16,7 +16,28 @@ function authenticateJWT(req, res, next) {
     const token = authHeader.split(' ')[1];
     try {
         const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET || 'segredo');
-        req.user = decoded;
+        const usuario = await prismaClient_1.prisma.usuario.findUnique({
+            where: { id: decoded.id },
+            select: {
+                id: true,
+                nome: true,
+                email: true,
+                perfil: true,
+                role: true,
+                tenant_id: true
+            }
+        });
+        if (!usuario) {
+            return res.status(401).json({ error: 'Usuário não encontrado' });
+        }
+        req.user = {
+            id: usuario.id,
+            nome: usuario.nome,
+            email: usuario.email,
+            perfil: usuario.perfil,
+            role: usuario.role || undefined,
+            tenant_id: usuario.tenant_id || undefined
+        };
         next();
     }
     catch (err) {

@@ -1,24 +1,19 @@
 import { Router } from 'express';
-import { ClienteController } from '../controllers/ClienteController';
-import { DividaController } from '../controllers/DividaController';
 import { ConsultaController } from '../controllers/ConsultaController';
-import { UsuarioController } from '../controllers/UsuarioController';
-import { authenticateJWT } from '../middleware/auth';
-import { isAdmin } from '../middleware/auth';
-import { DashboardController } from '../controllers/DashboardController';
-import relatorioRoutes from './relatorioRoutes';
+import { authenticateJWT  } from '../middleware/auth';
 import authRoutes from './authRoutes';
+import backupRoutes from './backupRoutes';
 import clienteRoutes from './clienteRoutes';
+import configuracaoRoutes from './configuracaoRoutes';
+import dashboardRoutes from './dashboardRoutes';
 import dividaRoutes from './dividaRoutes';
+import logRoutes from './logRoutes';
 import notificacaoRoutes from './notificacaoRoutes';
-import usuarioRoutes from './usuarioRoutes';
 import papelRoutes from './papelRoutes';
 import permissaoRoutes from './permissaoRoutes';
-import configuracaoRoutes from './configuracaoRoutes';
-import backupRoutes from './backupRoutes';
-import logRoutes from './logRoutes';
-import dashboardRoutes from './dashboardRoutes';
+import relatorioRoutes from './relatorioRoutes';
 import tenantRoutes from './tenantRoutes';
+import usuarioRoutes from './usuarioRoutes';
 
 const router = Router();
 
@@ -61,6 +56,7 @@ router.use('/tenants', tenantRoutes);
 // Rotas de Consulta
 router.get('/consulta/:cpf', authenticateJWT, ConsultaController.consultarCPF);
 router.get('/consulta/:cpf/historico', authenticateJWT, ConsultaController.buscarHistorico);
+router.post('/consultas/registrar', authenticateJWT, ConsultaController.registrar);
 
 // Rotas de Relatório
 router.use('/relatorios', relatorioRoutes);

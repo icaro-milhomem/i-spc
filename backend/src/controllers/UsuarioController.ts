@@ -1,7 +1,7 @@
+import { hash } from 'bcryptjs';
 import { Request, Response } from 'express';
 import { prisma } from '../database/prismaClient';
 import { AppError } from '../utils/AppError';
-import { hash } from 'bcryptjs';
 
 export class UsuarioController {
   async criar(req: Request, res: Response) {
@@ -21,6 +21,10 @@ export class UsuarioController {
         throw new AppError('Email já cadastrado', 400);
       }
 
+      if (!req.user || !req.user.id) {
+        throw new AppError('Usuário autenticado não encontrado', 401);
+      }
+
       const senhaHash = await hash(senha, 8);
 
       // Buscar o papel conforme o perfil
@@ -37,6 +41,9 @@ export class UsuarioController {
           nome,
           email,
           senha: senhaHash,
+          perfil,
+          criado_por_id: req.user.id,
+          tenant_id: req.user.tenant_id,
           papeis: {
             connect: [{ id: papel.id }]
           }
@@ -69,13 +76,24 @@ export class UsuarioController {
 
   async listar(req: Request, res: Response) {
     try {
+      const usuarioLogado = req.user;
+      let where: any = {
+        OR: [
+          { role: null },
+          { role: { not: 'superadmin' } }
+        ]
+      };
+
+      // Se for admin (mas não superadmin), filtra pelos usuários criados por ele
+      if (usuarioLogado?.perfil === 'admin' && usuarioLogado?.role !== 'superadmin') {
+        where = {
+          ...where,
+          criado_por_id: usuarioLogado.id
+        };
+      }
+
       const usuarios = await prisma.usuario.findMany({
-        where: {
-          OR: [
-            { role: null },
-            { role: { not: 'superadmin' } }
-          ]
-        },
+        where,
         include: {
           papeis: {
             include: {
@@ -160,7 +178,12 @@ export class UsuarioController {
         throw new AppError('Email já cadastrado', 400);
       }
 
-      const data: any = {
+      const data: {
+        nome: string;
+        email: string;
+        senha?: string;
+        papeis: { set: { id: number }[] };
+      } = {
         nome,
         email,
         papeis: {
@@ -226,4 +249,4 @@ export class UsuarioController {
       return res.status(500).json({ error: 'Erro interno do servidor' });
     }
   }
-} 
+}

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
-  Container,
   Grid,
   Paper,
   Typography,
@@ -97,7 +96,7 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <Box sx={{ p: 0 }}>
       <Grid container spacing={3}>
         {/* Cabeçalho */}
         <Grid item xs={12}>
@@ -256,7 +255,7 @@ const Dashboard: React.FC = () => {
           </Paper>
         </Grid>
       </Grid>
-    </Container>
+    </Box>
   );
 };
 

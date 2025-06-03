@@ -1,4 +1,3 @@
-import 'jsonwebtoken';
 import { SignOptions } from 'jsonwebtoken';
 
 declare module 'jsonwebtoken' {

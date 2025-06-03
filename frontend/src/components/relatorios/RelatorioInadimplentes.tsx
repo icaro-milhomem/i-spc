@@ -32,6 +32,9 @@ interface Inadimplente {
     valor: number;
     data_vencimento: string;
     status: string;
+    protocolo?: string;
+    empresa?: string;
+    cnpj_empresa?: string;
   }>;
   ultimaConsulta?: {
     id: number;
@@ -125,7 +128,7 @@ export const RelatorioInadimplentes: React.FC = () => {
   }
 
   return (
-    <Box p={3}>
+    <Box p={0}>
       <Paper sx={{ p: 3 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
           <Typography variant="h4">
@@ -166,6 +169,9 @@ export const RelatorioInadimplentes: React.FC = () => {
                 <TableCell>CPF</TableCell>
                 <TableCell>Telefone</TableCell>
                 <TableCell>Dívidas</TableCell>
+                <TableCell>Protocolo</TableCell>
+                <TableCell>Empresa</TableCell>
+                <TableCell>CNPJ da Empresa</TableCell>
                 <TableCell>Valor Total</TableCell>
                 <TableCell>Última Consulta</TableCell>
               </TableRow>
@@ -181,6 +187,21 @@ export const RelatorioInadimplentes: React.FC = () => {
                       <div key={divida.id}>
                         {divida.descricao} ({formatCurrency(divida.valor)})
                       </div>
+                    ))}
+                  </TableCell>
+                  <TableCell>
+                    {inadimplente.dividas.map((divida) => (
+                      <div key={divida.id}>{divida.protocolo || '—'}</div>
+                    ))}
+                  </TableCell>
+                  <TableCell>
+                    {inadimplente.dividas.map((divida) => (
+                      <div key={divida.id}>{divida.empresa || '—'}</div>
+                    ))}
+                  </TableCell>
+                  <TableCell>
+                    {inadimplente.dividas.map((divida) => (
+                      <div key={divida.id}>{divida.cnpj_empresa || '—'}</div>
                     ))}
                   </TableCell>
                   <TableCell>

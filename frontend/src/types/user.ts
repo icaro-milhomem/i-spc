@@ -8,6 +8,7 @@ export interface User {
   role?: string; // superadmin, admin, user
   createdAt: string;
   updatedAt: string;
+  avatar?: string | null;
 }
 
 export interface LoginCredentials {

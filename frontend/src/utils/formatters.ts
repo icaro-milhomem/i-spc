@@ -18,7 +18,10 @@ export const formatPhone = (phone: string): string => {
 };
 
 export const formatDate = (date: string): string => {
-  return new Date(date).toLocaleDateString('pt-BR');
+  if (!date) return '—';
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString('pt-BR');
 };
 
 export const formatDateTime = (date: string | Date): string => {

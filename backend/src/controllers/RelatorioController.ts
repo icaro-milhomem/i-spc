@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { RelatorioService } from '../services/RelatorioService';
 import { ExportacaoService } from '../services/ExportacaoService';
+import { RelatorioService } from '../services/RelatorioService';
 
 export class RelatorioController {
   private static relatorioService = new RelatorioService();
@@ -57,6 +57,16 @@ export class RelatorioController {
       
       const fim = new Date(dataFim as string);
       fim.setHours(23, 59, 59, 999);
+
+      // Validar se as datas são válidas
+      if (isNaN(inicio.getTime()) || isNaN(fim.getTime())) {
+        return res.status(400).json({ error: 'Datas inválidas' });
+      }
+
+      // Validar se a data de início é maior que a data de fim
+      if (inicio > fim) {
+        return res.status(400).json({ error: 'A data de início não pode ser maior que a data de fim' });
+      }
 
       const relatorio = await RelatorioController.relatorioService.gerarRelatorioConsultas(inicio, fim);
       
@@ -156,6 +166,26 @@ export class RelatorioController {
     } catch (error) {
       console.error('Erro ao exportar relatório de dívidas em Excel:', error);
       res.status(500).json({ error: 'Erro ao exportar relatório de dívidas em Excel' });
+    }
+  }
+
+  static async debugConsultas(req: Request, res: Response) {
+    try {
+      const consultas = await RelatorioController.relatorioService.buscarTodasConsultasDebug();
+      res.json(consultas);
+    } catch (error) {
+      console.error('Erro ao buscar consultas (debug):', error);
+      res.status(500).json({ error: 'Erro ao buscar consultas (debug)' });
+    }
+  }
+
+  static async debugInadimplentes(req: Request, res: Response) {
+    try {
+      const inadimplentes = await RelatorioController.relatorioService.buscarTodosInadimplentesDebug();
+      res.json(inadimplentes);
+    } catch (error) {
+      console.error('Erro ao buscar inadimplentes (debug):', error);
+      res.status(500).json({ error: 'Erro ao buscar inadimplentes (debug)' });
     }
   }
 } 

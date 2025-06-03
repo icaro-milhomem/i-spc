@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { AppError } from '../utils/AppError';
 import { prisma } from '../database/prismaClient';
+import { AppError } from '../utils/AppError';
 
 interface TokenPayload {
     id: number;

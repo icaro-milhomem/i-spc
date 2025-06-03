@@ -5,7 +5,9 @@ interface User {
   id: number;
   nome: string;
   email: string;
-  perfil: 'admin' | 'user';
+  perfil: 'admin' | 'user' | 'superadmin';
+  avatar?: string | null;
+  role?: string;
 }
 
 interface AuthContextData {

@@ -50,11 +50,11 @@ const UsuarioEdicao: React.FC = () => {
       const response = await api.get(`/usuarios/${id}`);
       const usuario = response.data;
       setFormData({
-        nome: usuario.nome,
-        email: usuario.email,
+        nome: usuario.nome || '',
+        email: usuario.email || '',
         senha: '', // Sempre inicializa com string vazia
-        ativo: usuario.ativo,
-        perfil: usuario.papeis && usuario.papeis.length > 0 ? usuario.papeis[0].nome : 'usuario',
+        ativo: usuario.ativo !== undefined ? usuario.ativo : true,
+        perfil: usuario.papeis && usuario.papeis.length > 0 ? usuario.papeis[0].nome : (usuario.perfil || 'usuario'),
       });
     } catch (error) {
       setError('Erro ao carregar dados do usuário');
@@ -102,49 +102,51 @@ const UsuarioEdicao: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="h4" gutterBottom>
+    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f6fa' }}>
+      <Paper elevation={4} sx={{ p: 4, borderRadius: 4, minWidth: 400, maxWidth: 500, width: '100%' }}>
+        <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 700, mb: 3 }}>
           {id ? 'Editar Usuário' : 'Novo Usuário'}
         </Typography>
-
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} autoComplete="off">
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Nome"
+                label="Nome *"
                 name="nome"
                 value={formData.nome}
                 onChange={handleChange}
                 required
+                sx={{ borderRadius: 2 }}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Email"
+                label="Email *"
                 name="email"
                 type="email"
                 value={formData.email}
                 onChange={handleChange}
                 required
+                sx={{ borderRadius: 2 }}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Senha"
+                label="Senha *"
                 name="senha"
                 type="password"
                 value={formData.senha || ''}
                 onChange={handleChange}
                 required={!id}
                 helperText={id ? "Deixe em branco para manter a senha atual" : "Obrigatório para novo usuário"}
+                sx={{ borderRadius: 2 }}
               />
             </Grid>
             <Grid item xs={12}>
-              <FormControl fullWidth margin="normal">
+              <FormControl fullWidth margin="normal" sx={{ borderRadius: 2 }}>
                 <InputLabel>Papel</InputLabel>
                 <Select
                   name="perfil"
@@ -152,6 +154,7 @@ const UsuarioEdicao: React.FC = () => {
                   onChange={handlePerfilChange}
                   label="Papel"
                   required
+                  sx={{ borderRadius: 2 }}
                 >
                   <MenuItem value="admin">Administrador</MenuItem>
                   <MenuItem value="usuario">Usuário</MenuItem>
@@ -164,19 +167,18 @@ const UsuarioEdicao: React.FC = () => {
                 variant="contained"
                 color="primary"
                 fullWidth
+                sx={{ mt: 2, borderRadius: 2, fontWeight: 700, fontSize: 18 }}
               >
                 Salvar
               </Button>
             </Grid>
           </Grid>
         </form>
-
         {error && (
           <Alert severity="error" sx={{ mt: 2 }}>
             {error}
           </Alert>
         )}
-
         <Snackbar
           open={success}
           autoHideDuration={2000}

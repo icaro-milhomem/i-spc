@@ -4,18 +4,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TenantController = void 0;
-const prismaClient_1 = require("../database/prismaClient");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const prismaClient_1 = require("../database/prismaClient");
 class TenantController {
     static async criar(req, res) {
-        var _a;
         try {
-            if (!((_a = req.user) === null || _a === void 0 ? void 0 : _a.role) || req.user.role !== 'superadmin') {
+            const usuario = req.user;
+            if (!usuario || usuario.role !== 'superadmin') {
                 return res.status(403).json({ error: 'Acesso negado' });
             }
             const { nome, cnpj, razao_social, cep, endereco, numero, bairro, cidade, uf, admin } = req.body;
             if (!nome || !cnpj || !razao_social || !cep || !endereco || !numero || !bairro || !cidade || !uf || !(admin === null || admin === void 0 ? void 0 : admin.email) || !(admin === null || admin === void 0 ? void 0 : admin.senha)) {
                 return res.status(400).json({ error: 'Dados obrigatórios ausentes' });
+            }
+            const papelAdmin = await prismaClient_1.prisma.papel.findUnique({
+                where: { nome: 'admin' },
+                include: {
+                    permissoes: true
+                }
+            });
+            if (!papelAdmin) {
+                return res.status(500).json({ error: 'Papel de administrador não encontrado' });
             }
             const novoTenant = await prismaClient_1.prisma.tenant.create({
                 data: { nome, cnpj, razao_social, cep, endereco, numero, bairro, cidade, uf }
@@ -29,7 +38,17 @@ class TenantController {
                     perfil: 'admin',
                     role: 'admin',
                     tenant_id: novoTenant.id,
-                    ativo: true
+                    ativo: true,
+                    papeis: {
+                        connect: [{ id: papelAdmin.id }]
+                    }
+                },
+                include: {
+                    papeis: {
+                        include: {
+                            permissoes: true
+                        }
+                    }
                 }
             });
             res.status(201).json({ message: 'Empresa e admin criados com sucesso!' });
@@ -40,9 +59,9 @@ class TenantController {
         }
     }
     static async listar(req, res) {
-        var _a;
         try {
-            if (!((_a = req.user) === null || _a === void 0 ? void 0 : _a.role) || req.user.role !== 'superadmin') {
+            const usuario = req.user;
+            if (!usuario || usuario.role !== 'superadmin') {
                 return res.status(403).json({ error: 'Acesso negado' });
             }
             const tenants = await prismaClient_1.prisma.tenant.findMany({
@@ -77,9 +96,9 @@ class TenantController {
         }
     }
     static async atualizar(req, res) {
-        var _a;
         try {
-            if (!((_a = req.user) === null || _a === void 0 ? void 0 : _a.role) || req.user.role !== 'superadmin') {
+            const usuario = req.user;
+            if (!usuario || usuario.role !== 'superadmin') {
                 return res.status(403).json({ error: 'Acesso negado' });
             }
             const id = Number(req.params.id);
@@ -99,6 +118,22 @@ class TenantController {
         catch (error) {
             console.error('Erro ao atualizar tenant:', error);
             res.status(500).json({ error: 'Erro ao atualizar empresa' });
+        }
+    }
+    static async deletar(req, res) {
+        try {
+            const usuario = req.user;
+            if (!usuario || usuario.role !== 'superadmin') {
+                return res.status(403).json({ error: 'Acesso negado' });
+            }
+            const id = Number(req.params.id);
+            await prismaClient_1.prisma.usuario.deleteMany({ where: { tenant_id: id } });
+            await prismaClient_1.prisma.tenant.delete({ where: { id } });
+            res.json({ message: 'Empresa excluída com sucesso!' });
+        }
+        catch (error) {
+            console.error('Erro ao excluir tenant:', error);
+            res.status(500).json({ error: 'Erro ao excluir empresa' });
         }
     }
 }

@@ -19,6 +19,10 @@ export class ClienteController {
         throw new AppError('CPF já cadastrado', 400);
       }
 
+      if (!req.user || !req.user.id) {
+        throw new AppError('Usuário autenticado não encontrado', 401);
+      }
+
       const cliente = await prisma.cliente.create({
         data: {
           nome,
@@ -26,7 +30,8 @@ export class ClienteController {
           email,
           telefone,
           endereco,
-          status: 'ativo'
+          status: 'ativo',
+          criado_por_id: req.user.id
         }
       });
 
@@ -177,6 +182,51 @@ export class ClienteController {
       }
       console.error('Erro ao atualizar cliente:', error);
       return res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
+  async buscarPorId(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const usuario = req.user;
+      if (!usuario || !usuario.tenant_id) {
+        return res.status(401).json({ error: 'Usuário não autenticado corretamente.' });
+      }
+      const cliente = await prisma.cliente.findFirst({ where: { id: Number(id), tenant_id: usuario.tenant_id } });
+      if (!cliente) {
+        return res.status(404).json({ error: 'Cliente não encontrado' });
+      }
+      res.json(cliente);
+    } catch (error) {
+      res.status(500).json({ error: 'Erro ao buscar cliente' });
+    }
+  }
+
+  async listar(req: Request, res: Response) {
+    try {
+      const usuario = req.user;
+      if (!usuario || !usuario.tenant_id) {
+        return res.status(401).json({ error: 'Usuário não autenticado corretamente.' });
+      }
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const skip = (page - 1) * limit;
+      const [clientes, total] = await Promise.all([
+        prisma.cliente.findMany({
+          where: { tenant_id: usuario.tenant_id },
+          skip,
+          take: limit,
+        }),
+        prisma.cliente.count({ where: { tenant_id: usuario.tenant_id } }),
+      ]);
+      res.json({
+        data: clientes,
+        total,
+        page,
+        limit,
+      });
+    } catch (error) {
+      res.status(500).json({ error: 'Erro ao listar clientes' });
     }
   }
 }

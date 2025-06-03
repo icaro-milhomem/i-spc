@@ -1,10 +1,9 @@
-import PDFDocument from 'pdfkit';
 import ExcelJS from 'exceljs';
-import { RelatorioInadimplentes, RelatorioConsultas, RelatorioDividas } from '../models/Relatorio';
-import { formatCurrency } from '../utils/formatters';
+import PDFDocument from 'pdfkit';
 import { Cliente } from '../models/Cliente';
-import { Divida } from '../models/Divida';
 import { Consulta } from '../models/Consulta';
+import { RelatorioInadimplentes, RelatorioConsultas, DividaRelatorio } from '../models/Relatorio';
+import { formatCurrency } from '../utils/formatters';
 
 export class ExportacaoService {
   async exportarInadimplentesPDF(relatorio: RelatorioInadimplentes): Promise<Buffer> {
@@ -32,7 +31,7 @@ export class ExportacaoService {
 
         doc.text('Dívidas:');
         inadimplente.dividas.forEach((divida) => {
-          doc.text(`- ${divida.descricao}: ${formatCurrency(divida.valor)} (Vencimento: ${divida.data?.toLocaleDateString() || 'N/A'})`);
+          doc.text(`- ${divida.descricao}: ${formatCurrency(divida.valor)} (Vencimento: ${divida.data_vencimento ? new Date(divida.data_vencimento).toLocaleDateString() : 'N/A'})`);
         });
         doc.moveDown();
       });
@@ -76,7 +75,7 @@ export class ExportacaoService {
     });
   }
 
-  async exportarDividasPDF(relatorio: RelatorioDividas): Promise<Buffer> {
+  async exportarDividasPDF(relatorio: { dividas: DividaRelatorio[], totalDividas: number, valorTotal: number, dividasPorStatus: Record<string, number> }): Promise<Buffer> {
     const doc = new PDFDocument();
     const chunks: Buffer[] = [];
 
@@ -104,7 +103,7 @@ export class ExportacaoService {
       relatorio.dividas.forEach((divida) => {
         doc.text(`Descrição: ${divida.descricao}`);
         doc.text(`Valor: ${formatCurrency(divida.valor)}`);
-        doc.text(`Vencimento: ${divida.data?.toLocaleDateString() || 'N/A'}`);
+        doc.text(`Vencimento: ${divida.data_vencimento ? new Date(divida.data_vencimento).toLocaleDateString() : 'N/A'}`);
         doc.text(`Status: ${divida.status}`);
         doc.moveDown();
       });
@@ -132,7 +131,7 @@ export class ExportacaoService {
         nome: inadimplente.cliente.nome,
         cpf: inadimplente.cliente.cpf,
         telefone: inadimplente.cliente.telefone,
-        valorTotal: inadimplente.dividas.reduce((sum, d) => sum + d.valor, 0),
+        valorTotal: (inadimplente.dividas as DividaRelatorio[]).reduce((sum, d) => sum + d.valor, 0),
         ultimaConsulta: inadimplente.ultimaConsulta?.data_consulta?.toLocaleDateString() || 'N/A'
       });
     });
@@ -163,7 +162,7 @@ export class ExportacaoService {
     return workbook.xlsx.writeBuffer() as Promise<Buffer>;
   }
 
-  async exportarDividasExcel(relatorio: RelatorioDividas): Promise<Buffer> {
+  async exportarDividasExcel(relatorio: { dividas: DividaRelatorio[] }): Promise<Buffer> {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Dívidas');
 
@@ -180,7 +179,7 @@ export class ExportacaoService {
       worksheet.addRow({
         descricao: divida.descricao,
         valor: divida.valor,
-        vencimento: divida.data?.toLocaleDateString() || 'N/A',
+        vencimento: divida.data_vencimento ? new Date(divida.data_vencimento).toLocaleDateString() : 'N/A',
         status: divida.status
       });
     });
@@ -188,7 +187,7 @@ export class ExportacaoService {
     return workbook.xlsx.writeBuffer() as Promise<Buffer>;
   }
 
-  static async exportarCliente(cliente: Cliente, dividas: Divida[]): Promise<Buffer> {
+  static async exportarCliente(cliente: Cliente, dividas: DividaRelatorio[]): Promise<Buffer> {
     const doc = new PDFDocument();
     const chunks: Buffer[] = [];
 
@@ -218,7 +217,7 @@ export class ExportacaoService {
         doc.fontSize(16).text('Dívidas');
         doc.fontSize(12);
         dividas.forEach(divida => {
-          doc.text(`- ${divida.descricao}: ${formatCurrency(divida.valor)} (Vencimento: ${divida.data_vencimento?.toLocaleDateString() || 'N/A'})`);
+          doc.text(`- ${divida.descricao}: ${formatCurrency(divida.valor)} (Vencimento: ${divida.data_vencimento ? new Date(divida.data_vencimento).toLocaleDateString() : 'N/A'})`);
         });
       }
 
@@ -251,7 +250,7 @@ export class ExportacaoService {
     });
   }
 
-  static async exportarInadimplentes(inadimplentes: any[]): Promise<Buffer> {
+  static async exportarInadimplentes(inadimplentes: { cliente: any; dividas: DividaRelatorio[]; ultimaConsulta?: any }[]): Promise<Buffer> {
     const doc = new PDFDocument();
     const chunks: Buffer[] = [];
 
@@ -275,9 +274,9 @@ export class ExportacaoService {
         doc.moveDown();
 
         doc.text('Dívidas:');
-        inadimplente.dividas.forEach((divida: Divida) => {
+        inadimplente.dividas.forEach((divida: DividaRelatorio) => {
           doc.text(`- ${divida.descricao}: ${formatCurrency(divida.valor)}`);
-          doc.text(`  Vencimento: ${divida.data_vencimento?.toLocaleDateString() || 'N/A'}`);
+          doc.text(`  Vencimento: ${divida.data_vencimento ? new Date(divida.data_vencimento).toLocaleDateString() : 'N/A'}`);
         });
 
         if (inadimplente.ultimaConsulta) {
@@ -322,7 +321,7 @@ export class ExportacaoService {
     });
   }
 
-  static async exportarDividas(dividas: Divida[]): Promise<Buffer> {
+  static async exportarDividas(dividas: DividaRelatorio[]): Promise<Buffer> {
     const doc = new PDFDocument();
     const chunks: Buffer[] = [];
 
@@ -341,7 +340,7 @@ export class ExportacaoService {
         doc.fontSize(16).text(`Dívida #${divida.id}`);
         doc.fontSize(12);
         doc.text(`Valor: ${formatCurrency(divida.valor)}`);
-        doc.text(`Vencimento: ${divida.data_vencimento?.toLocaleDateString() || 'N/A'}`);
+        doc.text(`Vencimento: ${divida.data_vencimento ? new Date(divida.data_vencimento).toLocaleDateString() : 'N/A'}`);
         if (divida.descricao) doc.text(`Descrição: ${divida.descricao}`);
         doc.text(`Status: ${divida.status}`);
         doc.moveDown(2);
@@ -350,4 +349,4 @@ export class ExportacaoService {
       doc.end();
     });
   }
-} 
+}

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   Box,
-  Container,
   Typography,
   Tabs,
   Tab,
@@ -10,6 +9,7 @@ import {
 import { RelatorioInadimplentes } from '../components/relatorios/RelatorioInadimplentes';
 import { RelatorioConsultas } from '../components/relatorios/RelatorioConsultas';
 import { RelatorioDividas } from '../components/relatorios/RelatorioDividas';
+import Layout from '../components/Layout';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -45,34 +45,34 @@ export const Relatorios: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Relatórios
-      </Typography>
-
-      <Paper sx={{ width: '100%', mb: 2 }}>
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          indicatorColor="primary"
-          textColor="primary"
-          variant="fullWidth"
-        >
-          <Tab label="Inadimplentes" />
-          <Tab label="Consultas" />
-          <Tab label="Dívidas" />
-        </Tabs>
-
-        <TabPanel value={value} index={0}>
-          <RelatorioInadimplentes />
-        </TabPanel>
-        <TabPanel value={value} index={1}>
-          <RelatorioConsultas />
-        </TabPanel>
-        <TabPanel value={value} index={2}>
-          <RelatorioDividas />
-        </TabPanel>
-      </Paper>
-    </Container>
+    <Layout>
+      <Box sx={{ p: 0 }}>
+        <Typography variant="h4" gutterBottom>
+          Relatórios
+        </Typography>
+        <Paper sx={{ width: '100%', mb: 2 }}>
+          <Tabs
+            value={value}
+            onChange={handleChange}
+            indicatorColor="primary"
+            textColor="primary"
+            variant="fullWidth"
+          >
+            <Tab label="Inadimplentes" />
+            <Tab label="Consultas" />
+            <Tab label="Dívidas" />
+          </Tabs>
+          <TabPanel value={value} index={0}>
+            <RelatorioInadimplentes />
+          </TabPanel>
+          <TabPanel value={value} index={1}>
+            <RelatorioConsultas />
+          </TabPanel>
+          <TabPanel value={value} index={2}>
+            <RelatorioDividas />
+          </TabPanel>
+        </Paper>
+      </Box>
+    </Layout>
   );
 }; 

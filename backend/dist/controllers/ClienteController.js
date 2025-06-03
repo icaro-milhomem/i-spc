@@ -16,6 +16,9 @@ class ClienteController {
             if (clienteExistente) {
                 throw new AppError_1.AppError('CPF já cadastrado', 400);
             }
+            if (!req.user || !req.user.id) {
+                throw new AppError_1.AppError('Usuário autenticado não encontrado', 401);
+            }
             const cliente = await prismaClient_1.prisma.cliente.create({
                 data: {
                     nome,
@@ -23,7 +26,8 @@ class ClienteController {
                     email,
                     telefone,
                     endereco,
-                    status: 'ativo'
+                    status: 'ativo',
+                    criado_por_id: req.user.id
                 }
             });
             return res.status(201).json(cliente);
@@ -152,6 +156,51 @@ class ClienteController {
             }
             console.error('Erro ao atualizar cliente:', error);
             return res.status(500).json({ error: 'Erro interno do servidor' });
+        }
+    }
+    async buscarPorId(req, res) {
+        try {
+            const { id } = req.params;
+            const usuario = req.user;
+            if (!usuario || !usuario.tenant_id) {
+                return res.status(401).json({ error: 'Usuário não autenticado corretamente.' });
+            }
+            const cliente = await prismaClient_1.prisma.cliente.findFirst({ where: { id: Number(id), tenant_id: usuario.tenant_id } });
+            if (!cliente) {
+                return res.status(404).json({ error: 'Cliente não encontrado' });
+            }
+            res.json(cliente);
+        }
+        catch (error) {
+            res.status(500).json({ error: 'Erro ao buscar cliente' });
+        }
+    }
+    async listar(req, res) {
+        try {
+            const usuario = req.user;
+            if (!usuario || !usuario.tenant_id) {
+                return res.status(401).json({ error: 'Usuário não autenticado corretamente.' });
+            }
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 10;
+            const skip = (page - 1) * limit;
+            const [clientes, total] = await Promise.all([
+                prismaClient_1.prisma.cliente.findMany({
+                    where: { tenant_id: usuario.tenant_id },
+                    skip,
+                    take: limit,
+                }),
+                prismaClient_1.prisma.cliente.count({ where: { tenant_id: usuario.tenant_id } }),
+            ]);
+            res.json({
+                data: clientes,
+                total,
+                page,
+                limit,
+            });
+        }
+        catch (error) {
+            res.status(500).json({ error: 'Erro ao listar clientes' });
         }
     }
 }

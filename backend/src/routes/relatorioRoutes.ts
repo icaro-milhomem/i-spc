@@ -19,4 +19,8 @@ router.get('/dividas', authenticateJWT, hasPermission('acessar_relatorios'), Rel
 router.get('/dividas/pdf', authenticateJWT, hasPermission('acessar_relatorios'), RelatorioController.exportarDividasPDF);
 router.get('/dividas/excel', authenticateJWT, hasPermission('acessar_relatorios'), RelatorioController.exportarDividasExcel);
 
+// Rotas temporárias de debug
+router.get('/debug/consultas', RelatorioController.debugConsultas);
+router.get('/debug/inadimplentes', RelatorioController.debugInadimplentes);
+
 export default router; 

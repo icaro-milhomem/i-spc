@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const prismaClient_1 = require("../database/prismaClient");
 const AppError_1 = require("../utils/AppError");
 class AuthController {
@@ -32,7 +32,7 @@ class AuthController {
             if (!senhaValida) {
                 throw new AppError_1.AppError('Senha inválida', 401);
             }
-            const token = jsonwebtoken_1.default.sign({ id: usuario.id, email: usuario.email, perfil: usuario.perfil, role: usuario.role }, process.env.JWT_SECRET || 'default_secret', { expiresIn: '24h' });
+            const token = jsonwebtoken_1.default.sign({ id: usuario.id, email: usuario.email, perfil: usuario.perfil, role: usuario.role, tenant_id: usuario.tenant_id }, process.env.JWT_SECRET || 'default_secret', { expiresIn: '24h' });
             const permissoes = usuario.papeis.flatMap(papel => papel.permissoes.map(permissao => permissao.codigo));
             return res.json({
                 usuario: {
@@ -41,6 +41,7 @@ class AuthController {
                     email: usuario.email,
                     perfil: usuario.perfil,
                     role: usuario.role,
+                    tenant_id: usuario.tenant_id,
                     permissoes
                 },
                 token
@@ -83,7 +84,7 @@ class AuthController {
             if (!usuario) {
                 throw new AppError_1.AppError('Usuário não encontrado', 401);
             }
-            const newToken = jsonwebtoken_1.default.sign({ id: usuario.id, email: usuario.email, perfil: usuario.perfil, role: usuario.role }, process.env.JWT_SECRET || 'default_secret', { expiresIn: '24h' });
+            const newToken = jsonwebtoken_1.default.sign({ id: usuario.id, email: usuario.email, perfil: usuario.perfil, role: usuario.role, tenant_id: usuario.tenant_id }, process.env.JWT_SECRET || 'default_secret', { expiresIn: '24h' });
             const permissoes = usuario.papeis.flatMap(papel => papel.permissoes.map(permissao => permissao.codigo));
             return res.json({
                 usuario: {
@@ -92,6 +93,7 @@ class AuthController {
                     email: usuario.email,
                     perfil: usuario.perfil,
                     role: usuario.role,
+                    tenant_id: usuario.tenant_id,
                     permissoes
                 },
                 token: newToken

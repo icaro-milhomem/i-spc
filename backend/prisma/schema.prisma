@@ -21,6 +21,8 @@ model Tenant {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   usuarios  Usuario[]
+  dividas   Divida[]
+  clientes  Cliente[]
 
   @@map("tenants")
 }
@@ -40,6 +42,11 @@ model Usuario {
   backups   Backup[]
   logs      Log[]
   papeis    Papel[]  @relation("UsuarioPapel")
+  dividas   Divida[]
+  criado_por_id Int?
+  criado_por   Usuario? @relation("UsuarioCriador", fields: [criado_por_id], references: [id])
+  criados      Usuario[] @relation("UsuarioCriador")
+  clientes_criados Cliente[] @relation("UsuarioCriadorCliente")
 
   @@map("usuarios")
 }
@@ -80,23 +87,33 @@ model Cliente {
   dividas      Divida[]
   notificacoes Notificacao[]
   consultas    Consulta[]
+  criado_por_id Int?
+  criado_por   Usuario? @relation("UsuarioCriadorCliente", fields: [criado_por_id], references: [id])
+  tenant_id    Int?
+  tenant       Tenant?  @relation(fields: [tenant_id], references: [id])
 
   @@map("clientes")
 }
 
 model Divida {
-  id              Int           @id @default(autoincrement())
-  cliente_id      Int
-  valor           Float
-  data_vencimento DateTime      @map("data_vencimento")
-  descricao       String?
-  status          String        @default("pendente")
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
-  cliente         Cliente       @relation(fields: [cliente_id], references: [id])
-  notificacoes    Notificacao[]
+  id                    Int      @id @default(autoincrement())
+  tenant_id             Int
+  usuario_id            Int
+  cliente_id            Int
+  nome_devedor          String
+  cpf_cnpj_devedor      String
+  valor                 Decimal
+  descricao             String?
+  data_cadastro         DateTime @default(now())
+  protocolo             String?   @unique
+  empresa               String?
+  cnpj_empresa          String?
+  status_negativado     Boolean  @default(false)
 
-  @@map("dividas")
+  tenant   Tenant   @relation(fields: [tenant_id], references: [id])
+  usuario  Usuario  @relation(fields: [usuario_id], references: [id])
+  cliente  Cliente  @relation(fields: [cliente_id], references: [id])
+  notificacoes Notificacao[]
 }
 
 model Notificacao {

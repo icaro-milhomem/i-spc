@@ -1,8 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { ModalProvider } from '../contexts/ModalContext';
 import Layout from '../components/Layout';
 import Login from '../components/Login';
-import { Dashboard } from '../pages/Dashboard';
+import Dashboard from '../pages/Dashboard';
 import { UsuarioLista } from '../components/UsuarioLista';
 import UsuarioEdicao from '../components/UsuarioEdicao';
 import ClienteLista from '../components/ClienteLista';
@@ -48,125 +49,127 @@ const AppRoutes: React.FC = () => {
 
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/recuperar-senha" element={<RecuperarSenha />} />
-        <Route path="/redefinir-senha/:token" element={<RedefinirSenha />} />
+      <ModalProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+          <Route path="/redefinir-senha/:token" element={<RedefinirSenha />} />
 
-        {/* Rota exclusiva do superadmin */}
-        {(user as any)?.role === 'superadmin' && (
-          <Route path="/admin/tenants" element={<AdminTenants />} />
-        )}
+          {/* Rota exclusiva do superadmin */}
+          {(user as any)?.role === 'superadmin' && (
+            <Route path="/admin/tenants" element={<AdminTenants />} />
+          )}
 
-        {/* Rotas normais, só para quem NÃO é superadmin */}
-        {(user as any)?.role !== 'superadmin' && (
-          <Route
-            path="/"
-            element={
-              <PrivateRoute>
-                <Layout />
-              </PrivateRoute>
-            }
-          >
-            <Route index element={<Dashboard />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="perfil" element={<Perfil />} />
+          {/* Rotas normais, só para quem NÃO é superadmin */}
+          {(user as any)?.role !== 'superadmin' && (
             <Route
-              path="usuarios"
-              element={
-                <PrivateRoute requireAdmin>
-                  <UsuarioLista />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="usuarios/novo"
-              element={
-                <PrivateRoute requireAdmin>
-                  <UsuarioEdicao />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="usuarios/:id"
-              element={
-                <PrivateRoute requireAdmin>
-                  <UsuarioEdicao />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="clientes"
+              path="/"
               element={
                 <PrivateRoute>
-                  <ClienteLista />
+                  <Layout />
                 </PrivateRoute>
               }
-            />
-            <Route
-              path="clientes/novo"
-              element={
-                <PrivateRoute>
-                  <ClienteForm />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="clientes/:id"
-              element={
-                <PrivateRoute>
-                  <ClienteForm />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="clientes/:id/dividas"
-              element={
-                <PrivateRoute>
-                  <DividaLista />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="clientes/:id/dividas/nova"
-              element={
-                <PrivateRoute>
-                  <DividaForm />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="clientes/:id/dividas/:idDivida"
-              element={
-                <PrivateRoute>
-                  <DividaForm />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="relatorios"
-              element={
-                <PrivateRoute>
-                  <Relatorios />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="consulta"
-              element={
-                <PrivateRoute>
-                  <ConsultaCPF />
-                </PrivateRoute>
-              }
-            />
-          </Route>
-        )}
+            >
+              <Route index element={<Dashboard />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="perfil" element={<Perfil />} />
+              <Route
+                path="usuarios"
+                element={
+                  <PrivateRoute requireAdmin>
+                    <UsuarioLista />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="usuarios/novo"
+                element={
+                  <PrivateRoute requireAdmin>
+                    <UsuarioEdicao />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="usuarios/:id"
+                element={
+                  <PrivateRoute requireAdmin>
+                    <UsuarioEdicao />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="clientes"
+                element={
+                  <PrivateRoute>
+                    <ClienteLista />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="clientes/novo"
+                element={
+                  <PrivateRoute>
+                    <ClienteForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="clientes/:id"
+                element={
+                  <PrivateRoute>
+                    <ClienteForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="clientes/:id/dividas"
+                element={
+                  <PrivateRoute>
+                    <DividaLista />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="clientes/:id/dividas/nova"
+                element={
+                  <PrivateRoute>
+                    <DividaForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="clientes/:id/dividas/:idDivida"
+                element={
+                  <PrivateRoute>
+                    <DividaForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="relatorios"
+                element={
+                  <PrivateRoute>
+                    <Relatorios />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="consulta"
+                element={
+                  <PrivateRoute>
+                    <ConsultaCPF />
+                  </PrivateRoute>
+                }
+              />
+            </Route>
+          )}
 
-        {/* Redirecionamento padrão */}
-        <Route path="*" element={<Navigate to={(user as any)?.role === 'superadmin' ? '/admin/tenants' : '/dashboard'} />} />
-      </Routes>
+          {/* Redirecionamento padrão */}
+          <Route path="*" element={<Navigate to={(user as any)?.role === 'superadmin' ? '/admin/tenants' : '/dashboard'} />} />
+        </Routes>
+      </ModalProvider>
     </BrowserRouter>
   );
 };
 
-export default AppRoutes; 
+export default AppRoutes;

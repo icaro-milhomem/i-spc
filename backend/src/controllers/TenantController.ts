@@ -1,24 +1,38 @@
+import bcrypt from 'bcryptjs';
 import { Request, Response } from 'express';
 import { prisma } from '../database/prismaClient';
-import { AppError } from '../utils/AppError';
-import bcrypt from 'bcryptjs';
+import { JwtPayload } from '../middleware/auth';
 
 export class TenantController {
   static async criar(req: Request, res: Response) {
     try {
-      // Verifica se é superadmin
-      if (!(req.user as any)?.role || (req.user as any).role !== 'superadmin') {
+      const usuario = req.user as JwtPayload;
+      if (!usuario || usuario.role !== 'superadmin') {
         return res.status(403).json({ error: 'Acesso negado' });
       }
       const { nome, cnpj, razao_social, cep, endereco, numero, bairro, cidade, uf, admin } = req.body;
       if (!nome || !cnpj || !razao_social || !cep || !endereco || !numero || !bairro || !cidade || !uf || !admin?.email || !admin?.senha) {
         return res.status(400).json({ error: 'Dados obrigatórios ausentes' });
       }
+
+      // Buscar o papel de admin
+      const papelAdmin = await prisma.papel.findUnique({
+        where: { nome: 'admin' },
+        include: {
+          permissoes: true
+        }
+      });
+
+      if (!papelAdmin) {
+        return res.status(500).json({ error: 'Papel de administrador não encontrado' });
+      }
+
       // Cria o tenant
       const novoTenant = await prisma.tenant.create({
         data: { nome, cnpj, razao_social, cep, endereco, numero, bairro, cidade, uf }
       });
-      // Cria o admin vinculado ao tenant
+
+      // Cria o admin vinculado ao tenant com o papel de admin
       const senhaHash = await bcrypt.hash(admin.senha, 10);
       await prisma.usuario.create({
         data: {
@@ -28,9 +42,20 @@ export class TenantController {
           perfil: 'admin',
           role: 'admin',
           tenant_id: novoTenant.id,
-          ativo: true
+          ativo: true,
+          papeis: {
+            connect: [{ id: papelAdmin.id }]
+          }
+        },
+        include: {
+          papeis: {
+            include: {
+              permissoes: true
+            }
+          }
         }
       });
+
       res.status(201).json({ message: 'Empresa e admin criados com sucesso!' });
     } catch (error) {
       console.error('Erro ao criar tenant:', error);
@@ -40,7 +65,8 @@ export class TenantController {
 
   static async listar(req: Request, res: Response) {
     try {
-      if (!(req.user as any)?.role || (req.user as any).role !== 'superadmin') {
+      const usuario = req.user as JwtPayload;
+      if (!usuario || usuario.role !== 'superadmin') {
         return res.status(403).json({ error: 'Acesso negado' });
       }
       const tenants = await prisma.tenant.findMany({
@@ -73,7 +99,8 @@ export class TenantController {
 
   static async atualizar(req: Request, res: Response) {
     try {
-      if (!(req.user as any)?.role || (req.user as any).role !== 'superadmin') {
+      const usuario = req.user as JwtPayload;
+      if (!usuario || usuario.role !== 'superadmin') {
         return res.status(403).json({ error: 'Acesso negado' });
       }
       const id = Number(req.params.id);
@@ -101,4 +128,22 @@ export class TenantController {
       res.status(500).json({ error: 'Erro ao atualizar empresa' });
     }
   }
-} 
+
+  static async deletar(req: Request, res: Response) {
+    try {
+      const usuario = req.user as JwtPayload;
+      if (!usuario || usuario.role !== 'superadmin') {
+        return res.status(403).json({ error: 'Acesso negado' });
+      }
+      const id = Number(req.params.id);
+      // Remove todos os usuários vinculados ao tenant
+      await prisma.usuario.deleteMany({ where: { tenant_id: id } });
+      // Remove o tenant
+      await prisma.tenant.delete({ where: { id } });
+      res.json({ message: 'Empresa excluída com sucesso!' });
+    } catch (error) {
+      console.error('Erro ao excluir tenant:', error);
+      res.status(500).json({ error: 'Erro ao excluir empresa' });
+    }
+  }
+}

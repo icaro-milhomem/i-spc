@@ -1,13 +1,13 @@
 import { Cliente } from './Cliente';
-import { Divida } from './Divida';
 import { Consulta } from './Consulta';
+import { Divida } from './Divida';
 
 export interface RelatorioInadimplentes {
   totalInadimplentes: number;
   valorTotalDividas: number;
   inadimplentes: Array<{
     cliente: Cliente;
-    dividas: Divida[];
+    dividas: DividaRelatorio[];
     ultimaConsulta?: Consulta;
   }>;
 }
@@ -30,4 +30,17 @@ export interface RelatorioDividas {
     cancelado: number;
   };
   dividas: Divida[];
-} 
+}
+
+// Tipo único para dívidas em relatórios/exports
+export interface DividaRelatorio {
+  id: number;
+  id_cliente: number;
+  descricao: string;
+  valor: number;
+  data_vencimento: string;
+  status: string;
+  protocolo?: string | null;
+  empresa?: string | null;
+  cnpj_empresa?: string | null;
+}

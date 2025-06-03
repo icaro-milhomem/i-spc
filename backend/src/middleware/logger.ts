@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
 import fs from 'fs';
 import path from 'path';
+import { Request, Response, NextFunction } from 'express';
 
 // Cria o diretório de logs se não existir
 const logDir = path.join(__dirname, '../../logs');

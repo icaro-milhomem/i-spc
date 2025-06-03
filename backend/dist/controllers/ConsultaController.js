@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ConsultaController = void 0;
-const Consulta_1 = require("../models/Consulta");
 const Cliente_1 = require("../models/Cliente");
+const Consulta_1 = require("../models/Consulta");
 const Divida_1 = require("../models/Divida");
 class ConsultaController {
     static async registrar(req, res) {
@@ -42,7 +42,8 @@ class ConsultaController {
             if (!cliente) {
                 return res.status(404).json({ error: 'Cliente não encontrado' });
             }
-            const dividas = await Divida_1.DividaModel.buscarPorCliente(cliente.id);
+            let dividas = await Divida_1.DividaModel.buscarPorCliente(cliente.id);
+            dividas = dividas.map(d => (Object.assign(Object.assign({}, d), { data_vencimento: d.data_cadastro ? d.data_cadastro.toISOString() : '' })));
             await Consulta_1.ConsultaModel.criar(cliente.id, new Date(), 'consulta_cpf', 'Consulta realizada via API');
             res.json({
                 cliente,

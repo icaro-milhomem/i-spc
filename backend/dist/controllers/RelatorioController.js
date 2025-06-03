@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RelatorioController = void 0;
-const RelatorioService_1 = require("../services/RelatorioService");
 const ExportacaoService_1 = require("../services/ExportacaoService");
+const RelatorioService_1 = require("../services/RelatorioService");
 class RelatorioController {
     static async inadimplentes(req, res) {
         try {
@@ -50,6 +50,12 @@ class RelatorioController {
             inicio.setHours(0, 0, 0, 0);
             const fim = new Date(dataFim);
             fim.setHours(23, 59, 59, 999);
+            if (isNaN(inicio.getTime()) || isNaN(fim.getTime())) {
+                return res.status(400).json({ error: 'Datas inválidas' });
+            }
+            if (inicio > fim) {
+                return res.status(400).json({ error: 'A data de início não pode ser maior que a data de fim' });
+            }
             const relatorio = await RelatorioController.relatorioService.gerarRelatorioConsultas(inicio, fim);
             res.json(relatorio);
         }
@@ -134,6 +140,26 @@ class RelatorioController {
         catch (error) {
             console.error('Erro ao exportar relatório de dívidas em Excel:', error);
             res.status(500).json({ error: 'Erro ao exportar relatório de dívidas em Excel' });
+        }
+    }
+    static async debugConsultas(req, res) {
+        try {
+            const consultas = await RelatorioController.relatorioService.buscarTodasConsultasDebug();
+            res.json(consultas);
+        }
+        catch (error) {
+            console.error('Erro ao buscar consultas (debug):', error);
+            res.status(500).json({ error: 'Erro ao buscar consultas (debug)' });
+        }
+    }
+    static async debugInadimplentes(req, res) {
+        try {
+            const inadimplentes = await RelatorioController.relatorioService.buscarTodosInadimplentesDebug();
+            res.json(inadimplentes);
+        }
+        catch (error) {
+            console.error('Erro ao buscar inadimplentes (debug):', error);
+            res.status(500).json({ error: 'Erro ao buscar inadimplentes (debug)' });
         }
     }
 }

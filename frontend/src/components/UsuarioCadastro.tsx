@@ -74,49 +74,46 @@ const UsuarioCadastro: React.FC = () => {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Paper sx={{ p: 3, maxWidth: 600, mx: 'auto' }}>
-        <Typography variant="h5" gutterBottom>
+    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f6fa' }}>
+      <Paper elevation={4} sx={{ p: 4, borderRadius: 4, minWidth: 400, maxWidth: 500, width: '100%' }}>
+        <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 700, mb: 3 }}>
           Cadastro de Usuário
         </Typography>
-
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {error}
           </Alert>
         )}
-
         {success && (
           <Alert severity="success" sx={{ mb: 2 }}>
             {success}
           </Alert>
         )}
-
-        <Box component="form" onSubmit={handleSubmit}>
+        <Box component="form" onSubmit={handleSubmit} autoComplete="off">
           <TextField
             fullWidth
-            label="Nome"
+            label="Nome *"
             value={nome}
             onChange={(e) => setNome(e.target.value)}
             margin="normal"
             required
             disabled={loading}
+            sx={{ borderRadius: 2 }}
           />
-
           <TextField
             fullWidth
-            label="Email"
+            label="Email *"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             margin="normal"
             required
             disabled={loading}
+            sx={{ borderRadius: 2 }}
           />
-
           <TextField
             fullWidth
-            label="Senha"
+            label="Senha *"
             type="password"
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
@@ -124,9 +121,9 @@ const UsuarioCadastro: React.FC = () => {
             required
             disabled={loading}
             helperText="Mínimo 6 caracteres, incluindo letras e números"
+            sx={{ borderRadius: 2 }}
           />
-
-          <FormControl fullWidth margin="normal">
+          <FormControl fullWidth margin="normal" sx={{ borderRadius: 2 }}>
             <InputLabel>Papel</InputLabel>
             <Select
               value={perfil}
@@ -134,18 +131,18 @@ const UsuarioCadastro: React.FC = () => {
               label="Papel"
               required
               disabled={loading}
+              sx={{ borderRadius: 2 }}
             >
               <MenuItem value="admin">Administrador</MenuItem>
               <MenuItem value="usuario">Usuário</MenuItem>
             </Select>
           </FormControl>
-
           <Button
             type="submit"
             variant="contained"
             color="primary"
             fullWidth
-            sx={{ mt: 2 }}
+            sx={{ mt: 2, borderRadius: 2, fontWeight: 700, fontSize: 18 }}
             disabled={loading}
           >
             {loading ? <CircularProgress size={24} /> : 'Cadastrar'}

@@ -28,6 +28,9 @@ interface Divida {
   valor: number;
   data_vencimento: string;
   status: string;
+  protocolo?: string;
+  empresa?: string;
+  cnpj_empresa?: string;
 }
 
 interface RelatorioDividas {
@@ -120,7 +123,7 @@ export const RelatorioDividas: React.FC = () => {
   }
 
   return (
-    <Box p={3}>
+    <Box p={0}>
       <Paper sx={{ p: 3 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
           <Typography variant="h4">
@@ -193,6 +196,9 @@ export const RelatorioDividas: React.FC = () => {
           <Table>
             <TableHead>
               <TableRow>
+                <TableCell>Protocolo</TableCell>
+                <TableCell>Empresa</TableCell>
+                <TableCell>CNPJ da Empresa</TableCell>
                 <TableCell>Descrição</TableCell>
                 <TableCell>Valor</TableCell>
                 <TableCell>Data Vencimento</TableCell>
@@ -202,11 +208,12 @@ export const RelatorioDividas: React.FC = () => {
             <TableBody>
               {relatorio.dividas.map((divida) => (
                 <TableRow key={divida.id}>
+                  <TableCell>{divida.protocolo || '—'}</TableCell>
+                  <TableCell>{divida.empresa || '—'}</TableCell>
+                  <TableCell>{divida.cnpj_empresa || '—'}</TableCell>
                   <TableCell>{divida.descricao}</TableCell>
                   <TableCell>{formatCurrency(divida.valor)}</TableCell>
-                  <TableCell>
-                    {new Date(divida.data_vencimento).toLocaleDateString()}
-                  </TableCell>
+                  <TableCell>{divida.data_vencimento ? new Date(divida.data_vencimento).toLocaleDateString('pt-BR') : '—'}</TableCell>
                   <TableCell>{divida.status}</TableCell>
                 </TableRow>
               ))}

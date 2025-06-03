@@ -6,15 +6,18 @@ import {
   Typography,
   TextField,
   Button,
-  Grid,
   Alert,
-  Snackbar,
   FormControlLabel,
   Switch,
   Select,
   MenuItem,
   FormControl,
-  InputLabel
+  InputLabel,
+  Checkbox,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import api from '../services/api';
@@ -27,12 +30,25 @@ interface Divida {
   status: string;
   descricao: string;
   ativo: boolean;
+  nome_devedor: string;
+  cpf_cnpj_devedor: string;
+  protocolo?: string;
+  empresa?: string;
+  cnpj_empresa?: string;
 }
 
 interface Cliente {
   id: number;
   nome: string;
+  cpf: string;
 }
+
+const OPCOES_SERVICOS = [
+  { key: 'roteador', label: 'Roteador', campos: ['valor', 'marca'] },
+  { key: 'mensalidade', label: 'Mensalidade', campos: ['valor', 'data'] },
+  { key: 'onu', label: 'ONU', campos: ['valor', 'marca'] },
+  { key: 'ont', label: 'ONT', campos: ['valor', 'marca'] }
+];
 
 const DividaForm: React.FC = () => {
   const { id: clienteId, idDivida } = useParams<{ id: string; idDivida?: string }>();
@@ -44,29 +60,104 @@ const DividaForm: React.FC = () => {
     dataVencimento: new Date().toISOString().split('T')[0],
     status: 'PENDENTE',
     descricao: '',
-    ativo: true
+    ativo: true,
+    nome_devedor: '',
+    cpf_cnpj_devedor: ''
   });
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [servicos, setServicos] = useState<{ [key: string]: { checked: boolean; valor: string; marca?: string; data?: string } }>({
+    roteador: { checked: false, valor: '', marca: '' },
+    mensalidade: { checked: false, valor: '', data: '' },
+    onu: { checked: false, valor: '', marca: '' },
+    ont: { checked: false, valor: '', marca: '' }
+  });
+  const [servicoEditando, setServicoEditando] = useState<string | null>(null);
 
   useEffect(() => {
     const inicializar = async () => {
       try {
         await carregarClientes();
-        if (idDivida && idDivida !== 'nova') {
-          await carregarDivida();
-        }
       } catch (error) {
-        console.error('Erro ao inicializar:', error);
-      } finally {
-        setLoading(false);
+        console.error('Erro ao carregar clientes:', error);
       }
     };
-
     inicializar();
-  }, [idDivida]);
+  }, []);
+
+  useEffect(() => {
+    const preencherCampos = async () => {
+      if (idDivida && idDivida !== 'nova') {
+        await carregarDivida();
+      } else if (clienteId && clientes.length > 0) {
+        const clienteSelecionado = (clientes as Cliente[]).find((c: Cliente) => c.id === Number(clienteId));
+        // Busca empresa do usuário logado (rota correta)
+        let empresa: { nome?: string; cnpj?: string } | null = null;
+        try {
+          const empresaResp = await api.get('/tenants/minha');
+          empresa = empresaResp.data;
+        } catch (e) {
+          empresa = null;
+        }
+        const protocolo = `PRT-${Date.now()}`;
+        setFormData(prev => ({
+          ...prev,
+          clienteId: Number(clienteId),
+          nome_devedor: clienteSelecionado ? clienteSelecionado.nome : '',
+          cpf_cnpj_devedor: clienteSelecionado ? clienteSelecionado.cpf : '',
+          protocolo,
+          empresa: empresa?.nome || '',
+          cnpj_empresa: empresa?.cnpj || ''
+        }));
+      }
+    };
+    preencherCampos();
+  }, [idDivida, clienteId, clientes]);
+
+  useEffect(() => {
+    const valorTotal = OPCOES_SERVICOS
+      .filter(s => servicos[s.key].checked && servicos[s.key].valor)
+      .reduce((acc, s) => acc + valorMonetarioParaNumero(servicos[s.key].valor), 0);
+
+    // Monta descrição automática
+    const partes: string[] = [];
+    OPCOES_SERVICOS.forEach(servico => {
+      if (servicos[servico.key].checked) {
+        let desc = servico.label;
+        if (servico.key === 'mensalidade' && servicos[servico.key].data) {
+          let mes = '', ano = '';
+          const data = servicos[servico.key].data || '';
+          if (data.includes('-')) {
+            // Formato YYYY-MM ou YYYY-MM-DD
+            const partes = data.split('-');
+            if (partes.length >= 2) {
+              ano = partes[0];
+              mes = partes[1];
+            }
+          } else if (data.includes('/')) {
+            // Formato DD/MM/YYYY
+            const partes = data.split('/');
+            if (partes.length === 3) {
+              mes = partes[1];
+              ano = partes[2];
+            }
+          }
+          if (mes && ano) desc += `: ${mes}/${ano}`;
+        }
+        if (servicos[servico.key].marca) {
+          desc += `, Marca: ${servicos[servico.key].marca}`;
+        }
+        partes.push(desc);
+      }
+    });
+
+    setFormData(prev => ({
+      ...prev,
+      valor: valorTotal,
+      descricao: partes.join(' | ')
+    }));
+  }, [servicos]);
 
   const carregarClientes = async () => {
     try {
@@ -87,13 +178,21 @@ const DividaForm: React.FC = () => {
   const carregarDivida = async () => {
     try {
       const response = await api.get(`/dividas/${idDivida}`);
-      // Converte status para maiúsculo para o Select e garante que ativo seja booleano
-      setFormData({
-        ...response.data,
-        status: response.data.status ? response.data.status.toUpperCase() : 'PENDENTE',
-        ativo: Boolean(response.data.ativo),
-        dataVencimento: response.data.data_vencimento ? new Date(response.data.data_vencimento).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
-      });
+      const dados = response.data;
+      setFormData(prev => ({
+        ...prev,
+        clienteId: dados.cliente_id || '',
+        valor: dados.valor || 0,
+        dataVencimento: dados.data_vencimento ? new Date(dados.data_vencimento).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        status: dados.status ? dados.status.toUpperCase() : 'PENDENTE',
+        descricao: dados.descricao || '',
+        ativo: typeof dados.ativo === 'boolean' ? dados.ativo : true,
+        nome_devedor: dados.nome_devedor || '',
+        cpf_cnpj_devedor: dados.cpf_cnpj_devedor || '',
+        protocolo: dados.protocolo || '',
+        empresa: dados.empresa || '',
+        cnpj_empresa: dados.cnpj_empresa || ''
+      }));
     } catch (error: any) {
       if (error.response?.status === 404) {
         navigate(`/clientes/${clienteId}/dividas`);
@@ -107,18 +206,32 @@ const DividaForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (submitting) return; // Evita duplo submit
+    if (submitting) return;
     setSubmitting(true);
     setError(null);
     try {
+      // Monta descrição e valor total a partir dos serviços marcados
+      const descricaoServicos = OPCOES_SERVICOS.filter(s => servicos[s.key].checked)
+        .map(s => {
+          if (s.key === 'mensalidade') {
+            return 'Mensalidade';
+          } else {
+            const valor = servicos[s.key].valor ? `R$ ${servicos[s.key].valor}` : '';
+            const marca = servicos[s.key].marca ? `Marca: ${servicos[s.key].marca}` : '';
+            return [s.label, valor, marca].filter(Boolean).join(' ');
+          }
+        })
+        .join(' | ');
+      const valorTotal = OPCOES_SERVICOS.filter(s => servicos[s.key].checked)
+        .reduce((acc, s) => acc + valorMonetarioParaNumero(servicos[s.key].valor), 0);
       const payload = {
         cliente_id: formData.clienteId,
-        valor: formData.valor,
-        data_vencimento: formData.dataVencimento,
-        status: formData.status.toLowerCase(), // Converte para minúsculo
-        descricao: formData.descricao,
-        ativo: formData.ativo
+        nome_devedor: formData.nome_devedor,
+        cpf_cnpj_devedor: formData.cpf_cnpj_devedor,
+        valor: valorTotal.toFixed(2),
+        descricao: descricaoServicos || formData.descricao
       };
+      console.log('Payload enviado para o backend:', payload);
       if (idDivida && idDivida !== 'nova') {
         await api.put(`/dividas/${idDivida}`, payload);
       } else {
@@ -138,132 +251,267 @@ const DividaForm: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }> | SelectChangeEvent<string | number>) => {
     const { name, value, type, checked } = e.target as HTMLInputElement;
-    setFormData(prev => ({
-      ...prev,
-      [name as string]: type === 'checkbox' ? checked : value
-    }));
+    // Se mudou o cliente, atualiza nome_devedor e cpf_cnpj_devedor automaticamente
+    if (name === 'clienteId') {
+      const clienteSelecionado = clientes.find(c => c.id === Number(value));
+      setFormData(prev => ({
+        ...prev,
+        clienteId: value === '' ? '' : Number(value),
+        nome_devedor: clienteSelecionado ? clienteSelecionado.nome : '',
+        cpf_cnpj_devedor: clienteSelecionado ? clienteSelecionado.cpf : ''
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name as string]: type === 'checkbox' ? checked : value
+      }));
+    }
   };
 
+  const handleServicoCheck = (key: string) => {
+    setServicos(prev => {
+      const checked = !prev[key].checked;
+      return { ...prev, [key]: { ...prev[key], checked } };
+    });
+  };
+
+  // Função para formatar valor monetário ao digitar
+  function formatarValorMonetario(valor: string) {
+    // Remove tudo que não for número
+    let limpo = valor.replace(/[^\d]/g, '');
+    if (!limpo) return '';
+    // Adiciona zeros à esquerda se necessário
+    while (limpo.length < 3) limpo = '0' + limpo;
+    // Insere vírgula antes dos dois últimos dígitos
+    const parteInteira = limpo.slice(0, -2);
+    const parteDecimal = limpo.slice(-2);
+    return `${Number(parteInteira)}${parteDecimal ? ',' + parteDecimal : ''}`;
+  }
+
+  const handleServicoCampoChange = (key: string, campo: string, valor: string) => {
+    if (campo === 'valor') {
+      // Formata automaticamente o valor monetário
+      valor = formatarValorMonetario(valor);
+    }
+    setServicos(prev => ({ ...prev, [key]: { ...prev[key], [campo]: valor } }));
+  };
+
+  // Função para converter valor monetário string para número
+  function valorMonetarioParaNumero(valor: string) {
+    if (!valor) return 0;
+    // Remove tudo que não for número ou vírgula
+    let limpo = valor.replace(/[^\d,]/g, '');
+    if (!limpo) return 0;
+    // Se o valor já contém vírgula, converte para float corretamente
+    if (limpo.includes(',')) {
+      return parseFloat(limpo.replace('.', '').replace(',', '.'));
+    }
+    // Caso contrário, trata como centavos
+    return Number(limpo) / 100;
+  }
+
   return (
-    <Box sx={{ p: 3 }}>
-      {loading ? (
-        <Typography>Carregando...</Typography>
-      ) : (
-        <Paper sx={{ p: 3 }}>
-          <Typography variant="h4" gutterBottom>
-            {idDivida && idDivida !== 'nova' ? 'Editar Dívida' : 'Nova Dívida'}
-          </Typography>
-
-          <form onSubmit={handleSubmit}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel>Cliente</InputLabel>
-                  <Select
-                    name="clienteId"
-                    value={formData.clienteId || ''}
-                    onChange={handleChange}
-                    required
-                  >
-                    {clientes.map(cliente => (
-                      <MenuItem key={cliente.id} value={cliente.id}>
-                        {cliente.nome}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Valor"
-                  name="valor"
-                  type="number"
-                  value={formData.valor}
-                  onChange={handleChange}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Data de Vencimento"
-                  name="dataVencimento"
-                  type="date"
-                  value={formData.dataVencimento}
-                  onChange={handleChange}
-                  required
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel>Status</InputLabel>
-                  <Select
-                    name="status"
-                    value={formData.status}
-                    onChange={handleChange}
-                    required
-                  >
-                    <MenuItem value="PENDENTE">Pendente</MenuItem>
-                    <MenuItem value="PAGO">Pago</MenuItem>
-                    <MenuItem value="CANCELADO">Cancelado</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Descrição"
-                  name="descricao"
-                  value={formData.descricao}
-                  onChange={handleChange}
-                  multiline
-                  rows={4}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={formData.ativo}
-                      onChange={handleChange}
-                      name="ativo"
-                    />
-                  }
-                  label="Ativo"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  disabled={submitting}
-                >
-                  {submitting ? 'Salvando...' : 'Salvar'}
-                </Button>
-              </Grid>
-            </Grid>
-          </form>
-
-          {error && (
-            <Alert severity="error" sx={{ mt: 2 }}>
-              {error}
-            </Alert>
-          )}
-
-          <Snackbar
-            open={success}
-            autoHideDuration={2000}
-            onClose={() => setSuccess(false)}
-            message="Dívida salva com sucesso!"
+    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f6fa' }}>
+      <Paper elevation={4} sx={{ p: 4, borderRadius: 4, minWidth: 400, maxWidth: 600, width: '100%' }}>
+        <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 700, mb: 3 }}>
+          {idDivida ? 'Editar Dívida' : 'Nova Dívida'}
+        </Typography>
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+        {success && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            Dívida salva com sucesso!
+          </Alert>
+        )}
+        <Box component="form" onSubmit={handleSubmit} autoComplete="off">
+          <FormControl fullWidth margin="normal">
+            <InputLabel id="clienteId-label">Cliente</InputLabel>
+            <Select
+              labelId="clienteId-label"
+              id="clienteId"
+              name="clienteId"
+              value={formData.clienteId}
+              onChange={handleChange}
+              disabled={submitting}
+              required
+            >
+              {clientes.map(cliente => (
+                <MenuItem key={cliente.id} value={cliente.id}>
+                  {cliente.nome} - {cliente.cpf}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <TextField
+            label="Nome do Devedor"
+            name="nome_devedor"
+            value={formData.nome_devedor}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            disabled
+            required
           />
-        </Paper>
-      )}
+          <TextField
+            label="CPF/CNPJ do Devedor"
+            name="cpf_cnpj_devedor"
+            value={formData.cpf_cnpj_devedor}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            disabled
+            required
+          />
+          <TextField
+            label="Protocolo"
+            name="protocolo"
+            value={formData.protocolo ?? ''}
+            InputLabelProps={{ shrink: true }}
+            InputProps={{ readOnly: true }}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <TextField
+            label="Empresa"
+            name="empresa"
+            value={formData.empresa ?? ''}
+            InputLabelProps={{ shrink: true }}
+            InputProps={{ readOnly: true }}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <TextField
+            label="CNPJ da Empresa"
+            name="cnpj_empresa"
+            value={formData.cnpj_empresa ?? ''}
+            InputLabelProps={{ shrink: true }}
+            InputProps={{ readOnly: true }}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
+            Serviços
+          </Typography>
+          <Box display="flex" gap={2} mb={2}>
+            {OPCOES_SERVICOS.map(servico => (
+              <FormControlLabel
+                key={servico.key}
+                control={
+                  <Checkbox
+                    checked={servicos[servico.key].checked}
+                    onChange={() => {
+                      handleServicoCheck(servico.key);
+                      if (!servicos[servico.key].checked) setServicoEditando(servico.key);
+                    }}
+                    color="primary"
+                    disabled={submitting}
+                  />
+                }
+                label={servico.label}
+              />
+            ))}
+          </Box>
+          <Dialog open={!!servicoEditando} onClose={() => setServicoEditando(null)}>
+            <DialogTitle>Preencha os dados do serviço</DialogTitle>
+            <DialogContent>
+              {servicoEditando && OPCOES_SERVICOS.find(s => s.key === servicoEditando)?.campos.map(campo => (
+                <TextField
+                  key={campo}
+                  label={campo.charAt(0).toUpperCase() + campo.slice(1)}
+                  name={campo}
+                  type={campo === 'data' && servicoEditando === 'mensalidade' ? 'month' : 'text'}
+                  // @ts-ignore
+                  value={campo === 'valor' ? formatarValorMonetario(String(servicos[servicoEditando][campo] ?? '')) : (servicos[servicoEditando][campo] ?? '')}
+                  onChange={e => {
+                    const valor = campo === 'valor' ? formatarValorMonetario(e.target.value) : e.target.value;
+                    handleServicoCampoChange(servicoEditando, campo, valor);
+                  }}
+                  fullWidth
+                  margin="normal"
+                />
+              ))}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setServicoEditando(null)}>OK</Button>
+            </DialogActions>
+          </Dialog>
+          <TextField
+            label="Valor"
+            name="valor"
+            value={Number(formData.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            disabled
+            required
+          />
+          <TextField
+            label="Data de Vencimento"
+            name="dataVencimento"
+            type="date"
+            value={formData.dataVencimento}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            disabled={submitting}
+            InputLabelProps={{ shrink: true }}
+            required
+          />
+          <TextField
+            label="Descrição"
+            name="descricao"
+            value={formData.descricao ?? ''}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <FormControl fullWidth margin="normal">
+            <InputLabel id="status-label">Status</InputLabel>
+            <Select
+              labelId="status-label"
+              id="status"
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              disabled={submitting}
+              required
+            >
+              <MenuItem value="PENDENTE">Pendente</MenuItem>
+              <MenuItem value="PAGO">Pago</MenuItem>
+              <MenuItem value="CANCELADO">Cancelado</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={formData.ativo}
+                onChange={handleChange}
+                name="ativo"
+                color="primary"
+                disabled={submitting}
+              />
+            }
+            label="Ativo"
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 2, borderRadius: 2, fontWeight: 700, fontSize: 18 }}
+            disabled={submitting}
+          >
+            {submitting ? 'Salvando...' : 'Salvar Dívida'}
+          </Button>
+        </Box>
+      </Paper>
     </Box>
   );
 };

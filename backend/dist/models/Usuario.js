@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsuarioModel = void 0;
-const db_1 = require("../db");
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const db_1 = require("../db");
 class UsuarioModel {
     static async criar(nome, email, senha, perfil = 'usuario') {
         const senhaHash = await bcrypt_1.default.hash(senha, 10);

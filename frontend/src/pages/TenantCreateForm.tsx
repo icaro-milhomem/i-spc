@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { validateCNPJ } from '../utils/cnpj-validation';
 import { Box, Typography, TextField, Button, Grid, Paper } from '@mui/material';
+import Layout from '../components/Layout';
 
 interface Tenant {
   id: number;
@@ -138,59 +139,61 @@ export default function TenantCreateForm({ onSuccess, onCancel, tenant, isEdit }
   };
 
   return (
-    <Paper elevation={4} sx={{ borderRadius: 4, p: 4, minWidth: 350, maxWidth: 500 }}>
-      <Typography variant="h5" color="primary" fontWeight={700} align="center" mb={2}>
-        {isEdit ? 'Editar Empresa' : 'Nova Empresa'}
-      </Typography>
-      {error && <Typography color="error" mb={2} align="center">{error}</Typography>}
-      {success && <Typography color="success.main" mb={2} align="center">Empresa salva com sucesso!</Typography>}
-      <Box component="form" onSubmit={handleSubmit} autoComplete="off">
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <TextField label="Nome fantasia" value={nomeEmpresa} onChange={e => setNomeEmpresa(e.target.value)} fullWidth required size="small" />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField label="Razão social" value={razaoSocial} onChange={e => setRazaoSocial(e.target.value)} fullWidth required size="small" />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField label="CNPJ" value={cnpj} onChange={e => setCnpj(e.target.value)} fullWidth required size="small" error={cnpjInvalido} helperText={cnpjInvalido ? 'CNPJ inválido' : ''} />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField label="CEP" value={cep} onChange={e => setCep(e.target.value)} onBlur={buscarCep} fullWidth required size="small" />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField label="Endereço" value={endereco} onChange={e => setEndereco(e.target.value)} fullWidth required size="small" />
-          </Grid>
-          <Grid item xs={6} sm={4}>
-            <TextField label="Número" value={numero} onChange={e => setNumero(e.target.value)} fullWidth required size="small" />
-          </Grid>
-          <Grid item xs={6} sm={8}>
-            <TextField label="Bairro" value={bairro} onChange={e => setBairro(e.target.value)} fullWidth required size="small" />
-          </Grid>
-          <Grid item xs={8} sm={8}>
-            <TextField label="Cidade" value={cidade} onChange={e => setCidade(e.target.value)} fullWidth required size="small" />
-          </Grid>
-          <Grid item xs={4} sm={4}>
-            <TextField label="UF" value={uf} onChange={e => setUf(e.target.value)} fullWidth required size="small" inputProps={{ maxLength: 2 }} />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField label="E-mail do admin" type="email" value={emailAdmin} onChange={e => setEmailAdmin(e.target.value)} fullWidth required size="small" disabled={isEdit} />
-          </Grid>
-          {!isEdit && (
+    <Layout>
+      <Paper elevation={4} sx={{ borderRadius: 4, p: 4, minWidth: 350, maxWidth: 500 }}>
+        <Typography variant="h5" color="primary" fontWeight={700} align="center" mb={2}>
+          {isEdit ? 'Editar Empresa' : 'Nova Empresa'}
+        </Typography>
+        {error && <Typography color="error" mb={2} align="center">{error}</Typography>}
+        {success && <Typography color="success.main" mb={2} align="center">Empresa salva com sucesso!</Typography>}
+        <Box component="form" onSubmit={handleSubmit} autoComplete="off">
+          <Grid container spacing={2}>
             <Grid item xs={12}>
-              <TextField label="Senha do admin" type="password" value={senhaAdmin} onChange={e => setSenhaAdmin(e.target.value)} fullWidth required size="small" />
+              <TextField label="Nome fantasia" value={nomeEmpresa} onChange={e => setNomeEmpresa(e.target.value)} fullWidth required size="small" />
             </Grid>
-          )}
-          <Grid item xs={12} display="flex" gap={2} justifyContent="center" mt={1}>
-            <Button type="submit" variant="contained" color="primary" disabled={loading} sx={{ minWidth: 120, fontWeight: 600 }}>
-              {loading ? (isEdit ? 'Salvando...' : 'Cadastrando...') : (isEdit ? 'Salvar' : 'Cadastrar')}
-            </Button>
-            <Button type="button" variant="outlined" color="primary" onClick={onCancel} disabled={loading} sx={{ minWidth: 120, fontWeight: 600 }}>
-              Cancelar
-            </Button>
+            <Grid item xs={12}>
+              <TextField label="Razão social" value={razaoSocial} onChange={e => setRazaoSocial(e.target.value)} fullWidth required size="small" />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField label="CNPJ" value={cnpj} onChange={e => setCnpj(e.target.value)} fullWidth required size="small" error={cnpjInvalido} helperText={cnpjInvalido ? 'CNPJ inválido' : ''} />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField label="CEP" value={cep} onChange={e => setCep(e.target.value)} onBlur={buscarCep} fullWidth required size="small" />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField label="Endereço" value={endereco} onChange={e => setEndereco(e.target.value)} fullWidth required size="small" />
+            </Grid>
+            <Grid item xs={6} sm={4}>
+              <TextField label="Número" value={numero} onChange={e => setNumero(e.target.value)} fullWidth required size="small" />
+            </Grid>
+            <Grid item xs={6} sm={8}>
+              <TextField label="Bairro" value={bairro} onChange={e => setBairro(e.target.value)} fullWidth required size="small" />
+            </Grid>
+            <Grid item xs={8} sm={8}>
+              <TextField label="Cidade" value={cidade} onChange={e => setCidade(e.target.value)} fullWidth required size="small" />
+            </Grid>
+            <Grid item xs={4} sm={4}>
+              <TextField label="UF" value={uf} onChange={e => setUf(e.target.value)} fullWidth required size="small" inputProps={{ maxLength: 2 }} />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField label="E-mail do admin" type="email" value={emailAdmin} onChange={e => setEmailAdmin(e.target.value)} fullWidth required size="small" disabled={isEdit} />
+            </Grid>
+            {!isEdit && (
+              <Grid item xs={12}>
+                <TextField label="Senha do admin" type="password" value={senhaAdmin} onChange={e => setSenhaAdmin(e.target.value)} fullWidth required size="small" />
+              </Grid>
+            )}
+            <Grid item xs={12} display="flex" gap={2} justifyContent="center" mt={1}>
+              <Button type="submit" variant="contained" color="primary" disabled={loading} sx={{ minWidth: 120, fontWeight: 600 }}>
+                {loading ? (isEdit ? 'Salvando...' : 'Cadastrando...') : (isEdit ? 'Salvar' : 'Cadastrar')}
+              </Button>
+              <Button type="button" variant="outlined" color="primary" onClick={onCancel} disabled={loading} sx={{ minWidth: 120, fontWeight: 600 }}>
+                Cancelar
+              </Button>
+            </Grid>
           </Grid>
-        </Grid>
-      </Box>
-    </Paper>
+        </Box>
+      </Paper>
+    </Layout>
   );
 } 

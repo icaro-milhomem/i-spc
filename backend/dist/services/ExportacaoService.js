@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ExportacaoService = void 0;
-const pdfkit_1 = __importDefault(require("pdfkit"));
 const exceljs_1 = __importDefault(require("exceljs"));
+const pdfkit_1 = __importDefault(require("pdfkit"));
 const formatters_1 = require("../utils/formatters");
 class ExportacaoService {
     async exportarInadimplentesPDF(relatorio) {
@@ -27,8 +27,7 @@ class ExportacaoService {
                 doc.moveDown();
                 doc.text('Dívidas:');
                 inadimplente.dividas.forEach((divida) => {
-                    var _a;
-                    doc.text(`- ${divida.descricao}: ${(0, formatters_1.formatCurrency)(divida.valor)} (Vencimento: ${((_a = divida.data) === null || _a === void 0 ? void 0 : _a.toLocaleDateString()) || 'N/A'})`);
+                    doc.text(`- ${divida.descricao}: ${(0, formatters_1.formatCurrency)(divida.valor)} (Vencimento: ${divida.data_vencimento ? new Date(divida.data_vencimento).toLocaleDateString() : 'N/A'})`);
                 });
                 doc.moveDown();
             });
@@ -81,10 +80,9 @@ class ExportacaoService {
             doc.moveDown();
             doc.text('Detalhamento das Dívidas:');
             relatorio.dividas.forEach((divida) => {
-                var _a;
                 doc.text(`Descrição: ${divida.descricao}`);
                 doc.text(`Valor: ${(0, formatters_1.formatCurrency)(divida.valor)}`);
-                doc.text(`Vencimento: ${((_a = divida.data) === null || _a === void 0 ? void 0 : _a.toLocaleDateString()) || 'N/A'}`);
+                doc.text(`Vencimento: ${divida.data_vencimento ? new Date(divida.data_vencimento).toLocaleDateString() : 'N/A'}`);
                 doc.text(`Status: ${divida.status}`);
                 doc.moveDown();
             });
@@ -141,11 +139,10 @@ class ExportacaoService {
             { header: 'Status', key: 'status', width: 15 }
         ];
         relatorio.dividas.forEach((divida) => {
-            var _a;
             worksheet.addRow({
                 descricao: divida.descricao,
                 valor: divida.valor,
-                vencimento: ((_a = divida.data) === null || _a === void 0 ? void 0 : _a.toLocaleDateString()) || 'N/A',
+                vencimento: divida.data_vencimento ? new Date(divida.data_vencimento).toLocaleDateString() : 'N/A',
                 status: divida.status
             });
         });
@@ -176,8 +173,7 @@ class ExportacaoService {
                 doc.fontSize(16).text('Dívidas');
                 doc.fontSize(12);
                 dividas.forEach(divida => {
-                    var _a;
-                    doc.text(`- ${divida.descricao}: ${(0, formatters_1.formatCurrency)(divida.valor)} (Vencimento: ${((_a = divida.data_vencimento) === null || _a === void 0 ? void 0 : _a.toLocaleDateString()) || 'N/A'})`);
+                    doc.text(`- ${divida.descricao}: ${(0, formatters_1.formatCurrency)(divida.valor)} (Vencimento: ${divida.data_vencimento ? new Date(divida.data_vencimento).toLocaleDateString() : 'N/A'})`);
                 });
             }
             doc.end();
@@ -221,9 +217,8 @@ class ExportacaoService {
                 doc.moveDown();
                 doc.text('Dívidas:');
                 inadimplente.dividas.forEach((divida) => {
-                    var _a;
                     doc.text(`- ${divida.descricao}: ${(0, formatters_1.formatCurrency)(divida.valor)}`);
-                    doc.text(`  Vencimento: ${((_a = divida.data_vencimento) === null || _a === void 0 ? void 0 : _a.toLocaleDateString()) || 'N/A'}`);
+                    doc.text(`  Vencimento: ${divida.data_vencimento ? new Date(divida.data_vencimento).toLocaleDateString() : 'N/A'}`);
                 });
                 if (inadimplente.ultimaConsulta) {
                     doc.moveDown();
@@ -268,11 +263,10 @@ class ExportacaoService {
             doc.fontSize(20).text('Relatório de Dívidas', { align: 'center' });
             doc.moveDown();
             dividas.forEach(divida => {
-                var _a;
                 doc.fontSize(16).text(`Dívida #${divida.id}`);
                 doc.fontSize(12);
                 doc.text(`Valor: ${(0, formatters_1.formatCurrency)(divida.valor)}`);
-                doc.text(`Vencimento: ${((_a = divida.data_vencimento) === null || _a === void 0 ? void 0 : _a.toLocaleDateString()) || 'N/A'}`);
+                doc.text(`Vencimento: ${divida.data_vencimento ? new Date(divida.data_vencimento).toLocaleDateString() : 'N/A'}`);
                 if (divida.descricao)
                     doc.text(`Descrição: ${divida.descricao}`);
                 doc.text(`Status: ${divida.status}`);

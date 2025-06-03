@@ -1,5 +1,5 @@
-import { prisma } from '../db';
 import bcrypt from 'bcrypt';
+import { prisma } from '../db';
 
 async function seedAdmin() {
   try {

@@ -11,7 +11,6 @@ import {
   ListItem,
   ListItemButton,
   ListItemIcon,
-  ListItemText,
   Toolbar,
   Typography,
   Menu,
@@ -20,24 +19,34 @@ import {
 } from '@mui/material';
 import {
   Menu as MenuIcon,
-  People as PeopleIcon,
-  Person as PersonIcon,
+  Home as HomeIcon,
+  Group as GroupIcon,
+  PersonOutline as PersonOutlineIcon,
   Logout as LogoutIcon,
-  Assessment as AssessmentIcon,
-  Dashboard as DashboardIcon,
+  BarChart as BarChartIcon,
+  Search as SearchIcon,
   AccountCircle as AccountCircleIcon
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import logo from '../../logo.png';
+import SuperAdminLayout from './SuperAdminLayout';
 
-const drawerWidth = 240;
+const drawerWidth = 200;
 
-const Layout: React.FC = () => {
+type LayoutProps = { children?: React.ReactNode };
+const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Detecta superadmin
+  // Corrigido: checa apenas user?.perfil === 'admin' && user?.email === 'super@pspc.com'
+  const isSuperAdmin = user?.perfil === 'admin' && user?.email === 'super@pspc.com';
+  if (isSuperAdmin) {
+    return <SuperAdminLayout>{children}</SuperAdminLayout>;
+  }
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -59,33 +68,33 @@ const Layout: React.FC = () => {
 
   const menuItems = [
     {
+      text: 'Dashboard',
+      icon: <HomeIcon />,
+      path: '/dashboard',
+      adminOnly: false
+    },
+    {
       text: 'Clientes',
-      icon: <PeopleIcon />,
+      icon: <GroupIcon />,
       path: '/clientes',
       adminOnly: false
     },
     {
       text: 'Usuários',
-      icon: <PersonIcon />,
+      icon: <PersonOutlineIcon />,
       path: '/usuarios',
       adminOnly: true
     },
     {
       text: 'Relatórios',
-      icon: <AssessmentIcon />,
+      icon: <BarChartIcon />,
       path: '/relatorios',
       adminOnly: true
     },
     {
-      text: 'Consulta de Cliente',
-      icon: <AssessmentIcon />,
+      text: 'Consultar',
+      icon: <SearchIcon />,
       path: '/consulta'
-    },
-    {
-      text: 'Dashboard',
-      icon: <DashboardIcon />,
-      path: '/dashboard',
-      adminOnly: false
     },
     {
       text: 'Perfil',
@@ -95,32 +104,77 @@ const Layout: React.FC = () => {
     }
   ];
 
+  const iconColors = [
+    '#1976d2', // azul
+    '#43a047', // verde
+    '#fbc02d', // amarelo
+    '#8e24aa', // roxo
+    '#e64a19', // laranja
+    '#0288d1'  // azul claro
+  ];
+
   const drawer = (
-    <div>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', p: 3, pb: 0 }}>
-        <img src={logo} alt="Logo" style={{ width: 128, height: 128, objectFit: 'contain' }} />
+    <div style={{
+      height: '100vh',
+      background: 'linear-gradient(180deg, #1976d2 0%, #43a047 100%)',
+      color: '#fff',
+      boxShadow: '2px 0 12px 0 rgba(25, 118, 210, 0.08)',
+      overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      borderRadius: 0
+    }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', p: 0, pb: 0 }}>
+        <img src={logo} alt="Logo" style={{ width: 160, height: 160, objectFit: 'contain', margin: '4px 0 0 -10px' }} />
       </Box>
-      <Divider />
-      <List>
+      <Divider sx={{ bgcolor: 'rgba(255,255,255,0.15)', mt: 0, mb: 1 }} />
+      <List sx={{ pb: 3 }}>
         {menuItems
           .filter(item => {
             if (item.adminOnly) return user?.perfil === 'admin';
             return true;
           })
-          .map(item => (
-            <ListItem key={item.text} disablePadding>
-              <ListItemButton
-                selected={location.pathname.startsWith(item.path)}
-                onClick={() => {
-                  navigate(item.path);
-                  setMobileOpen(false);
-                }}
-              >
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
+          .map((item, idx) => {
+            const selected = location.pathname.startsWith(item.path);
+            // Ícones de Dashboard e Perfil em branco para maior contraste
+            const isWhiteIcon = item.text === 'Dashboard' || item.text === 'Perfil';
+            return (
+              <ListItem key={item.text} disablePadding sx={{ justifyContent: 'center' }}>
+                <ListItemButton
+                  selected={selected}
+                  onClick={() => {
+                    navigate(item.path);
+                    setMobileOpen(false);
+                  }}
+                  sx={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    py: 1.5,
+                    px: 2,
+                    borderRadius: 2,
+                    mx: 1,
+                    mb: 0.5,
+                    minHeight: 48,
+                    background: selected ? 'rgba(255,255,255,0.10)' : 'transparent',
+                    borderLeft: selected ? `4px solid ${iconColors[idx % iconColors.length]}` : '4px solid transparent',
+                    boxShadow: 'none',
+                    transition: 'background 0.2s, border 0.2s',
+                    '&:hover': {
+                      background: 'rgba(255,255,255,0.08)'
+                    }
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: 0, color: isWhiteIcon ? '#fff' : iconColors[idx % iconColors.length], fontSize: 32, mr: 1, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.10))' }}>
+                    {item.icon}
+                  </ListItemIcon>
+                  <Typography sx={{ fontWeight: 600, fontSize: 15, color: '#fff', letterSpacing: 0.5 }}>
+                    {item.text}
+                  </Typography>
+                </ListItemButton>
+              </ListItem>
+            );
+          })}
       </List>
     </div>
   );
@@ -132,7 +186,9 @@ const Layout: React.FC = () => {
         position="fixed"
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` }
+          ml: { sm: `${drawerWidth}px` },
+          background: 'linear-gradient(90deg, #1976d2 60%, #43a047 100%)',
+          boxShadow: '0 2px 8px #0002'
         }}
       >
         <Toolbar>
@@ -145,7 +201,7 @@ const Layout: React.FC = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, fontWeight: 700, letterSpacing: 1 }}>
             {menuItems.find(item => location.pathname.startsWith(item.path))?.text || 'i-SPC'}
           </Typography>
           <div>
@@ -155,9 +211,14 @@ const Layout: React.FC = () => {
               aria-controls="menu-appbar"
               aria-haspopup="true"
               onClick={handleMenu}
-              color="inherit"
+              sx={{
+                border: '2px solid #fff',
+                boxShadow: '0 2px 8px #0002',
+                background: 'linear-gradient(135deg, #43a047 0%, #1976d2 100%)',
+                p: 0.5
+              }}
             >
-              <Avatar sx={{ width: 32, height: 32 }}>
+              <Avatar sx={{ width: 32, height: 32, bgcolor: '#fff', color: '#1976d2', fontWeight: 700, border: '2px solid #43a047' }}>
                 {user?.nome ? user.nome.charAt(0).toUpperCase() : 'U'}
               </Avatar>
             </IconButton>
@@ -219,7 +280,8 @@ const Layout: React.FC = () => {
             display: { xs: 'none', sm: 'block' },
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
-              width: drawerWidth
+              width: drawerWidth,
+              background: 'transparent'
             }
           }}
           open
@@ -229,17 +291,13 @@ const Layout: React.FC = () => {
       </Box>
       <Box
         component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - ${drawerWidth}px)` }
-        }}
+        sx={{ flexGrow: 1, p: 0, bgcolor: '#f5f6fa', minHeight: '100vh' }}
       >
         <Toolbar />
-        <Outlet />
+        {children ? children : <Outlet />}
       </Box>
     </Box>
   );
 };
 
-export default Layout; 
+export default Layout;

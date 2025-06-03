@@ -59,8 +59,6 @@ const ClienteForm: React.FC = () => {
     severity: 'success'
   });
 
-  const [buscandoCep, setBuscandoCep] = useState(false);
-
   useEffect(() => {
     if (isEditing) {
       carregarCliente();
@@ -201,7 +199,6 @@ const ClienteForm: React.FC = () => {
 
   const buscarCep = async () => {
     if (!formData.cep || formData.cep.length < 8) return;
-    setBuscandoCep(true);
     try {
       const response = await fetch(`https://viacep.com.br/ws/${formData.cep.replace(/\D/g, '')}/json/`);
       const data = await response.json();
@@ -219,8 +216,6 @@ const ClienteForm: React.FC = () => {
       }
     } catch (e) {
       setError('Erro ao buscar CEP');
-    } finally {
-      setBuscandoCep(false);
     }
   };
 
@@ -229,153 +224,58 @@ const ClienteForm: React.FC = () => {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
+    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f6fa' }}>
+      <Paper elevation={4} sx={{ p: 4, borderRadius: 4, minWidth: 450, maxWidth: 600, width: '100%' }}>
+        <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 700, mb: 3 }}>
           {isEditing ? 'Editar Cliente' : 'Novo Cliente'}
         </Typography>
-
-        <form onSubmit={handleSubmit}>
-          <Grid container spacing={3}>
+        <form onSubmit={handleSubmit} autoComplete="off">
+          <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
-                fullWidth
-                label="Nome"
+                label="Nome *"
                 name="nome"
                 value={formData.nome}
                 onChange={handleChange}
+                fullWidth
                 required
+                sx={{ borderRadius: 2 }}
               />
             </Grid>
-
             <Grid item xs={12} sm={6}>
               <TextField
-                fullWidth
-                label="CPF"
+                label="CPF *"
                 name="cpf"
                 value={formData.cpf}
                 onChange={handleCPFChange}
+                fullWidth
                 required
-                inputProps={{ maxLength: 14 }}
+                sx={{ borderRadius: 2 }}
               />
             </Grid>
-
             <Grid item xs={12} sm={6}>
               <TextField
+                label="Email *"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 fullWidth
-                label="Telefone"
+                required
+                sx={{ borderRadius: 2 }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Telefone *"
                 name="telefone"
                 value={formData.telefone}
                 onChange={handlePhoneChange}
-                required
-                inputProps={{ maxLength: 15 }}
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
                 fullWidth
-                label="Email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
                 required
+                sx={{ borderRadius: 2 }}
               />
             </Grid>
-
-            <Grid item xs={12} sm={4}>
-              <TextField
-                fullWidth
-                label="CEP"
-                name="cep"
-                value={formData.cep}
-                onChange={handleChange}
-                onBlur={buscarCep}
-                inputProps={{ maxLength: 9 }}
-                required
-                helperText="Digite o CEP e saia do campo para buscar automaticamente"
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={8}>
-              <Button
-                variant="outlined"
-                onClick={buscarCep}
-                disabled={buscandoCep || !formData.cep || formData.cep.length < 8}
-                sx={{ mt: { xs: 2, sm: 0 } }}
-              >
-                {buscandoCep ? 'Buscando...' : 'Buscar CEP'}
-              </Button>
-            </Grid>
-
-            <Grid item xs={12} sm={8}>
-              <TextField
-                fullWidth
-                label="Rua"
-                name="rua"
-                value={formData.rua}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={2}>
-              <TextField
-                fullWidth
-                label="Número"
-                name="numero"
-                value={formData.numero}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={2}>
-              <TextField
-                fullWidth
-                label="Complemento"
-                name="complemento"
-                value={formData.complemento}
-                onChange={handleChange}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={4}>
-              <TextField
-                fullWidth
-                label="Bairro"
-                name="bairro"
-                value={formData.bairro}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-
             <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Cidade"
-                name="cidade"
-                value={formData.cidade}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={2}>
-              <TextField
-                fullWidth
-                label="Estado"
-                name="estado"
-                value={formData.estado}
-                onChange={handleChange}
-                required
-                inputProps={{ maxLength: 2 }}
-              />
-            </Grid>
-
-            <Grid item xs={12}>
               <FormControlLabel
                 control={
                   <Switch
@@ -384,50 +284,112 @@ const ClienteForm: React.FC = () => {
                     name="ativo"
                   />
                 }
-                label="Cliente Ativo"
+                label="Ativo"
+                sx={{ mt: 1 }}
               />
             </Grid>
-
-            {error && (
-              <Grid item xs={12}>
-                <Alert severity="error">{error}</Alert>
-              </Grid>
-            )}
-
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="CEP"
+                name="cep"
+                value={formData.cep}
+                onChange={handleChange}
+                onBlur={buscarCep}
+                fullWidth
+                sx={{ borderRadius: 2 }}
+                helperText="Digite o CEP e saia do campo para buscar automaticamente"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Rua"
+                name="rua"
+                value={formData.rua}
+                onChange={handleChange}
+                fullWidth
+                sx={{ borderRadius: 2 }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                label="Número"
+                name="numero"
+                value={formData.numero}
+                onChange={handleChange}
+                fullWidth
+                sx={{ borderRadius: 2 }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                label="Complemento"
+                name="complemento"
+                value={formData.complemento}
+                onChange={handleChange}
+                fullWidth
+                sx={{ borderRadius: 2 }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                label="Bairro"
+                name="bairro"
+                value={formData.bairro}
+                onChange={handleChange}
+                fullWidth
+                sx={{ borderRadius: 2 }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={8}>
+              <TextField
+                label="Cidade"
+                name="cidade"
+                value={formData.cidade}
+                onChange={handleChange}
+                fullWidth
+                sx={{ borderRadius: 2 }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                label="Estado"
+                name="estado"
+                value={formData.estado}
+                onChange={handleChange}
+                fullWidth
+                sx={{ borderRadius: 2 }}
+              />
+            </Grid>
             <Grid item xs={12}>
-              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-                <Button
-                  variant="outlined"
-                  onClick={() => navigate('/clientes')}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  disabled={loading}
-                >
-                  {isEditing ? 'Atualizar' : 'Criar'}
-                </Button>
-              </Box>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+                size="large"
+                sx={{ mt: 2, borderRadius: 2, fontWeight: 700, fontSize: 18 }}
+                disabled={loading}
+              >
+                {loading ? (isEditing ? 'Salvando...' : 'Cadastrando...') : (isEditing ? 'Salvar' : 'Cadastrar')}
+              </Button>
             </Grid>
           </Grid>
         </form>
-      </Paper>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-      >
-        <Alert
+        {error && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {error}
+          </Alert>
+        )}
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={3000}
           onClose={handleSnackbarClose}
-          severity={snackbar.severity}
-          sx={{ width: '100%' }}
         >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+          <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }}>
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+      </Paper>
     </Box>
   );
 };

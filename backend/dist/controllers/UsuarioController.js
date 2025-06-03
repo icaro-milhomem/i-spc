@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsuarioController = void 0;
+const bcryptjs_1 = require("bcryptjs");
 const prismaClient_1 = require("../database/prismaClient");
 const AppError_1 = require("../utils/AppError");
-const bcryptjs_1 = require("bcryptjs");
 class UsuarioController {
     async criar(req, res) {
         try {
@@ -18,6 +18,9 @@ class UsuarioController {
             if (usuarioExistente) {
                 throw new AppError_1.AppError('Email já cadastrado', 400);
             }
+            if (!req.user || !req.user.id) {
+                throw new AppError_1.AppError('Usuário autenticado não encontrado', 401);
+            }
             const senhaHash = await (0, bcryptjs_1.hash)(senha, 8);
             const papel = await prismaClient_1.prisma.papel.findUnique({
                 where: { nome: perfil }
@@ -30,6 +33,9 @@ class UsuarioController {
                     nome,
                     email,
                     senha: senhaHash,
+                    perfil,
+                    criado_por_id: req.user.id,
+                    tenant_id: req.user.tenant_id,
                     papeis: {
                         connect: [{ id: papel.id }]
                     }
@@ -61,13 +67,18 @@ class UsuarioController {
     }
     async listar(req, res) {
         try {
+            const usuarioLogado = req.user;
+            let where = {
+                OR: [
+                    { role: null },
+                    { role: { not: 'superadmin' } }
+                ]
+            };
+            if ((usuarioLogado === null || usuarioLogado === void 0 ? void 0 : usuarioLogado.perfil) === 'admin' && (usuarioLogado === null || usuarioLogado === void 0 ? void 0 : usuarioLogado.role) !== 'superadmin') {
+                where = Object.assign(Object.assign({}, where), { criado_por_id: usuarioLogado.id });
+            }
             const usuarios = await prismaClient_1.prisma.usuario.findMany({
-                where: {
-                    OR: [
-                        { role: null },
-                        { role: { not: 'superadmin' } }
-                    ]
-                },
+                where,
                 include: {
                     papeis: {
                         include: {

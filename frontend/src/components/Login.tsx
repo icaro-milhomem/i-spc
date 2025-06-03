@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import { validateEmail } from '../utils/validators';
-import logo from '../../logo.png';
+import logo from '../../logo.login.png';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -70,27 +70,29 @@ const Login: React.FC = () => {
       sx={{
         height: '100vh',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
-        bgcolor: 'background.default'
+        bgcolor: '#f5f6fa',
+        pt: 6
       }}
     >
       <Paper
-        elevation={3}
+        elevation={4}
         sx={{
           p: 4,
           width: '100%',
-          maxWidth: 400
+          maxWidth: 420,
+          borderRadius: 4,
+          boxShadow: '0 4px 24px 0 rgba(25, 118, 210, 0.10)'
         }}
       >
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
-          <img src={logo} alt="Logo" style={{ width: 180, marginBottom: 16 }} />
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 1 }}>
+          <img src={logo} alt="Logo" style={{ width: '100%', maxWidth: 220, marginBottom: 4 }} />
         </Box>
-        <Typography variant="h6" gutterBottom align="center">
-          Login
+        <Typography variant="subtitle1" align="center" sx={{ mb: 1, color: '#222', fontWeight: 500 }}>
+          Bem vindo(a) ao PSPC.
         </Typography>
-
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} autoComplete="off">
           <TextField
             fullWidth
             label="Email"
@@ -100,8 +102,8 @@ const Login: React.FC = () => {
             onChange={handleChange}
             margin="normal"
             required
+            sx={{ borderRadius: 2 }}
           />
-
           <TextField
             fullWidth
             label="Senha"
@@ -111,37 +113,35 @@ const Login: React.FC = () => {
             onChange={handleChange}
             margin="normal"
             required
+            sx={{ borderRadius: 2 }}
           />
-
           {error && (
             <Alert severity="error" sx={{ mt: 2 }}>
               {error}
             </Alert>
           )}
-
           <Button
             type="submit"
             fullWidth
             variant="contained"
             size="large"
             disabled={loading}
-            sx={{ mt: 3 }}
+            sx={{ mt: 3, borderRadius: 2, fontWeight: 700, fontSize: 18 }}
           >
             {loading ? 'Entrando...' : 'Entrar'}
           </Button>
-
           <Box sx={{ mt: 2, textAlign: 'center' }}>
             <Link
               component="button"
               variant="body2"
               onClick={() => navigate('/recuperar-senha')}
+              sx={{ color: '#1976d2', fontWeight: 600 }}
             >
               Esqueceu sua senha?
             </Link>
           </Box>
         </form>
       </Paper>
-
       <Snackbar
         open={!!error}
         autoHideDuration={6000}

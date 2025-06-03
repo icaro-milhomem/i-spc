@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RelatorioService = void 0;
 const db_1 = require("../db");
-const client_1 = require("@prisma/client");
 class RelatorioService {
     static async getEstatisticas() {
         const totalClientes = await db_1.prisma.cliente.count();
@@ -10,7 +9,7 @@ class RelatorioService {
             where: {
                 dividas: {
                     some: {
-                        status: 'pendente'
+                        status_negativado: true
                     }
                 }
             }
@@ -43,83 +42,33 @@ class RelatorioService {
         });
     }
     async gerarRelatorioInadimplentes() {
-        const query = client_1.Prisma.sql `
-      WITH inadimplentes AS (
-        SELECT DISTINCT
-          c.id,
-          c.cpf,
-          c.nome,
-          c.telefone,
-          c.status,
-          d.id as id_divida,
-          d.cliente_id,
-          d.descricao,
-          d.valor,
-          d.data_vencimento,
-          d.status as divida_status,
-          co.id as id_consulta,
-          co.data as data_consulta,
-          co.tipo,
-          co.observacoes
-        FROM clientes c
-        JOIN dividas d ON c.id = d.cliente_id
-        LEFT JOIN consultas co ON c.id = co.cliente_id
-        WHERE d.status = 'pendente'
-        ORDER BY d.data_vencimento ASC
-      )
-      SELECT * FROM inadimplentes
-    `;
-        const result = await db_1.prisma.$queryRaw(query);
-        const inadimplentes = result.reduce((acc, row) => {
-            const existingCliente = acc.find(c => c.cliente.id === row.id);
-            if (existingCliente) {
-                existingCliente.dividas.push({
-                    id: row.id_divida,
-                    cliente_id: row.cliente_id,
-                    valor: row.valor,
-                    data_vencimento: row.data_vencimento,
-                    descricao: row.descricao,
-                    status: row.divida_status,
-                    createdAt: new Date(),
-                    updatedAt: new Date()
-                });
+        const clientes = await db_1.prisma.cliente.findMany({
+            where: {
+                dividas: {
+                    some: { status_negativado: true }
+                }
+            },
+            include: {
+                dividas: true
             }
-            else {
-                acc.push({
-                    cliente: {
-                        id: row.id,
-                        cpf: row.cpf,
-                        nome: row.nome,
-                        telefone: row.telefone,
-                        status: row.status,
-                        email: '',
-                        endereco: '',
-                        createdAt: new Date(),
-                        updatedAt: new Date()
-                    },
-                    dividas: [{
-                            id: row.id_divida,
-                            cliente_id: row.cliente_id,
-                            valor: row.valor,
-                            data_vencimento: row.data_vencimento,
-                            descricao: row.descricao,
-                            status: row.divida_status,
-                            createdAt: new Date(),
-                            updatedAt: new Date()
-                        }],
-                    ultimaConsulta: row.id_consulta ? {
-                        id: row.id_consulta,
-                        cliente_id: row.id,
-                        data: row.data_consulta || new Date(),
-                        tipo: row.tipo || '',
-                        observacoes: row.observacoes || null,
-                        createdAt: new Date(),
-                        updatedAt: new Date()
-                    } : undefined
-                });
-            }
-            return acc;
-        }, []);
+        });
+        const inadimplentes = clientes.map(cliente => ({
+            cliente: Object.assign(Object.assign({}, cliente), { dividas: undefined }),
+            dividas: cliente.dividas
+                .filter(d => d.status_negativado)
+                .map(d => ({
+                id: d.id,
+                id_cliente: d.cliente_id,
+                descricao: d.descricao || '',
+                valor: Number(d.valor),
+                data_vencimento: d.data_cadastro ? d.data_cadastro.toISOString() : '',
+                status: d.status_negativado ? 'pendente' : 'pago',
+                protocolo: d.protocolo || '',
+                empresa: d.empresa || '',
+                cnpj_empresa: d.cnpj_empresa || ''
+            })),
+            ultimaConsulta: undefined
+        }));
         const valorTotalDividas = inadimplentes.reduce((total, inadimplente) => {
             return total + inadimplente.dividas.reduce((subtotal, divida) => subtotal + divida.valor, 0);
         }, 0);
@@ -130,96 +79,88 @@ class RelatorioService {
         };
     }
     async gerarRelatorioConsultas(dataInicio, dataFim) {
-        const query = client_1.Prisma.sql `
-      WITH consultas_por_dia AS (
-        SELECT 
-          DATE(data) as data,
-          COUNT(*) as quantidade
-        FROM consultas
-        WHERE data >= ${dataInicio.toISOString()} AND data <= ${dataFim.toISOString()}
-        GROUP BY DATE(data)
-      )
-      SELECT 
-        cpd.*,
-        c.*
-      FROM consultas_por_dia cpd
-      LEFT JOIN consultas c ON DATE(c.data) = cpd.data
-      ORDER BY c.data DESC
-    `;
-        const result = await db_1.prisma.$queryRaw(query);
-        const consultasPorPeriodo = result
-            .filter((row, index, self) => index === self.findIndex(r => r.data === row.data))
-            .map((row) => ({
-            data: new Date(row.data),
-            quantidade: parseInt(row.quantidade)
+        console.log('Gerando relatório de consultas:', { dataInicio, dataFim });
+        const consultas = await db_1.prisma.consulta.findMany({
+            where: {
+                data: {
+                    gte: dataInicio,
+                    lte: dataFim
+                }
+            },
+            orderBy: {
+                data: 'desc'
+            }
+        });
+        console.log('Consultas encontradas:', consultas.length);
+        const consultasPorDia = new Map();
+        consultas.forEach(consulta => {
+            const data = consulta.data.toISOString().split('T')[0];
+            consultasPorDia.set(data, (consultasPorDia.get(data) || 0) + 1);
+        });
+        const consultasPorPeriodo = Array.from(consultasPorDia.entries()).map(([data, quantidade]) => ({
+            data: new Date(data),
+            quantidade
         }));
+        console.log('Consultas por período:', consultasPorPeriodo);
         return {
-            totalConsultas: result.length || 0,
+            totalConsultas: consultas.length,
             consultasPorPeriodo,
-            consultas: result
-                .filter(row => row.id)
-                .map((row) => ({
-                id: row.id,
-                cliente_id: 0,
-                data: new Date(row.data_consulta),
-                tipo: 'consulta_cpf',
-                observacoes: null,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                cpf_consultado: row.cpf_consultado,
-                data_consulta: new Date(row.data_consulta),
-                resultado: row.resultado
+            consultas: consultas.map(consulta => ({
+                id: consulta.id,
+                cliente_id: consulta.cliente_id,
+                data: consulta.data,
+                tipo: consulta.tipo,
+                observacoes: consulta.observacoes,
+                createdAt: consulta.createdAt,
+                updatedAt: consulta.updatedAt
             }))
         };
     }
     async gerarRelatorioDividas() {
-        const query = client_1.Prisma.sql `
-      WITH dividas_por_status AS (
-        SELECT 
-          status,
-          COUNT(*) as total,
-          SUM(valor) as valor_total
-        FROM dividas
-        GROUP BY status
-      )
-      SELECT 
-        d.*,
-        dps.total,
-        dps.valor_total,
-        COUNT(*) OVER() as count
-      FROM dividas d
-      JOIN dividas_por_status dps ON d.status = dps.status
-      ORDER BY d.data_vencimento DESC
-    `;
-        const result = await db_1.prisma.$queryRaw(query);
+        const dividasDb = await db_1.prisma.divida.findMany({
+            include: { cliente: true }
+        });
+        const dividas = dividasDb.map((d) => {
+            const status = d.status_negativado ? 'pago' : 'pendente';
+            return {
+                id: d.id,
+                id_cliente: d.cliente_id,
+                descricao: d.descricao || '',
+                valor: Number(d.valor),
+                data_vencimento: d.data_cadastro ? d.data_cadastro.toISOString() : '',
+                status,
+                protocolo: d.protocolo || '',
+                empresa: d.empresa || '',
+                cnpj_empresa: d.cnpj_empresa || ''
+            };
+        });
+        const totalDividas = dividas.length;
+        const valorTotal = dividas.reduce((total, d) => total + d.valor, 0);
         const dividasPorStatus = {
-            pendente: 0,
-            pago: 0,
+            pendente: dividas.filter(d => d.status === 'pendente').length,
+            pago: dividas.filter(d => d.status === 'pago').length,
             cancelado: 0
         };
-        result.forEach(row => {
-            if (row.status === 'pendente')
-                dividasPorStatus.pendente++;
-            else if (row.status === 'paga')
-                dividasPorStatus.pago++;
-            else if (row.status === 'cancelada')
-                dividasPorStatus.cancelado++;
-        });
         return {
-            totalDividas: result.length || 0,
-            valorTotal: result.reduce((total, row) => total + row.valor, 0),
+            totalDividas,
+            valorTotal,
             dividasPorStatus,
-            dividas: result.map(row => ({
-                id: row.id,
-                cliente_id: row.cliente_id,
-                valor: row.valor,
-                data_vencimento: new Date(row.data_vencimento),
-                descricao: row.descricao,
-                status: row.status,
-                createdAt: new Date(),
-                updatedAt: new Date()
-            }))
+            dividas
         };
+    }
+    async buscarTodasConsultasDebug() {
+        const consultas = await db_1.prisma.consulta.findMany({
+            orderBy: { data: 'desc' }
+        });
+        console.log('DEBUG - Total de consultas encontradas:', consultas.length);
+        return consultas;
+    }
+    async buscarTodosInadimplentesDebug() {
+        const inadimplentes = await db_1.prisma.cliente.findMany({
+            include: { dividas: true }
+        });
+        console.log('DEBUG - Total de clientes encontrados:', inadimplentes.length);
+        return inadimplentes;
     }
 }
 exports.RelatorioService = RelatorioService;
