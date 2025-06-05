@@ -14,6 +14,7 @@ import permissaoRoutes from './permissaoRoutes';
 import relatorioRoutes from './relatorioRoutes';
 import tenantRoutes from './tenantRoutes';
 import usuarioRoutes from './usuarioRoutes';
+import enderecoClienteRoutes from './enderecoClienteRoutes';
 
 const router = Router();
 
@@ -52,6 +53,9 @@ router.use('/dashboard', dashboardRoutes);
 
 // Rotas de Tenant
 router.use('/tenants', tenantRoutes);
+
+// Rotas de Endereço
+router.use('/enderecos', enderecoClienteRoutes);
 
 // Rotas de Consulta
 router.get('/consulta/:cpf', authenticateJWT, ConsultaController.consultarCPF);

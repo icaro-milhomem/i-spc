@@ -164,44 +164,144 @@ class ClienteController {
             const { id } = req.params;
             const usuario = req.user;
             if (!usuario || !usuario.tenant_id) {
-                return res.status(401).json({ error: 'Usuário não autenticado corretamente.' });
+                throw new AppError_1.AppError('Usuário não autenticado corretamente', 401);
             }
-            const cliente = await prismaClient_1.prisma.cliente.findFirst({ where: { id: Number(id), tenant_id: usuario.tenant_id } });
+            const cliente = await prismaClient_1.prisma.cliente.findUnique({
+                where: { id: Number(id) },
+                include: {
+                    tenant: {
+                        select: {
+                            id: true,
+                            nome: true,
+                            cnpj: true
+                        }
+                    }
+                }
+            });
             if (!cliente) {
-                return res.status(404).json({ error: 'Cliente não encontrado' });
+                throw new AppError_1.AppError('Cliente não encontrado', 404);
             }
-            res.json(cliente);
+            const enderecosAdicionais = await prismaClient_1.prisma.enderecoClienteEmpresa.findMany({
+                where: {
+                    cliente_id: Number(id)
+                },
+                include: {
+                    tenant: {
+                        select: {
+                            id: true,
+                            nome: true,
+                            cnpj: true
+                        }
+                    }
+                }
+            });
+            const enderecoOriginal = cliente.endereco ? cliente.endereco.split(',').map((part) => part.trim()) : [];
+            const [cep = '', rua = '', numero = '', complemento = '', bairro = '', cidade = '', estado = ''] = enderecoOriginal;
+            return res.json(Object.assign(Object.assign({}, cliente), { ativo: cliente.status === 'ATIVO', endereco: {
+                    cep,
+                    rua,
+                    numero,
+                    complemento,
+                    bairro,
+                    cidade,
+                    estado
+                }, enderecosAdicionais, podeEditar: cliente.tenant_id === usuario.tenant_id }));
         }
         catch (error) {
-            res.status(500).json({ error: 'Erro ao buscar cliente' });
+            if (error instanceof AppError_1.AppError) {
+                return res.status(error.statusCode).json({ error: error.message });
+            }
+            console.error('Erro ao buscar cliente:', error);
+            return res.status(500).json({ error: 'Erro interno do servidor' });
         }
     }
     async listar(req, res) {
         try {
             const usuario = req.user;
+            const { page = 1, limit = 10, search = '' } = req.query;
             if (!usuario || !usuario.tenant_id) {
-                return res.status(401).json({ error: 'Usuário não autenticado corretamente.' });
+                throw new AppError_1.AppError('Usuário não autenticado corretamente', 401);
             }
-            const page = parseInt(req.query.page) || 1;
-            const limit = parseInt(req.query.limit) || 10;
-            const skip = (page - 1) * limit;
-            const [clientes, total] = await Promise.all([
-                prismaClient_1.prisma.cliente.findMany({
-                    where: { tenant_id: usuario.tenant_id },
-                    skip,
-                    take: limit,
-                }),
-                prismaClient_1.prisma.cliente.count({ where: { tenant_id: usuario.tenant_id } }),
-            ]);
-            res.json({
-                data: clientes,
+            const skip = (Number(page) - 1) * Number(limit);
+            const clientes = await prismaClient_1.prisma.cliente.findMany({
+                where: {
+                    AND: [
+                        {
+                            OR: [
+                                { tenant_id: usuario.tenant_id },
+                                { tenant_id: { not: usuario.tenant_id } }
+                            ]
+                        },
+                        search ? {
+                            OR: [
+                                { nome: { contains: String(search), mode: 'insensitive' } },
+                                { cpf: { contains: String(search) } }
+                            ]
+                        } : {}
+                    ]
+                },
+                include: {
+                    tenant: {
+                        select: {
+                            id: true,
+                            nome: true,
+                            cnpj: true
+                        }
+                    }
+                },
+                skip,
+                take: Number(limit),
+                orderBy: { nome: 'asc' }
+            });
+            const total = await prismaClient_1.prisma.cliente.count({
+                where: {
+                    AND: [
+                        {
+                            OR: [
+                                { tenant_id: usuario.tenant_id },
+                                { tenant_id: { not: usuario.tenant_id } }
+                            ]
+                        },
+                        search ? {
+                            OR: [
+                                { nome: { contains: String(search), mode: 'insensitive' } },
+                                { cpf: { contains: String(search) } }
+                            ]
+                        } : {}
+                    ]
+                }
+            });
+            const clientesFormatados = clientes.map(cliente => {
+                const enderecoParts = cliente.endereco ? cliente.endereco.split(',').map((part) => part.trim()) : [];
+                const [cep = '', rua = '', numero = '', complemento = '', bairro = '', cidade = '', estado = ''] = enderecoParts;
+                return Object.assign(Object.assign({}, cliente), { ativo: cliente.status === 'ATIVO', endereco: {
+                        cep,
+                        rua,
+                        numero,
+                        complemento,
+                        bairro,
+                        cidade,
+                        estado
+                    }, permissoes: {
+                        podeEditar: cliente.tenant_id === usuario.tenant_id,
+                        podeExcluir: cliente.tenant_id === usuario.tenant_id,
+                        podeAdicionarEndereco: true,
+                        podeAdicionarDivida: true
+                    } });
+            });
+            return res.json({
+                clientes: clientesFormatados,
                 total,
-                page,
-                limit,
+                totalPages: Math.ceil(total / Number(limit)),
+                currentPage: Number(page)
             });
         }
         catch (error) {
-            res.status(500).json({ error: 'Erro ao listar clientes' });
+            if (error instanceof AppError_1.AppError) {
+                return res.status(error.statusCode).json({ error: error.message });
+            }
+            console.error('Erro ao listar clientes:', error);
+            return res.status(500).json({ error: 'Erro interno do servidor' });
         }
     }
 }

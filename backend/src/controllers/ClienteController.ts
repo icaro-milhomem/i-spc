@@ -3,7 +3,7 @@ import { prisma } from '../database/prismaClient';
 import { AppError } from '../utils/AppError';
 
 export class ClienteController {
-  async criar(req: Request, res: Response) {
+  async criar(req: Request, res: Response): Promise<Response> {
     try {
       const { nome, cpf, email, telefone, endereco } = req.body;
 
@@ -32,7 +32,7 @@ export class ClienteController {
           endereco,
           status: 'ativo',
           criado_por_id: req.user.id,
-          tenant_id: req.user.tenant_id // Adicionado para garantir associação ao tenant
+          tenant_id: req.user.tenant_id
         }
       });
 
@@ -46,7 +46,7 @@ export class ClienteController {
     }
   }
 
-  async buscarPorCPF(req: Request, res: Response) {
+  async buscarPorCPF(req: Request, res: Response): Promise<Response> {
     try {
       const { cpf } = req.params;
 
@@ -71,7 +71,7 @@ export class ClienteController {
     }
   }
 
-  async atualizarStatus(req: Request, res: Response) {
+  async atualizarStatus(req: Request, res: Response): Promise<Response> {
     try {
       const { cpf } = req.params;
       const { status } = req.body;
@@ -103,7 +103,7 @@ export class ClienteController {
     }
   }
 
-  async consultarPorCpfOuNome(req: Request, res: Response) {
+  async consultarPorCpfOuNome(req: Request, res: Response): Promise<Response> {
     try {
       const { cpf, nome } = req.query;
       if (!cpf && !nome) {
@@ -134,7 +134,7 @@ export class ClienteController {
     }
   }
 
-  async atualizar(req: Request, res: Response) {
+  async atualizar(req: Request, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
       const { nome, cpf, email, telefone, cep, rua, numero, complemento, bairro, cidade, estado } = req.body;
@@ -186,48 +186,177 @@ export class ClienteController {
     }
   }
 
-  async buscarPorId(req: Request, res: Response) {
+  async buscarPorId(req: Request, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
       const usuario = req.user;
+
       if (!usuario || !usuario.tenant_id) {
-        return res.status(401).json({ error: 'Usuário não autenticado corretamente.' });
+        throw new AppError('Usuário não autenticado corretamente', 401);
       }
-      const cliente = await prisma.cliente.findFirst({ where: { id: Number(id), tenant_id: usuario.tenant_id } });
+
+      const cliente = await prisma.cliente.findUnique({
+        where: { id: Number(id) },
+        include: {
+          tenant: {
+            select: {
+              id: true,
+              nome: true,
+              cnpj: true
+            }
+          }
+        }
+      });
+
       if (!cliente) {
-        return res.status(404).json({ error: 'Cliente não encontrado' });
+        throw new AppError('Cliente não encontrado', 404);
       }
-      res.json(cliente);
+
+      // Busca os endereços de cobrança adicionais
+      const enderecosAdicionais = await prisma.enderecoClienteEmpresa.findMany({
+        where: {
+          cliente_id: Number(id)
+        },
+        include: {
+          tenant: {
+            select: {
+              id: true,
+              nome: true,
+              cnpj: true
+            }
+          }
+        }
+      });
+
+      // Formata o endereço original
+      const enderecoOriginal = cliente.endereco ? cliente.endereco.split(',').map((part: string) => part.trim()) : [];
+      const [cep = '', rua = '', numero = '', complemento = '', bairro = '', cidade = '', estado = ''] = enderecoOriginal;
+
+      // Retorna os dados formatados
+      return res.json({
+        ...cliente,
+        ativo: cliente.status === 'ATIVO',
+        endereco: {
+          cep,
+          rua,
+          numero,
+          complemento,
+          bairro,
+          cidade,
+          estado
+        },
+        enderecosAdicionais,
+        podeEditar: cliente.tenant_id === usuario.tenant_id
+      });
     } catch (error) {
-      res.status(500).json({ error: 'Erro ao buscar cliente' });
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({ error: error.message });
+      }
+      console.error('Erro ao buscar cliente:', error);
+      return res.status(500).json({ error: 'Erro interno do servidor' });
     }
   }
 
-  async listar(req: Request, res: Response) {
+  async listar(req: Request, res: Response): Promise<Response> {
     try {
       const usuario = req.user;
+      const { page = 1, limit = 10, search = '' } = req.query;
+
       if (!usuario || !usuario.tenant_id) {
-        return res.status(401).json({ error: 'Usuário não autenticado corretamente.' });
+        throw new AppError('Usuário não autenticado corretamente', 401);
       }
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
-      const skip = (page - 1) * limit;
-      const [clientes, total] = await Promise.all([
-        prisma.cliente.findMany({
-          where: { tenant_id: usuario.tenant_id },
-          skip,
-          take: limit,
-        }),
-        prisma.cliente.count({ where: { tenant_id: usuario.tenant_id } }),
-      ]);
-      res.json({
-        data: clientes,
+
+      const skip = (Number(page) - 1) * Number(limit);
+
+      // Busca clientes do tenant atual e de outros tenants
+      const clientes = await prisma.cliente.findMany({
+        where: {
+          AND: [
+            {
+              OR: [
+                { tenant_id: usuario.tenant_id },
+                { tenant_id: { not: usuario.tenant_id } }
+              ]
+            },
+            search ? {
+              OR: [
+                { nome: { contains: String(search), mode: 'insensitive' } },
+                { cpf: { contains: String(search) } }
+              ]
+            } : {}
+          ]
+        },
+        include: {
+          tenant: {
+            select: {
+              id: true,
+              nome: true,
+              cnpj: true
+            }
+          }
+        },
+        skip,
+        take: Number(limit),
+        orderBy: { nome: 'asc' }
+      });
+
+      const total = await prisma.cliente.count({
+        where: {
+          AND: [
+            {
+              OR: [
+                { tenant_id: usuario.tenant_id },
+                { tenant_id: { not: usuario.tenant_id } }
+              ]
+            },
+            search ? {
+              OR: [
+                { nome: { contains: String(search), mode: 'insensitive' } },
+                { cpf: { contains: String(search) } }
+              ]
+            } : {}
+          ]
+        }
+      });
+
+      // Formata os dados dos clientes
+      const clientesFormatados = clientes.map(cliente => {
+        const enderecoParts = cliente.endereco ? cliente.endereco.split(',').map((part: string) => part.trim()) : [];
+        const [cep = '', rua = '', numero = '', complemento = '', bairro = '', cidade = '', estado = ''] = enderecoParts;
+
+        return {
+          ...cliente,
+          ativo: cliente.status === 'ATIVO',
+          endereco: {
+            cep,
+            rua,
+            numero,
+            complemento,
+            bairro,
+            cidade,
+            estado
+          },
+          permissoes: {
+            podeEditar: cliente.tenant_id === usuario.tenant_id,
+            podeExcluir: cliente.tenant_id === usuario.tenant_id,
+            podeAdicionarEndereco: true,
+            podeAdicionarDivida: true
+          }
+        };
+      });
+
+      return res.json({
+        clientes: clientesFormatados,
         total,
-        page,
-        limit,
+        totalPages: Math.ceil(total / Number(limit)),
+        currentPage: Number(page)
       });
     } catch (error) {
-      res.status(500).json({ error: 'Erro ao listar clientes' });
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({ error: error.message });
+      }
+      console.error('Erro ao listar clientes:', error);
+      return res.status(500).json({ error: 'Erro interno do servidor' });
     }
   }
 }

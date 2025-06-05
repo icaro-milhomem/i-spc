@@ -140,19 +140,31 @@ class DividaController {
             const limit = Number(req.query.limit) || 10;
             const usuario = req.user;
             const cliente = await prismaClient_1.prisma.cliente.findUnique({
-                where: { id: Number(cliente_id), tenant_id: usuario.tenant_id }
+                where: { id: Number(cliente_id) }
             });
             if (!cliente) {
                 throw new AppError_1.AppError('Cliente não encontrado', 404);
             }
             const dividas = await prismaClient_1.prisma.divida.findMany({
-                where: { cliente_id: Number(cliente_id), tenant_id: usuario.tenant_id },
+                where: { cliente_id: Number(cliente_id) },
+                include: {
+                    tenant: {
+                        select: {
+                            id: true,
+                            nome: true,
+                            cnpj: true
+                        }
+                    }
+                },
                 skip: (page - 1) * limit,
-                take: limit
+                take: limit,
+                orderBy: {
+                    data_cadastro: 'desc'
+                }
             });
-            const dividasCorrigidas = dividas.map((d) => (Object.assign(Object.assign({}, d), { data_vencimento: d.data_cadastro ? d.data_cadastro.toISOString() : '', created_at: d.data_cadastro ? d.data_cadastro.toISOString() : '' })));
+            const dividasCorrigidas = dividas.map((d) => (Object.assign(Object.assign({}, d), { data_vencimento: d.data_cadastro ? d.data_cadastro.toISOString() : '', created_at: d.data_cadastro ? d.data_cadastro.toISOString() : '', podeEditar: d.tenant_id === usuario.tenant_id })));
             const total = await prismaClient_1.prisma.divida.count({
-                where: { cliente_id: Number(cliente_id), tenant_id: usuario.tenant_id }
+                where: { cliente_id: Number(cliente_id) }
             });
             return res.json({
                 data: dividasCorrigidas,

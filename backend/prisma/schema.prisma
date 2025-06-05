@@ -181,13 +181,21 @@ model Consulta {
 }
 
 model EnderecoClienteEmpresa {
-  id         Int      @id @default(autoincrement())
-  cliente_id Int
-  tenant_id  Int
-  endereco   String
-  createdAt  DateTime @default(now())
-  cliente    Cliente  @relation(fields: [cliente_id], references: [id])
-  tenant     Tenant   @relation(fields: [tenant_id], references: [id])
+  id          Int      @id @default(autoincrement())
+  cep         String
+  rua         String
+  numero      String
+  complemento String?
+  bairro      String
+  cidade      String
+  estado      String
+  cliente_id  Int
+  tenant_id   Int
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  cliente     Cliente  @relation(fields: [cliente_id], references: [id])
+  tenant      Tenant   @relation(fields: [tenant_id], references: [id])
 
   @@map("enderecos_cliente_empresa")
 }

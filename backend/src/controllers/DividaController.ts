@@ -158,29 +158,44 @@ export class DividaController {
       const limit = Number(req.query.limit) || 10;
       const usuario = req.user as JwtPayload;
 
+      // Verifica se o cliente existe
       const cliente = await prisma.cliente.findUnique({
-        where: { id: Number(cliente_id), tenant_id: usuario.tenant_id }
+        where: { id: Number(cliente_id) }
       });
 
       if (!cliente) {
         throw new AppError('Cliente não encontrado', 404);
       }
 
+      // Busca todas as dívidas do cliente, independente do tenant
       const dividas = await prisma.divida.findMany({
-        where: { cliente_id: Number(cliente_id), tenant_id: usuario.tenant_id },
+        where: { cliente_id: Number(cliente_id) },
+        include: {
+          tenant: {
+            select: {
+              id: true,
+              nome: true,
+              cnpj: true
+            }
+          }
+        },
         skip: (page - 1) * limit,
-        take: limit
+        take: limit,
+        orderBy: {
+          data_cadastro: 'desc'
+        }
       });
 
       // Corrige datas
       const dividasCorrigidas = dividas.map((d) => ({
         ...d,
         data_vencimento: d.data_cadastro ? d.data_cadastro.toISOString() : '',
-        created_at: d.data_cadastro ? d.data_cadastro.toISOString() : ''
+        created_at: d.data_cadastro ? d.data_cadastro.toISOString() : '',
+        podeEditar: d.tenant_id === usuario.tenant_id
       }));
 
       const total = await prisma.divida.count({
-        where: { cliente_id: Number(cliente_id), tenant_id: usuario.tenant_id }
+        where: { cliente_id: Number(cliente_id) }
       });
 
       return res.json({
