@@ -9,6 +9,7 @@ router.get('/', authenticateJWT, TenantController.listar);
 router.post('/', authenticateJWT, TenantController.criar);
 router.put('/:id', authenticateJWT, TenantController.atualizar);
 router.delete('/:id', authenticateJWT, TenantController.deletar);
+router.post('/register', TenantController.register);
 
 router.get('/minha', authenticateJWT, async (req, res) => {
   try {
@@ -30,4 +31,4 @@ router.get('/minha', authenticateJWT, async (req, res) => {
   }
 });
 
-export default router; 
+export default router;

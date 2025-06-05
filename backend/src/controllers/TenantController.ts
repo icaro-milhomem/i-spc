@@ -146,4 +146,56 @@ export class TenantController {
       res.status(500).json({ error: 'Erro ao excluir empresa' });
     }
   }
+
+  static async register(req: Request, res: Response) {
+    try {
+      const { nome, cnpj, razao_social, cep, endereco, numero, bairro, cidade, uf, email, senha } = req.body;
+      if (!nome || !cnpj || !razao_social || !cep || !endereco || !numero || !bairro || !cidade || !uf || !email || !senha) {
+        return res.status(400).json({ error: 'Dados obrigatórios ausentes' });
+      }
+
+      // Buscar o papel de admin
+      const papelAdmin = await prisma.papel.findUnique({
+        where: { nome: 'admin' },
+        include: { permissoes: true }
+      });
+      if (!papelAdmin) {
+        return res.status(500).json({ error: 'Papel de administrador não encontrado' });
+      }
+
+      // Cria o tenant
+      const novoTenant = await prisma.tenant.create({
+        data: { nome, cnpj, razao_social, cep, endereco, numero, bairro, cidade, uf }
+      });
+
+      // Cria o admin vinculado ao tenant com o papel de admin
+      const senhaHash = await bcrypt.hash(senha, 10);
+      await prisma.usuario.create({
+        data: {
+          nome: 'Admin',
+          email,
+          senha: senhaHash,
+          perfil: 'admin',
+          role: 'admin',
+          tenant_id: novoTenant.id,
+          ativo: true,
+          papeis: {
+            connect: [{ id: papelAdmin.id }]
+          }
+        },
+        include: {
+          papeis: {
+            include: {
+              permissoes: true
+            }
+          }
+        }
+      });
+
+      res.status(201).json({ message: 'Empresa e admin criados com sucesso!' });
+    } catch (error) {
+      console.error('Erro ao registrar tenant:', error);
+      res.status(500).json({ error: 'Erro ao registrar empresa' });
+    }
+  }
 }

@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
+import logo from '../../logo.login.png';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -69,6 +70,9 @@ const Login: React.FC = () => {
           maxWidth: 400
         }}
       >
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
+          <img src={logo} alt="Logo" style={{ width: '100%', maxWidth: 220, marginBottom: 8 }} />
+        </Box>
         <Typography variant="h4" align="center" gutterBottom>
           Login
         </Typography>
@@ -111,10 +115,19 @@ const Login: React.FC = () => {
           >
             Entrar
           </Button>
+          <Button
+            variant="outlined"
+            color="primary"
+            fullWidth
+            sx={{ mt: 2 }}
+            onClick={() => navigate('/register-empresa')}
+          >
+            Cadastrar Empresa
+          </Button>
         </form>
       </Paper>
     </Box>
   );
 };
 
-export default Login; 
+export default Login;

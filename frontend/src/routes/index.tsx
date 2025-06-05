@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { ModalProvider } from '../contexts/ModalContext';
 import Layout from '../components/Layout';
-import Login from '../components/Login';
+import Login from '../pages/Login';
 import Dashboard from '../pages/Dashboard';
 import { UsuarioLista } from '../components/UsuarioLista';
 import UsuarioEdicao from '../components/UsuarioEdicao';
@@ -16,6 +16,7 @@ import { RecuperarSenha } from '../components/RecuperarSenha';
 import { RedefinirSenha } from '../components/RedefinirSenha';
 import { ConsultaCPF } from '../pages/ConsultaCPF';
 import AdminTenants from '../pages/AdminTenants';
+import RegisterEmpresa from '../pages/RegisterEmpresa';
 
 interface PrivateRouteProps {
   children: React.ReactNode;
@@ -54,6 +55,7 @@ const AppRoutes: React.FC = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/recuperar-senha" element={<RecuperarSenha />} />
           <Route path="/redefinir-senha/:token" element={<RedefinirSenha />} />
+          <Route path="/register-empresa" element={<RegisterEmpresa />} />
 
           {/* Rota exclusiva do superadmin */}
           {(user as any)?.role === 'superadmin' && (

@@ -27,7 +27,8 @@ class ClienteController {
                     telefone,
                     endereco,
                     status: 'ativo',
-                    criado_por_id: req.user.id
+                    criado_por_id: req.user.id,
+                    tenant_id: req.user.tenant_id
                 }
             });
             return res.status(201).json(cliente);

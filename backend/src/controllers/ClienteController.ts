@@ -31,7 +31,8 @@ export class ClienteController {
           telefone,
           endereco,
           status: 'ativo',
-          criado_por_id: req.user.id
+          criado_por_id: req.user.id,
+          tenant_id: req.user.tenant_id // Adicionado para garantir associação ao tenant
         }
       });
 

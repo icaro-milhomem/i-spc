@@ -136,5 +136,50 @@ class TenantController {
             res.status(500).json({ error: 'Erro ao excluir empresa' });
         }
     }
+    static async register(req, res) {
+        try {
+            const { nome, cnpj, razao_social, cep, endereco, numero, bairro, cidade, uf, email, senha } = req.body;
+            if (!nome || !cnpj || !razao_social || !cep || !endereco || !numero || !bairro || !cidade || !uf || !email || !senha) {
+                return res.status(400).json({ error: 'Dados obrigatórios ausentes' });
+            }
+            const papelAdmin = await prismaClient_1.prisma.papel.findUnique({
+                where: { nome: 'admin' },
+                include: { permissoes: true }
+            });
+            if (!papelAdmin) {
+                return res.status(500).json({ error: 'Papel de administrador não encontrado' });
+            }
+            const novoTenant = await prismaClient_1.prisma.tenant.create({
+                data: { nome, cnpj, razao_social, cep, endereco, numero, bairro, cidade, uf }
+            });
+            const senhaHash = await bcryptjs_1.default.hash(senha, 10);
+            await prismaClient_1.prisma.usuario.create({
+                data: {
+                    nome: 'Admin',
+                    email,
+                    senha: senhaHash,
+                    perfil: 'admin',
+                    role: 'admin',
+                    tenant_id: novoTenant.id,
+                    ativo: true,
+                    papeis: {
+                        connect: [{ id: papelAdmin.id }]
+                    }
+                },
+                include: {
+                    papeis: {
+                        include: {
+                            permissoes: true
+                        }
+                    }
+                }
+            });
+            res.status(201).json({ message: 'Empresa e admin criados com sucesso!' });
+        }
+        catch (error) {
+            console.error('Erro ao registrar tenant:', error);
+            res.status(500).json({ error: 'Erro ao registrar empresa' });
+        }
+    }
 }
 exports.TenantController = TenantController;

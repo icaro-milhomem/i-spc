@@ -107,40 +107,6 @@ async function main() {
     });
     console.log('Usuário superadmin criado/atualizado:', usuarioSuperAdmin);
 
-    // Criar um tenant de exemplo
-    const tenantExemplo = await prisma.tenant.upsert({
-      where: { cnpj: '12345678000199' },
-      update: {},
-      create: {
-        nome: 'Empresa Exemplo',
-        cnpj: '12345678000199',
-        razao_social: 'Empresa Exemplo LTDA',
-        cep: '12345-678',
-        endereco: 'Rua Exemplo',
-        numero: '100',
-        bairro: 'Centro',
-        cidade: 'Cidade Exemplo',
-        uf: 'EX'
-      }
-    });
-    console.log('Tenant de exemplo criado:', tenantExemplo);
-
-    // Criar um cliente vinculado ao tenant de exemplo
-    const clienteExemplo = await prisma.cliente.upsert({
-      where: { cpf: '12345678900' },
-      update: {},
-      create: {
-        nome: 'Cliente Exemplo',
-        cpf: '12345678900',
-        email: 'cliente@exemplo.com',
-        telefone: '11999999999',
-        endereco: 'Rua do Cliente',
-        status: 'ativo',
-        tenant_id: tenantExemplo.id
-      }
-    });
-    console.log('Cliente de exemplo criado:', clienteExemplo);
-
     console.log('Seed concluído com sucesso!');
   } catch (error) {
     console.error('Erro durante o seed:', error);

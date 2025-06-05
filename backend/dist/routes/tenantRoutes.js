@@ -9,6 +9,7 @@ router.get('/', auth_1.authenticateJWT, TenantController_1.TenantController.list
 router.post('/', auth_1.authenticateJWT, TenantController_1.TenantController.criar);
 router.put('/:id', auth_1.authenticateJWT, TenantController_1.TenantController.atualizar);
 router.delete('/:id', auth_1.authenticateJWT, TenantController_1.TenantController.deletar);
+router.post('/register', TenantController_1.TenantController.register);
 router.get('/minha', auth_1.authenticateJWT, async (req, res) => {
     try {
         const usuario = req.user;

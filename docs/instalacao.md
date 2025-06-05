@@ -61,6 +61,11 @@ LOG_LEVEL=debug
 ```bash
 npx prisma migrate deploy
 npx ts-node prisma/seed.ts
+npx prisma db seed
+```
+## Resetar o banco
+```bash
+npx prisma migrate reset
 ```
 
 ## 6. Inicie o backend
@@ -90,5 +95,5 @@ npm run dev
 
 ## 10. Login padrão
 
-- E-mail: admin@pspc.com
-- Senha: 123456 
+- E-mail: super@pspc.com
+- Senha: super123
