@@ -42,13 +42,19 @@ interface Cliente {
   telefone: string;
   cpf: string;
   ativo: boolean;
+  permissoes: {
+    podeEditar: boolean;
+    podeExcluir: boolean;
+    podeAdicionarEndereco: boolean;
+    podeAdicionarDivida: boolean;
+  };
 }
 
 interface PaginatedResponse<T> {
-  data: T[];
+  clientes: T[];
   total: number;
-  page: number;
-  limit: number;
+  totalPages: number;
+  currentPage: number;
 }
 
 const ClienteLista: React.FC = () => {
@@ -74,7 +80,7 @@ const ClienteLista: React.FC = () => {
           limit: rowsPerPage,
         },
       });
-      setClientes(response.data.data);
+      setClientes(response.data.clientes);
       setTotalItems(response.data.total);
     } catch (err) {
       setError('Erro ao carregar clientes');
@@ -225,11 +231,13 @@ const ClienteLista: React.FC = () => {
                     />
                   </TableCell>
                   <TableCell align="right">
-                    <Tooltip title="Editar">
-                      <IconButton color="primary" onClick={() => navigate(`/clientes/${cliente.id}`)} size="large">
-                        <EditIcon fontSize="medium" />
-                      </IconButton>
-                    </Tooltip>
+                    {cliente.permissoes.podeEditar && (
+                      <Tooltip title="Editar">
+                        <IconButton color="primary" onClick={() => navigate(`/clientes/${cliente.id}`)} size="large">
+                          <EditIcon fontSize="medium" />
+                        </IconButton>
+                      </Tooltip>
+                    )}
                     <Tooltip title="Dívidas">
                       <IconButton color="primary" onClick={() => navigate(`/clientes/${cliente.id}/dividas`)} size="large">
                         <ReceiptIcon fontSize="medium" />
@@ -240,11 +248,13 @@ const ClienteLista: React.FC = () => {
                         <SearchIcon fontSize="medium" />
                       </IconButton>
                     </Tooltip>
-                    <Tooltip title="Excluir">
-                      <IconButton color="error" onClick={() => handleDeleteClick(cliente)} size="large">
-                        <DeleteIcon fontSize="medium" />
-                      </IconButton>
-                    </Tooltip>
+                    {cliente.permissoes.podeExcluir && (
+                      <Tooltip title="Excluir">
+                        <IconButton color="error" onClick={() => handleDeleteClick(cliente)} size="large">
+                          <DeleteIcon fontSize="medium" />
+                        </IconButton>
+                      </Tooltip>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

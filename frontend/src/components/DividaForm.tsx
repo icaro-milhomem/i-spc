@@ -41,6 +41,7 @@ interface Cliente {
   id: number;
   nome: string;
   cpf: string;
+  permissoes?: { podeEditar: boolean };
 }
 
 const OPCOES_SERVICOS = [
@@ -74,6 +75,10 @@ const DividaForm: React.FC = () => {
     ont: { checked: false, valor: '', marca: '' }
   });
   const [servicoEditando, setServicoEditando] = useState<string | null>(null);
+  const [enderecoDialogOpen, setEnderecoDialogOpen] = useState(false);
+  const [novoEndereco, setNovoEndereco] = useState({
+    cep: '', rua: '', numero: '', complemento: '', bairro: '', cidade: '', estado: ''
+  });
 
   useEffect(() => {
     const inicializar = async () => {
@@ -162,11 +167,11 @@ const DividaForm: React.FC = () => {
   const carregarClientes = async () => {
     try {
       const response = await api.get('/clientes');
-      setClientes(response.data.data);
-      if (!idDivida && response.data.data.length > 0) {
+      setClientes(response.data.clientes);
+      if (!idDivida && response.data.clientes.length > 0) {
         setFormData(prev => ({
           ...prev,
-          clienteId: response.data.data[0].id
+          clienteId: response.data.clientes[0].id
         }));
       }
     } catch (error) {
@@ -310,6 +315,41 @@ const DividaForm: React.FC = () => {
     return Number(limpo) / 100;
   }
 
+  const handleNovoEnderecoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setNovoEndereco(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleNovoEnderecoCepBlur = async () => {
+    if (novoEndereco.cep.length < 8) return;
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${novoEndereco.cep.replace(/\D/g, '')}/json/`);
+      const data = await response.json();
+      if (!data.erro) {
+        setNovoEndereco(prev => ({
+          ...prev,
+          rua: data.logradouro || '',
+          bairro: data.bairro || '',
+          cidade: data.localidade || '',
+          estado: data.uf || ''
+        }));
+      }
+    } catch (e) {
+      // Silencioso
+    }
+  };
+
+  const handleNovoEnderecoSubmit = async () => {
+    try {
+      await api.post(`/enderecos/cliente/${formData.clienteId}`, novoEndereco);
+      setEnderecoDialogOpen(false);
+      setNovoEndereco({ cep: '', rua: '', numero: '', complemento: '', bairro: '', cidade: '', estado: '' });
+      setSuccess(true);
+    } catch (error) {
+      setError('Erro ao adicionar endereço');
+    }
+  };
+
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f6fa' }}>
       <Paper elevation={4} sx={{ p: 4, borderRadius: 4, minWidth: 400, maxWidth: 600, width: '100%' }}>
@@ -395,6 +435,35 @@ const DividaForm: React.FC = () => {
             margin="normal"
             required
           />
+          {clientes.length > 0 && clientes.find(c => c.id === formData.clienteId) &&
+            clientes.find(c => c.id === formData.clienteId)?.permissoes &&
+            !clientes.find(c => c.id === formData.clienteId)?.permissoes.podeEditar && (
+              <Button
+                variant="contained"
+                color="primary"
+                fullWidth
+                sx={{ mt: 2, mb: 2 }}
+                onClick={() => setEnderecoDialogOpen(true)}
+              >
+                Adicionar Novo Endereço
+              </Button>
+          )}
+          <Dialog open={enderecoDialogOpen} onClose={() => setEnderecoDialogOpen(false)}>
+            <DialogTitle>Adicionar Novo Endereço</DialogTitle>
+            <DialogContent>
+              <TextField label="CEP" name="cep" value={novoEndereco.cep} onChange={handleNovoEnderecoChange} onBlur={handleNovoEnderecoCepBlur} fullWidth margin="normal" required />
+              <TextField label="Rua" name="rua" value={novoEndereco.rua} onChange={handleNovoEnderecoChange} fullWidth margin="normal" required />
+              <TextField label="Número" name="numero" value={novoEndereco.numero} onChange={handleNovoEnderecoChange} fullWidth margin="normal" required />
+              <TextField label="Complemento" name="complemento" value={novoEndereco.complemento} onChange={handleNovoEnderecoChange} fullWidth margin="normal" />
+              <TextField label="Bairro" name="bairro" value={novoEndereco.bairro} onChange={handleNovoEnderecoChange} fullWidth margin="normal" required />
+              <TextField label="Cidade" name="cidade" value={novoEndereco.cidade} onChange={handleNovoEnderecoChange} fullWidth margin="normal" required />
+              <TextField label="Estado" name="estado" value={novoEndereco.estado} onChange={handleNovoEnderecoChange} fullWidth margin="normal" required />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setEnderecoDialogOpen(false)}>Cancelar</Button>
+              <Button onClick={handleNovoEnderecoSubmit} variant="contained" color="primary">Adicionar</Button>
+            </DialogActions>
+          </Dialog>
           <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
             Serviços
           </Typography>

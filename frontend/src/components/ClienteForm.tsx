@@ -10,7 +10,11 @@ import {
   Alert,
   Snackbar,
   FormControlLabel,
-  Switch
+  Switch,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material';
 import api from '../services/api';
 import { formatCPF, formatPhone } from '../utils/formatters';
@@ -22,19 +26,38 @@ interface ClienteForm {
   email: string;
   telefone: string;
   ativo: boolean;
-  cep?: string;
-  rua?: string;
-  numero?: string;
-  complemento?: string;
-  bairro?: string;
-  cidade?: string;
-  estado?: string;
+  cep: string;
+  rua: string;
+  numero: string;
+  complemento: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
+  tenant?: {
+    id: number;
+    nome: string;
+    cnpj: string;
+  };
+  permissoes?: {
+    podeEditar: boolean;
+    podeExcluir: boolean;
+  };
 }
 
 const ClienteForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const isEditing = Boolean(id);
+  const [enderecoDialogOpen, setEnderecoDialogOpen] = useState(false);
+  const [novoEndereco, setNovoEndereco] = useState({
+    cep: '',
+    rua: '',
+    numero: '',
+    complemento: '',
+    bairro: '',
+    cidade: '',
+    estado: ''
+  });
 
   const [formData, setFormData] = useState<ClienteForm>({
     nome: '',
@@ -48,7 +71,9 @@ const ClienteForm: React.FC = () => {
     complemento: '',
     bairro: '',
     cidade: '',
-    estado: ''
+    estado: '',
+    tenant: undefined,
+    permissoes: undefined
   });
 
   const [loading, setLoading] = useState(false);
@@ -82,7 +107,9 @@ const ClienteForm: React.FC = () => {
         complemento: cliente.complemento,
         bairro: cliente.bairro,
         cidade: cliente.cidade,
-        estado: cliente.estado
+        estado: cliente.estado,
+        tenant: cliente.tenant,
+        permissoes: cliente.permissoes
       });
     } catch (err) {
       setError('Erro ao carregar cliente');
@@ -114,6 +141,41 @@ const ClienteForm: React.FC = () => {
       ...prev,
       telefone: formatPhone(phone)
     }));
+  };
+
+  const handleNovoEnderecoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setNovoEndereco(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleNovoEnderecoSubmit = async () => {
+    try {
+      await api.post(`/enderecos/cliente/${id}`, novoEndereco);
+      setSnackbar({
+        open: true,
+        message: 'Endereço adicionado com sucesso!',
+        severity: 'success'
+      });
+      setEnderecoDialogOpen(false);
+      setNovoEndereco({
+        cep: '',
+        rua: '',
+        numero: '',
+        complemento: '',
+        bairro: '',
+        cidade: '',
+        estado: ''
+      });
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: 'Erro ao adicionar endereço',
+        severity: 'error'
+      });
+    }
   };
 
   const validateForm = () => {
@@ -225,171 +287,267 @@ const ClienteForm: React.FC = () => {
 
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f6fa' }}>
-      <Paper elevation={4} sx={{ p: 4, borderRadius: 4, minWidth: 450, maxWidth: 600, width: '100%' }}>
+      <Paper elevation={4} sx={{ p: 4, borderRadius: 4, minWidth: 400, maxWidth: 600, width: '100%' }}>
         <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 700, mb: 3 }}>
           {isEditing ? 'Editar Cliente' : 'Novo Cliente'}
         </Typography>
-        <form onSubmit={handleSubmit} autoComplete="off">
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                label="Nome *"
-                name="nome"
-                value={formData.nome}
-                onChange={handleChange}
-                fullWidth
-                required
-                sx={{ borderRadius: 2 }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="CPF *"
-                name="cpf"
-                value={formData.cpf}
-                onChange={handleCPFChange}
-                fullWidth
-                required
-                sx={{ borderRadius: 2 }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="Email *"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                fullWidth
-                required
-                sx={{ borderRadius: 2 }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="Telefone *"
-                name="telefone"
-                value={formData.telefone}
-                onChange={handlePhoneChange}
-                fullWidth
-                required
-                sx={{ borderRadius: 2 }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={formData.ativo}
-                    onChange={handleChange}
-                    name="ativo"
-                  />
-                }
-                label="Ativo"
-                sx={{ mt: 1 }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="CEP"
-                name="cep"
-                value={formData.cep}
-                onChange={handleChange}
-                onBlur={buscarCep}
-                fullWidth
-                sx={{ borderRadius: 2 }}
-                helperText="Digite o CEP e saia do campo para buscar automaticamente"
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="Rua"
-                name="rua"
-                value={formData.rua}
-                onChange={handleChange}
-                fullWidth
-                sx={{ borderRadius: 2 }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <TextField
-                label="Número"
-                name="numero"
-                value={formData.numero}
-                onChange={handleChange}
-                fullWidth
-                sx={{ borderRadius: 2 }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <TextField
-                label="Complemento"
-                name="complemento"
-                value={formData.complemento}
-                onChange={handleChange}
-                fullWidth
-                sx={{ borderRadius: 2 }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <TextField
-                label="Bairro"
-                name="bairro"
-                value={formData.bairro}
-                onChange={handleChange}
-                fullWidth
-                sx={{ borderRadius: 2 }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={8}>
-              <TextField
-                label="Cidade"
-                name="cidade"
-                value={formData.cidade}
-                onChange={handleChange}
-                fullWidth
-                sx={{ borderRadius: 2 }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <TextField
-                label="Estado"
-                name="estado"
-                value={formData.estado}
-                onChange={handleChange}
-                fullWidth
-                sx={{ borderRadius: 2 }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                fullWidth
-                size="large"
-                sx={{ mt: 2, borderRadius: 2, fontWeight: 700, fontSize: 18 }}
-                disabled={loading}
-              >
-                {loading ? (isEditing ? 'Salvando...' : 'Cadastrando...') : (isEditing ? 'Salvar' : 'Cadastrar')}
-              </Button>
-            </Grid>
-          </Grid>
-        </form>
         {error && (
-          <Alert severity="error" sx={{ mt: 2 }}>
+          <Alert severity="error" sx={{ mb: 2 }}>
             {error}
           </Alert>
         )}
-        <Snackbar
-          open={snackbar.open}
-          autoHideDuration={3000}
-          onClose={handleSnackbarClose}
-        >
-          <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }}>
-            {snackbar.message}
-          </Alert>
-        </Snackbar>
+        <Box component="form" onSubmit={handleSubmit} autoComplete="off">
+          <TextField
+            label="Nome"
+            name="nome"
+            value={formData.nome}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            disabled={isEditing && !formData.permissoes?.podeEditar}
+            required
+          />
+          <TextField
+            label="CPF"
+            name="cpf"
+            value={formData.cpf}
+            onChange={handleCPFChange}
+            fullWidth
+            margin="normal"
+            disabled={isEditing && !formData.permissoes?.podeEditar}
+            required
+          />
+          {formData.tenant && (
+            <>
+              <TextField
+                label="Empresa"
+                value={formData.tenant.nome}
+                fullWidth
+                margin="normal"
+                disabled
+              />
+              <TextField
+                label="CNPJ da Empresa"
+                value={formData.tenant.cnpj}
+                fullWidth
+                margin="normal"
+                disabled
+              />
+            </>
+          )}
+          <TextField
+            label="Email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            disabled={isEditing && !formData.permissoes?.podeEditar}
+            required
+          />
+          <TextField
+            label="Telefone"
+            name="telefone"
+            value={formData.telefone}
+            onChange={handlePhoneChange}
+            fullWidth
+            margin="normal"
+            disabled={isEditing && !formData.permissoes?.podeEditar}
+            required
+          />
+          <FormControlLabel
+            control={
+              <Switch
+                checked={formData.ativo}
+                onChange={handleChange}
+                name="ativo"
+                color="primary"
+                disabled={isEditing && !formData.permissoes?.podeEditar}
+              />
+            }
+            label="Ativo"
+          />
+          <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
+            Endereço Principal
+          </Typography>
+          <TextField
+            label="CEP"
+            name="cep"
+            value={formData.cep}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            disabled={isEditing && !formData.permissoes?.podeEditar}
+            required
+          />
+          <TextField
+            label="Rua"
+            name="rua"
+            value={formData.rua}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            disabled={isEditing && !formData.permissoes?.podeEditar}
+            required
+          />
+          <TextField
+            label="Número"
+            name="numero"
+            value={formData.numero}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            disabled={isEditing && !formData.permissoes?.podeEditar}
+            required
+          />
+          <TextField
+            label="Complemento"
+            name="complemento"
+            value={formData.complemento}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            disabled={isEditing && !formData.permissoes?.podeEditar}
+          />
+          <TextField
+            label="Bairro"
+            name="bairro"
+            value={formData.bairro}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            disabled={isEditing && !formData.permissoes?.podeEditar}
+            required
+          />
+          <TextField
+            label="Cidade"
+            name="cidade"
+            value={formData.cidade}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            disabled={isEditing && !formData.permissoes?.podeEditar}
+            required
+          />
+          <TextField
+            label="Estado"
+            name="estado"
+            value={formData.estado}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            disabled={isEditing && !formData.permissoes?.podeEditar}
+            required
+          />
+          {isEditing && !formData.permissoes?.podeEditar && (
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{ mt: 2 }}
+              onClick={() => setEnderecoDialogOpen(true)}
+            >
+              Adicionar Novo Endereço
+            </Button>
+          )}
+          {formData.permissoes?.podeEditar && (
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{ mt: 2, borderRadius: 2, fontWeight: 700, fontSize: 18 }}
+              disabled={loading}
+            >
+              {loading ? 'Salvando...' : 'Salvar Cliente'}
+            </Button>
+          )}
+        </Box>
       </Paper>
+
+      <Dialog open={enderecoDialogOpen} onClose={() => setEnderecoDialogOpen(false)}>
+        <DialogTitle>Adicionar Novo Endereço</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="CEP"
+            name="cep"
+            value={novoEndereco.cep}
+            onChange={handleNovoEnderecoChange}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <TextField
+            label="Rua"
+            name="rua"
+            value={novoEndereco.rua}
+            onChange={handleNovoEnderecoChange}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <TextField
+            label="Número"
+            name="numero"
+            value={novoEndereco.numero}
+            onChange={handleNovoEnderecoChange}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <TextField
+            label="Complemento"
+            name="complemento"
+            value={novoEndereco.complemento}
+            onChange={handleNovoEnderecoChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            label="Bairro"
+            name="bairro"
+            value={novoEndereco.bairro}
+            onChange={handleNovoEnderecoChange}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <TextField
+            label="Cidade"
+            name="cidade"
+            value={novoEndereco.cidade}
+            onChange={handleNovoEnderecoChange}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <TextField
+            label="Estado"
+            name="estado"
+            value={novoEndereco.estado}
+            onChange={handleNovoEnderecoChange}
+            fullWidth
+            margin="normal"
+            required
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEnderecoDialogOpen(false)}>Cancelar</Button>
+          <Button onClick={handleNovoEnderecoSubmit} variant="contained" color="primary">
+            Adicionar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
+      >
+        <Alert onClose={() => setSnackbar(prev => ({ ...prev, open: false }))} severity={snackbar.severity}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

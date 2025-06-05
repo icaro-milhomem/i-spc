@@ -29,12 +29,17 @@ import { formatCurrency, formatDate } from '../utils/formatters';
 
 interface Divida {
   id: number;
-  cliente_id: number;
   valor: number;
   descricao: string;
   data_vencimento: string;
-  status: 'pendente' | 'pago' | 'atrasado';
+  status: string;
   created_at: string;
+  podeEditar: boolean;
+  tenant: {
+    id: number;
+    nome: string;
+    cnpj: string;
+  };
 }
 
 interface PaginatedResponse<T> {
@@ -185,16 +190,20 @@ const DividaLista: React.FC = () => {
                   </TableCell>
                   <TableCell>{formatDate(divida.created_at)}</TableCell>
                   <TableCell align="right">
-                    <Tooltip title="Editar">
-                      <IconButton color="primary" onClick={() => navigate(`/clientes/${clienteId}/dividas/${divida.id}`)} size="large">
-                        <EditIcon fontSize="medium" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Excluir">
-                      <IconButton color="error" onClick={() => handleDeleteClick(divida)} size="large">
-                        <DeleteIcon fontSize="medium" />
-                      </IconButton>
-                    </Tooltip>
+                    {divida.podeEditar && (
+                      <Tooltip title="Editar">
+                        <IconButton color="primary" onClick={() => navigate(`/clientes/${clienteId}/dividas/${divida.id}`)} size="large">
+                          <EditIcon fontSize="medium" />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                    {divida.podeEditar && (
+                      <Tooltip title="Excluir">
+                        <IconButton color="error" onClick={() => handleDeleteClick(divida)} size="large">
+                          <DeleteIcon fontSize="medium" />
+                        </IconButton>
+                      </Tooltip>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
