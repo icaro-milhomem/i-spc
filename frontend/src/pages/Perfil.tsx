@@ -12,9 +12,14 @@ import {
   Avatar,
   Input,
   CircularProgress,
+  IconButton,
 } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
+import { getLogoUrl } from '../utils/logoUrl';
+import CloseIcon from '@mui/icons-material/Close';
+
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 export const Perfil: React.FC = () => {
   const { user, updateUser } = useAuth();
@@ -29,6 +34,9 @@ export const Perfil: React.FC = () => {
     confirmarSenha: '',
   });
   const [avatar, setAvatar] = useState<string | null>(user?.avatar || null);
+  const [logoEmpresa, setLogoEmpresa] = useState<string | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoLoading, setLogoLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -81,6 +89,22 @@ export const Perfil: React.FC = () => {
         img.src = ev.target?.result as string;
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleLogoEmpresaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        setError('A logo deve ser uma imagem.');
+        return;
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        setError('A imagem deve ter no máximo 2MB');
+        return;
+      }
+      setLogoFile(file);
+      setLogoEmpresa(URL.createObjectURL(file));
     }
   };
 
@@ -138,6 +162,62 @@ export const Perfil: React.FC = () => {
     }
   };
 
+  const handleUploadLogoEmpresa = async () => {
+    if (!logoFile) return;
+    setLogoLoading(true);
+    setError(null);
+    try {
+      const formData = new FormData();
+      formData.append('logo', logoFile);
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        setError('Sessão expirada. Por favor, faça login novamente.');
+        return;
+      }
+
+      const response = await api.post('/tenants/logo', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (response.data && response.data.logo) {
+        setSuccess('Logo da empresa atualizada com sucesso!');
+        setLogoEmpresa(response.data.logo);
+        setLogoFile(null);
+      } else if (response.data && response.data.message) {
+        setError(response.data.message);
+        setLogoFile(null);
+      } else {
+        throw new Error('Resposta inválida do servidor');
+      }
+    } catch (err: any) {
+      console.error('Erro ao enviar logo:', err);
+      setError(err.response?.data?.error || 'Erro ao enviar logo da empresa. Tente novamente.');
+    } finally {
+      setLogoLoading(false);
+    }
+  };
+
+  // Buscar logo da empresa ao carregar o perfil
+  const fetchLogo = async (apagarLogoFile = false) => {
+    try {
+      const res = await api.get('/tenants/minha');
+      setLogoEmpresa(res.data.logo || null);
+      if (apagarLogoFile) setLogoFile(null);
+    } catch {
+      setLogoEmpresa(null);
+      if (apagarLogoFile) setLogoFile(null);
+    }
+  };
+
+  useEffect(() => {
+    fetchLogo();
+    // eslint-disable-next-line
+  }, []);
+
   useEffect(() => {
     if (user) {
       setFormData(prev => ({
@@ -154,37 +234,96 @@ export const Perfil: React.FC = () => {
       <Typography variant="h4" gutterBottom sx={{ textAlign: 'left' }}>
         Meu Perfil
       </Typography>
-      <Grid container spacing={3} alignItems="flex-start" justifyContent="flex-start">
+      <Grid container spacing={3} alignItems="stretch" justifyContent="flex-start">
         <Grid item xs={12} md={6}>
-          <Card>
+          <Card sx={{ height: '100%' }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 Dados Pessoais
               </Typography>
               <form onSubmit={handleUpdateProfile}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
-                  <Avatar src={avatar || undefined} sx={{ width: 80, height: 80, mb: 1, fontSize: 32 }}>
-                    {formData.nome ? formData.nome.charAt(0).toUpperCase() : 'U'}
-                  </Avatar>
-                  <label htmlFor="avatar-upload">
-                    <Input
+                {user?.role === 'admin' ? (
+                  <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, mb: 2 }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <Avatar src={avatar || undefined} sx={{ width: 80, height: 80, mb: 1, fontSize: '2rem' }} />
+                      <input
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        id="avatar-upload"
+                        type="file"
+                        onChange={handleAvatarChange}
+                      />
+                      <label htmlFor="avatar-upload">
+                        <Button
+                          variant="outlined"
+                          component="span"
+                          size="small"
+                          sx={{ mt: 1 }}
+                        >
+                          Alterar Avatar
+                        </Button>
+                      </label>
+                    </Box>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      {logoEmpresa ? (
+                        <Avatar
+                          src={logoEmpresa}
+                          sx={{ width: 80, height: 80, mb: 1, fontSize: '2rem', borderRadius: '50%' }}
+                          alt="Logo da empresa"
+                        />
+                      ) : (
+                        <Avatar
+                          sx={{ width: 80, height: 80, mb: 1, fontSize: 12, bgcolor: 'background.paper', color: 'text.secondary', border: '2px dashed', borderColor: 'divider' }}
+                        >
+                          Sem logo
+                        </Avatar>
+                      )}
+                      <input
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        id="logo-upload"
+                        type="file"
+                        onChange={handleLogoEmpresaChange}
+                      />
+                      <label htmlFor="logo-upload">
+                        <Button
+                          variant="outlined"
+                          component="span"
+                          size="small"
+                          sx={{ mt: 1 }}
+                        >
+                          {logoEmpresa ? 'Alterar Logo' : 'Selecionar Logo'}
+                        </Button>
+                      </label>
+                    </Box>
+                  </Box>
+                ) : (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
+                    <Avatar src={avatar || undefined} sx={{ width: 80, height: 80, mb: 1, fontSize: '2rem' }} />
+                    <input
+                      accept="image/*"
+                      style={{ display: 'none' }}
                       id="avatar-upload"
                       type="file"
-                      inputProps={{ accept: 'image/*' }}
-                      sx={{ display: 'none' }}
                       onChange={handleAvatarChange}
                     />
-                    <Button variant="outlined" component="span" size="small">
-                      Trocar Avatar
-                    </Button>
-                  </label>
-                </Box>
+                    <label htmlFor="avatar-upload">
+                      <Button
+                        variant="outlined"
+                        component="span"
+                        size="small"
+                        sx={{ mt: 1 }}
+                      >
+                        Alterar Avatar
+                      </Button>
+                    </label>
+                  </Box>
+                )}
                 <TextField
                   fullWidth
                   label="Nome"
-                  name="nome"
                   value={formData.nome}
-                  onChange={handleChange}
+                  onChange={(e) => setFormData(prev => ({ ...prev, nome: e.target.value }))}
                   margin="normal"
                   required
                   disabled={loading}
@@ -192,76 +331,79 @@ export const Perfil: React.FC = () => {
                 <TextField
                   fullWidth
                   label="Email"
-                  name="email"
-                  type="email"
                   value={formData.email}
-                  onChange={handleChange}
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   margin="normal"
                   required
+                  type="email"
                   disabled={loading}
                 />
                 <Button
                   type="submit"
                   variant="contained"
+                  color="primary"
                   fullWidth
                   sx={{ mt: 2 }}
                   disabled={loading}
                 >
-                  {loading ? <CircularProgress size={24} /> : 'Salvar Alterações'}
+                  {loading ? <CircularProgress size={24} /> : 'Atualizar Perfil'}
                 </Button>
               </form>
             </CardContent>
           </Card>
         </Grid>
         <Grid item xs={12} md={6}>
-          <Card>
+          <Card sx={{ height: '100%' }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 Alterar Senha
               </Typography>
               <form onSubmit={handleUpdatePassword}>
-                <TextField
-                  fullWidth
-                  label="Senha Atual"
-                  name="senhaAtual"
-                  type="password"
-                  value={formData.senhaAtual}
-                  onChange={handleChange}
-                  margin="normal"
-                  required
-                  disabled={loading}
-                />
-                <TextField
-                  fullWidth
-                  label="Nova Senha"
-                  name="novaSenha"
-                  type="password"
-                  value={formData.novaSenha}
-                  onChange={handleChange}
-                  margin="normal"
-                  required
-                  disabled={loading}
-                />
-                <TextField
-                  fullWidth
-                  label="Confirmar Nova Senha"
-                  name="confirmarSenha"
-                  type="password"
-                  value={formData.confirmarSenha}
-                  onChange={handleChange}
-                  margin="normal"
-                  required
-                  disabled={loading}
-                />
-                <Button
-                  type="submit"
-                  variant="contained"
-                  fullWidth
-                  sx={{ mt: 2 }}
-                  disabled={loading}
-                >
-                  {loading ? <CircularProgress size={24} /> : 'Alterar Senha'}
-                </Button>
+                <Box sx={{ mt: 8 }}>
+                  <TextField
+                    fullWidth
+                    label="Senha Atual"
+                    name="senhaAtual"
+                    type="password"
+                    value={formData.senhaAtual}
+                    onChange={handleChange}
+                    margin="normal"
+                    required
+                    disabled={loading}
+                  />
+                  <TextField
+                    fullWidth
+                    label="Nova Senha"
+                    name="novaSenha"
+                    type="password"
+                    value={formData.novaSenha}
+                    onChange={handleChange}
+                    margin="normal"
+                    required
+                    disabled={loading}
+                  />
+                  <TextField
+                    fullWidth
+                    label="Confirmar Nova Senha"
+                    name="confirmarSenha"
+                    type="password"
+                    value={formData.confirmarSenha}
+                    onChange={handleChange}
+                    margin="normal"
+                    required
+                    disabled={loading}
+                  />
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    sx={{ mt: 2 }}
+                    disabled={loading}
+                  >
+                    {loading ? <CircularProgress size={24} /> : 'Alterar Senha'}
+                  </Button>
+                </Box>
               </form>
             </CardContent>
           </Card>
@@ -290,4 +432,4 @@ export const Perfil: React.FC = () => {
   );
 
   return renderContent();
-}; 
+};

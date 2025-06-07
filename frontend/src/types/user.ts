@@ -9,6 +9,7 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   avatar?: string | null;
+  tenant_id?: number | null;
 }
 
 export interface LoginCredentials {

@@ -1,243 +1,153 @@
-# p-spc
-Proteção de Crédito para Provedores
+# PSPC - Sistema de Proteção de Crédito para Provedores
 
+## Visão Geral
 
-Criar um sistema completo, estilo SPC/Serasa, focado em provedores de internet, para:
+O PSPC é um sistema web completo para provedores de internet e empresas, permitindo:
+- Cadastro e gestão de empresas (tenants)
+- Cadastro de clientes e dívidas
+- Consulta de inadimplentes
+- Dashboard com indicadores
+- Integração automática com ReceitaWS/Speedio e ViaCEP
+- Upload de logo da empresa
+- Perfis: SuperAdmin, Admin
 
-Registrar dívidas de clientes inadimplentes (ex.: mensalidade atrasada, roteador não devolvido).
+---
 
-Consultar CPF antes de instalar novos serviços, verificando histórico de dívidas.
+## Requisitos
 
-🎨 Nome do projeto:
-P-SPC (Proteção de Crédito para Provedores).
+- Node.js 18+
+- PostgreSQL
+- Yarn ou NPM
+- (Opcional) Docker para banco de dados
 
-🚀 Passo a Passo Detalhado
-📌 1️⃣ Setup da Máquina (Linux/Ubuntu)
-✅ Instalar Docker e Docker Compose:
+---
 
-bash
-Copiar
-Editar
-sudo apt update
-sudo apt install docker.io docker-compose -y
-sudo systemctl enable docker
-sudo usermod -aG docker $USER
-Verificar:
+## Instalação
 
-bash
-Copiar
-Editar
-docker --version
-docker-compose --version
-✅ Instalar Node.js (versão 20.x ou superior):
+```bash
+# Clone o repositório
+git clone <seu-repo>
+cd <seu-repo>
 
-bash
-Copiar
-Editar
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install -y nodejs
-Verificar:
+# Instale as dependências
+cd backend
+yarn install
+cd ../frontend
+yarn install
 
-bash
-Copiar
-Editar
-node -v
-npm -v
-✅ Instalar Nginx (proxy reverso):
+# Configure o banco de dados
+# Edite o arquivo .env com as credenciais do PostgreSQL
 
-bash
-Copiar
-Editar
-sudo apt install nginx -y
-sudo systemctl enable nginx
-Verificar:
+# Rode as migrations do Prisma
+cd ../backend
+npx prisma migrate deploy
 
-bash
-Copiar
-Editar
-systemctl status nginx
-✅ Ferramentas adicionais (opcionais):
+# Inicie o backend
+yarn dev
 
-bash
-Copiar
-Editar
-sudo apt install postgresql-client
-📌 2️⃣ Estrutura do Projeto (Monorepo organizado)
-bash
-Copiar
-Editar
-/p-spc
-│
-├── /backend (API Node.js + Express + PostgreSQL)
-│    ├── package.json
-│    ├── .env (variáveis de ambiente)
-│    ├── src/
-│         ├── server.ts
-│         ├── routes/
-│         ├── controllers/
-│         ├── services/
-│         ├── models/
-│
-├── /frontend (React + Vite)
-│    ├── package.json
-│    ├── .env
-│    ├── src/
-│
-├── /nginx
-│    ├── pspc.conf (configuração proxy reverso)
-│
-├── /postgres-data (dados persistentes do banco)
-│
-└── docker-compose.yml (PostgreSQL e outros serviços)
-📌 3️⃣ Banco de Dados (PostgreSQL)
-✅ Rodar PostgreSQL via Docker (docker-compose.yml):
+# Em outro terminal, inicie o frontend
+cd ../frontend
+yarn dev
+```
 
-yaml
-Copiar
-Editar
-version: '3.8'
+---
 
-services:
-  db:
-    image: postgres:16
-    container_name: pspc_db
-    restart: always
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: pspc_user
-      POSTGRES_PASSWORD: pspc_pass
-      POSTGRES_DB: pspc_db
-    volumes:
-      - ./postgres-data:/var/lib/postgresql/data
-Rodar:
+## Estrutura do Projeto
 
-bash
-Copiar
-Editar
-docker-compose up -d
-✅ Checkpoints:
+```
+backend/
+  src/
+    controllers/
+    routes/
+    database/
+    middleware/
+    utils/
+    ...
+  prisma/
+    schema.prisma
+frontend/
+  src/
+    pages/
+    components/
+    contexts/
+    services/
+    ...
+```
 
-docker ps → container pspc_db rodando.
+---
 
-Conectar: psql -h localhost -U pspc_user pspc_db.
+## Principais Funcionalidades
 
-✅ Tabelas principais:
+- **Cadastro de empresa:** Validação de CNPJ, busca automática na ReceitaWS/Speedio, upload de logo.
+- **Cadastro de clientes:** Relacionados à empresa, com busca e filtros.
+- **Cadastro de dívidas:** Relacionadas a clientes, com controle de status.
+- **Dashboard:** Indicadores, gráficos e estatísticas.
+- **Login/Admin/SuperAdmin:** Perfis com permissões distintas.
+- **Tema claro/escuro:** Interface moderna e responsiva.
 
-clientes (cpf, nome, telefone, status)
+---
 
-dividas (id_cliente, descrição, valor, data, status)
+## Endpoints Principais (Backend)
 
-consultas (cpf_consultado, data_consulta, resultado)
+### Empresas (Tenants)
+- `POST /tenants` — Cadastrar empresa (requer autenticação)
+- `GET /tenants` — Listar empresas (superadmin)
+- `GET /tenants/cnpj/:cnpj` — Buscar empresa por CNPJ
+- `POST /tenants/logo` — Upload de logo da empresa
 
-📌 4️⃣ Backend (Node.js + Express + PostgreSQL)
-✅ Rotas principais:
+### Integração ReceitaWS/Speedio
+- `GET /speedio/cnpj/:cnpj` — Buscar dados públicos do CNPJ
 
-POST /api/clientes → Cadastrar cliente.
+### Clientes
+- `POST /clientes` — Cadastrar cliente
+- `GET /clientes` — Listar clientes
 
-POST /api/dividas → Registrar dívida.
+### Dívidas
+- `POST /dividas` — Cadastrar dívida
+- `GET /dividas` — Listar dívidas
 
-GET /api/consulta/:cpf → Consultar CPF.
+### Autenticação
+- `POST /auth/login` — Login
+- `GET /auth/me` — Dados do usuário logado
 
-GET /api/relatorio → Buscar todos inadimplentes.
+---
 
-✅ Funcionalidades:
+## Exemplo de Cadastro de Empresa (Frontend)
 
-API REST com JWT (autenticação segura).
+1. Preencha o CNPJ (com ou sem máscara)
+2. O sistema busca dados na ReceitaWS/Speedio e preenche os campos automaticamente
+3. Preencha os demais campos obrigatórios
+4. (Opcional) Faça upload da logo da empresa
+5. Clique em "Cadastrar"
 
-Validação de CPF (regex).
+---
 
-Criptografia de senhas (bcrypt).
+## Integrações
 
-Logs detalhados no console.
+- **ViaCEP:** Busca automática de endereço pelo CEP
+- **ReceitaWS/Speedio:** Busca automática de dados do CNPJ
+- **Upload de logo:** Suporte a imagens até 2MB
 
-📌 5️⃣ Frontend (React + Vite)
-✅ Telas:
+---
 
-Login/Administração.
+## Dicas de Manutenção
 
-Cadastro de clientes.
+- Sempre rode as migrations do Prisma ao atualizar o banco
+- Use variáveis de ambiente para segredos e URLs
+- Para produção, rode `yarn build` no frontend
+- O backend pode ser facilmente adaptado para outros bancos suportados pelo Prisma
 
-Registro de dívidas.
+---
 
-Consulta de CPF (informando nome, dívidas, status, etc.).
+## Possíveis Melhorias Futuras
 
-Relatório geral.
+- Máscara visual para CPF/CNPJ (input mask)
+- Logs de auditoria
+- Testes automatizados (Jest, Cypress)
+- Documentação Swagger para API
 
-✅ Design:
+---
 
-Inspirado no Serasa/SPC.
+## Contato e Suporte
 
-Cores: Azul, verde e cinza.
-
-Dashboard com cards e tabelas.
-
-📌 6️⃣ Nginx (Proxy Reverso)
-✅ Arquivo /etc/nginx/sites-available/pspc.conf:
-
-nginx
-Copiar
-Editar
-server {
-    listen 80;
-    server_name p-spc.local;
-
-    location /api/ {
-        proxy_pass http://localhost:3000/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-
-    location / {
-        proxy_pass http://localhost:5173/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-}
-✅ Ativar e testar:
-
-bash
-Copiar
-Editar
-sudo ln -s /etc/nginx/sites-available/pspc.conf /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl reload nginx
-✅ Checkpoints:
-
-Backend acessível em http://p-spc.local/api/.
-
-Frontend acessível em http://p-spc.local/.
-
-📌 7️⃣ Funcionalidades Principais do Sistema (MVP)
-✅ Registro de dívidas:
-
-Exemplo: "Fulano CPF 123.456.789-00 deve R$120,00 (roteador TP-Link não devolvido)".
-
-✅ Consulta de CPF:
-
-Exibe nome, telefone, dívidas ativas, data das dívidas.
-
-✅ Relatórios para o provedor:
-
-Lista de clientes inadimplentes.
-
-Histórico de consultas.
-
-✅ Segurança:
-
-Senhas criptografadas (bcrypt).
-
-JWT para autenticação.
-
-Proteção de rotas sensíveis.
-
-📌 8️⃣ Validações e Checkpoints
-✅ docker ps → Containers rodando.
-✅ node -v e npm -v → Node instalado.
-✅ p-spc.local acessível no navegador.
-✅ API funcionando via Insomnia/Postman.
-✅ Frontend renderizando corretamente.
-✅ Teste de fluxo completo: Cadastro → Dívida → Consulta → Relatório.
-
-🏁 Finalização
-💻 Projeto P-SPC: Solução para provedores de internet consultarem e registrarem inadimplentes, protegendo o crédito e evitando perdas.
+Dúvidas ou sugestões? Abra uma issue ou entre em contato com o desenvolvedor responsável.

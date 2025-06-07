@@ -24,6 +24,7 @@ model Tenant {
   dividas   Divida[]
   clientes  Cliente[]
   enderecos_empresa_cliente EnderecoClienteEmpresa[]
+  logo      String?  @db.Text // Caminho ou URL da logo da empresa
 
   @@map("tenants")
 }

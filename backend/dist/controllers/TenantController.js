@@ -181,5 +181,27 @@ class TenantController {
             res.status(500).json({ error: 'Erro ao registrar empresa' });
         }
     }
+    static async uploadLogo(req, res) {
+        try {
+            const usuario = req.user;
+            if (!usuario || !usuario.tenant_id) {
+                return res.status(401).json({ error: 'Usuário não autenticado.' });
+            }
+            const file = req.file;
+            if (!file) {
+                return res.status(400).json({ error: 'Nenhum arquivo enviado.' });
+            }
+            const logoPath = `/uploads/logos/${file.filename}`;
+            await prismaClient_1.prisma.tenant.update({
+                where: { id: usuario.tenant_id },
+                data: { logo: logoPath }
+            });
+            res.json({ logo: logoPath });
+        }
+        catch (error) {
+            console.error('Erro ao fazer upload da logo:', error);
+            res.status(500).json({ error: 'Erro ao fazer upload da logo.' });
+        }
+    }
 }
 exports.TenantController = TenantController;

@@ -15,11 +15,11 @@ import { Perfil } from '../pages/Perfil';
 import { RecuperarSenha } from '../components/RecuperarSenha';
 import { RedefinirSenha } from '../components/RedefinirSenha';
 import { ConsultaCPF } from '../pages/ConsultaCPF';
-import AdminTenants from '../pages/AdminTenants';
 import AdminGateway from '../pages/AdminGateway';
 import AdminConfig from '../pages/AdminConfig';
 import RegisterEmpresa from '../pages/RegisterEmpresa';
 import SuperAdminLayout from '../components/SuperAdminLayout';
+import SuperAdminEmpresas from '../pages/SuperAdminEmpresas';
 
 interface PrivateRouteProps {
   children: React.ReactNode;
@@ -72,10 +72,11 @@ const AppRoutes: React.FC = () => {
                 </PrivateRoute>
               }
             >
-              <Route path="tenants" element={<AdminTenants />} />
+              <Route path="tenants" element={<SuperAdminEmpresas />} />
               <Route path="gateway" element={<AdminGateway />} />
               <Route path="config" element={<AdminConfig />} />
               <Route path="perfil" element={<Perfil />} />
+              <Route index element={<Dashboard />} />
             </Route>
           )}
 
@@ -184,7 +185,7 @@ const AppRoutes: React.FC = () => {
           )}
 
           {/* Redirecionamento padrão */}
-          <Route path="*" element={<Navigate to={(user as any)?.role === 'superadmin' ? '/admin/tenants' : '/dashboard'} />} />
+          <Route path="*" element={<Navigate to={(user as any)?.role === 'superadmin' ? '/admin' : '/dashboard'} />} />
         </Routes>
       </ModalProvider>
     </BrowserRouter>

@@ -198,4 +198,30 @@ export class TenantController {
       res.status(500).json({ error: 'Erro ao registrar empresa' });
     }
   }
+
+  static async uploadLogo(req: Request, res: Response) {
+    try {
+      const usuario = req.user as JwtPayload;
+      if (!usuario || !usuario.tenant_id) {
+        // Retorna 200 com mensagem amigável para superadmin ou usuários sem tenant
+        return res.status(200).json({ logo: null, message: 'Superadmin não possui empresa para salvar logo.' });
+      }
+      const file = (req as any).file;
+      if (!file) {
+        return res.status(400).json({ error: 'Nenhum arquivo enviado.' });
+      }
+      const logoPath = `/uploads/logos/${file.filename}`;
+      await prisma.tenant.update({
+        where: { id: usuario.tenant_id },
+        data: { logo: logoPath }
+      });
+      // Retorna a URL completa da logo
+      const baseUrl = process.env.API_URL || 'http://localhost:3000';
+      const logoUrl = `${baseUrl}/uploads/logos/${file.filename}`;
+      res.json({ logo: logoUrl });
+    } catch (error) {
+      console.error('Erro ao fazer upload da logo:', error);
+      res.status(500).json({ error: 'Erro ao fazer upload da logo.' });
+    }
+  }
 }

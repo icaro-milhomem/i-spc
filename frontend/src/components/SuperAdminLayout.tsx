@@ -11,6 +11,7 @@ import { useThemeMode } from '../contexts/ThemeContext';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { SvgIconProps } from '@mui/material/SvgIcon';
+import HomeIcon from '@mui/icons-material/Home';
 
 const drawerWidth = 200;
 
@@ -40,6 +41,7 @@ export default function SuperAdminLayout({ children, menuItems: customMenuItems,
   }
 
   const menuItems = customMenuItems || [
+    { text: 'Dashboard', icon: <HomeIcon />, path: '/admin/dashboard' },
     { text: 'Empresas', icon: <ApartmentOutlinedIcon />, path: '/admin/tenants' },
     { text: 'Gateway de Pagamento', icon: <CreditCardOutlinedIcon />, path: '/admin/gateway' },
     { text: 'Configurações', icon: <TuneOutlinedIcon />, path: '/admin/config' },

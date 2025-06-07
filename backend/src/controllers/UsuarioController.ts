@@ -1,4 +1,4 @@
-import { hash } from 'bcryptjs';
+import { hash, compare } from 'bcryptjs';
 import { Request, Response } from 'express';
 import { prisma } from '../database/prismaClient';
 import { AppError } from '../utils/AppError';
@@ -340,6 +340,31 @@ export class UsuarioController {
       }
       console.error('Erro ao deletar usuário:', error);
       return res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
+  async alterarSenha(req: Request, res: Response) {
+    try {
+      if (!req.user || !req.user.id) {
+        return res.status(401).json({ error: 'Usuário não autenticado' });
+      }
+      const { senhaAtual, novaSenha } = req.body;
+      if (!senhaAtual || !novaSenha) {
+        return res.status(400).json({ error: 'Senha atual e nova senha são obrigatórias' });
+      }
+      const usuario = await prisma.usuario.findUnique({ where: { id: req.user.id } });
+      if (!usuario) {
+        return res.status(404).json({ error: 'Usuário não encontrado' });
+      }
+      const senhaConfere = await compare(senhaAtual, usuario.senha);
+      if (!senhaConfere) {
+        return res.status(400).json({ error: 'Senha atual incorreta' });
+      }
+      const novaSenhaHash = await hash(novaSenha, 8);
+      await prisma.usuario.update({ where: { id: req.user.id }, data: { senha: novaSenhaHash } });
+      return res.json({ message: 'Senha alterada com sucesso!' });
+    } catch (error) {
+      return res.status(500).json({ error: 'Erro ao alterar senha' });
     }
   }
 }

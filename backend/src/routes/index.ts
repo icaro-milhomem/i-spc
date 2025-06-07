@@ -15,6 +15,7 @@ import relatorioRoutes from './relatorioRoutes';
 import tenantRoutes from './tenantRoutes';
 import usuarioRoutes from './usuarioRoutes';
 import enderecoClienteRoutes from './enderecoClienteRoutes';
+import speedioRoutes from './speedioRoutes';
 
 const router = Router();
 
@@ -62,7 +63,10 @@ router.get('/consulta/:cpf', authenticateJWT, ConsultaController.consultarCPF);
 router.get('/consulta/:cpf/historico', authenticateJWT, ConsultaController.buscarHistorico);
 router.post('/consultas/registrar', authenticateJWT, ConsultaController.registrar);
 
+// Rotas de Speedio (proxy para consulta de CNPJ)
+router.use('/speedio', speedioRoutes);
+
 // Rotas de Relatório
 router.use('/relatorios', relatorioRoutes);
 
-export default router; 
+export default router;
