@@ -35,6 +35,7 @@ model Usuario {
   senha     String
   perfil    String   @default("usuario")
   role      String?
+  avatar    String?  @db.Text
   tenant_id Int?
   tenant    Tenant?  @relation(fields: [tenant_id], references: [id])
   ativo     Boolean  @default(true)

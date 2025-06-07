@@ -5,6 +5,10 @@ import { authenticateJWT, isAdmin } from '../middleware/auth';
 const router = Router();
 const usuarioController = new UsuarioController();
 
+// Rotas específicas primeiro
+router.put('/me', authenticateJWT, usuarioController.atualizarMe);
+
+// Rotas com parâmetros depois
 router.post('/', authenticateJWT, isAdmin, usuarioController.criar);
 router.get('/', authenticateJWT, isAdmin, usuarioController.listar);
 router.get('/:id', authenticateJWT, isAdmin, usuarioController.buscarPorId);

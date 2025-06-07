@@ -156,7 +156,7 @@ export class UsuarioController {
   async atualizar(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { nome, email, senha, papeis } = req.body;
+      const { nome, email, senha, papeis, avatar } = req.body;
 
       if (!nome || !email) {
         throw new AppError('Nome e email são obrigatórios', 400);
@@ -182,6 +182,7 @@ export class UsuarioController {
         nome: string;
         email: string;
         senha?: string;
+        avatar?: string;
         papeis: { set: { id: number }[] };
       } = {
         nome,
@@ -193,6 +194,10 @@ export class UsuarioController {
 
       if (senha) {
         data.senha = await hash(senha, 8);
+      }
+
+      if (avatar) {
+        data.avatar = avatar;
       }
 
       const usuarioAtualizado = await prisma.usuario.update({
@@ -212,10 +217,98 @@ export class UsuarioController {
         nome: usuarioAtualizado.nome,
         email: usuarioAtualizado.email,
         perfil: usuarioAtualizado.perfil,
+        avatar: usuarioAtualizado.avatar,
         ativo: usuarioAtualizado.ativo,
         papeis: usuarioAtualizado.papeis
       });
     } catch (error) {
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({ error: error.message });
+      }
+      console.error('Erro ao atualizar usuário:', error);
+      return res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
+  async atualizarMe(req: Request, res: Response) {
+    try {
+      console.log('DEBUG atualizarMe - req.user:', req.user);
+      console.log('DEBUG atualizarMe - req.body:', req.body);
+
+      if (!req.user || !req.user.id) {
+        throw new AppError('Usuário não autenticado', 401);
+      }
+
+      const { nome, email, senha, avatar } = req.body;
+
+      if (!nome || !email) {
+        throw new AppError('Nome e email são obrigatórios', 400);
+      }
+
+      console.log('DEBUG atualizarMe - Buscando usuário com ID:', req.user.id);
+      const usuario = await prisma.usuario.findUnique({
+        where: { id: req.user.id }
+      });
+
+      console.log('DEBUG atualizarMe - Usuário encontrado:', usuario);
+
+      if (!usuario) {
+        throw new AppError('Usuário não encontrado', 404);
+      }
+
+      const usuarioExistente = await prisma.usuario.findUnique({
+        where: { email }
+      });
+
+      if (usuarioExistente && usuarioExistente.id !== req.user.id) {
+        throw new AppError('Email já cadastrado', 400);
+      }
+
+      const data: {
+        nome: string;
+        email: string;
+        senha?: string;
+        avatar?: string;
+      } = {
+        nome,
+        email
+      };
+
+      if (senha) {
+        data.senha = await hash(senha, 8);
+      }
+
+      if (avatar) {
+        data.avatar = avatar;
+      }
+
+      console.log('DEBUG atualizarMe - Dados para atualização:', data);
+
+      const usuarioAtualizado = await prisma.usuario.update({
+        where: { id: req.user.id },
+        data,
+        include: {
+          papeis: {
+            include: {
+              permissoes: true
+            }
+          }
+        }
+      });
+
+      console.log('DEBUG atualizarMe - Usuário atualizado:', usuarioAtualizado);
+
+      return res.json({
+        id: usuarioAtualizado.id,
+        nome: usuarioAtualizado.nome,
+        email: usuarioAtualizado.email,
+        perfil: usuarioAtualizado.perfil,
+        avatar: usuarioAtualizado.avatar,
+        ativo: usuarioAtualizado.ativo,
+        papeis: usuarioAtualizado.papeis
+      });
+    } catch (error) {
+      console.error('DEBUG atualizarMe - Erro:', error);
       if (error instanceof AppError) {
         return res.status(error.statusCode).json({ error: error.message });
       }
