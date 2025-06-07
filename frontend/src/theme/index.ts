@@ -95,8 +95,6 @@ export const theme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          background: '#003366',
-          color: '#fff',
           boxShadow: '0 2px 8px 0 rgb(0 0 0 / 0.04)',
         },
       },
@@ -104,8 +102,6 @@ export const theme = createTheme({
     MuiDrawer: {
       styleOverrides: {
         paper: {
-          background: '#003366',
-          color: '#fff',
         },
       },
     },
@@ -124,4 +120,4 @@ export const theme = createTheme({
       },
     },
   },
-}); 
+});

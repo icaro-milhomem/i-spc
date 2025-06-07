@@ -1,0 +1,17 @@
+:root {
+  --color-bg-main: #0f0f0f;
+  --color-bg-secondary: #1e1e1e;
+  --color-bg-glass: rgba(30,30,30,0.95);
+  --color-primary: #00bcd4;
+  --color-secondary: #43a047;
+  --color-accent: #1976d2;
+  --color-text-main: #fff;
+  --color-text-secondary: #ccc;
+  --color-text-disabled: #888;
+  --color-border: #222;
+  --color-shadow: 0 4px 32px #0008;
+  --radius-main: 12px;
+  --radius-modal: 16px;
+  --font-main: 'Inter', 'Roboto', Arial, sans-serif;
+  --transition-main: background 0.2s, box-shadow 0.2s;
+} 

@@ -137,7 +137,7 @@ class UsuarioController {
     async atualizar(req, res) {
         try {
             const { id } = req.params;
-            const { nome, email, senha, papeis } = req.body;
+            const { nome, email, senha, papeis, avatar } = req.body;
             if (!nome || !email) {
                 throw new AppError_1.AppError('Nome e email são obrigatórios', 400);
             }
@@ -163,6 +163,9 @@ class UsuarioController {
             if (senha) {
                 data.senha = await (0, bcryptjs_1.hash)(senha, 8);
             }
+            if (avatar) {
+                data.avatar = avatar;
+            }
             const usuarioAtualizado = await prismaClient_1.prisma.usuario.update({
                 where: { id: Number(id) },
                 data,
@@ -179,11 +182,79 @@ class UsuarioController {
                 nome: usuarioAtualizado.nome,
                 email: usuarioAtualizado.email,
                 perfil: usuarioAtualizado.perfil,
+                avatar: usuarioAtualizado.avatar,
                 ativo: usuarioAtualizado.ativo,
                 papeis: usuarioAtualizado.papeis
             });
         }
         catch (error) {
+            if (error instanceof AppError_1.AppError) {
+                return res.status(error.statusCode).json({ error: error.message });
+            }
+            console.error('Erro ao atualizar usuário:', error);
+            return res.status(500).json({ error: 'Erro interno do servidor' });
+        }
+    }
+    async atualizarMe(req, res) {
+        try {
+            console.log('DEBUG atualizarMe - req.user:', req.user);
+            console.log('DEBUG atualizarMe - req.body:', req.body);
+            if (!req.user || !req.user.id) {
+                throw new AppError_1.AppError('Usuário não autenticado', 401);
+            }
+            const { nome, email, senha, avatar } = req.body;
+            if (!nome || !email) {
+                throw new AppError_1.AppError('Nome e email são obrigatórios', 400);
+            }
+            console.log('DEBUG atualizarMe - Buscando usuário com ID:', req.user.id);
+            const usuario = await prismaClient_1.prisma.usuario.findUnique({
+                where: { id: req.user.id }
+            });
+            console.log('DEBUG atualizarMe - Usuário encontrado:', usuario);
+            if (!usuario) {
+                throw new AppError_1.AppError('Usuário não encontrado', 404);
+            }
+            const usuarioExistente = await prismaClient_1.prisma.usuario.findUnique({
+                where: { email }
+            });
+            if (usuarioExistente && usuarioExistente.id !== req.user.id) {
+                throw new AppError_1.AppError('Email já cadastrado', 400);
+            }
+            const data = {
+                nome,
+                email
+            };
+            if (senha) {
+                data.senha = await (0, bcryptjs_1.hash)(senha, 8);
+            }
+            if (avatar) {
+                data.avatar = avatar;
+            }
+            console.log('DEBUG atualizarMe - Dados para atualização:', data);
+            const usuarioAtualizado = await prismaClient_1.prisma.usuario.update({
+                where: { id: req.user.id },
+                data,
+                include: {
+                    papeis: {
+                        include: {
+                            permissoes: true
+                        }
+                    }
+                }
+            });
+            console.log('DEBUG atualizarMe - Usuário atualizado:', usuarioAtualizado);
+            return res.json({
+                id: usuarioAtualizado.id,
+                nome: usuarioAtualizado.nome,
+                email: usuarioAtualizado.email,
+                perfil: usuarioAtualizado.perfil,
+                avatar: usuarioAtualizado.avatar,
+                ativo: usuarioAtualizado.ativo,
+                papeis: usuarioAtualizado.papeis
+            });
+        }
+        catch (error) {
+            console.error('DEBUG atualizarMe - Erro:', error);
             if (error instanceof AppError_1.AppError) {
                 return res.status(error.statusCode).json({ error: error.message });
             }

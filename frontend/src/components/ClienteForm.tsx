@@ -6,15 +6,10 @@ import {
   Typography,
   TextField,
   Button,
-  Grid,
   Alert,
   Snackbar,
   FormControlLabel,
-  Switch,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions
+  Switch
 } from '@mui/material';
 import api from '../services/api';
 import { formatCPF, formatPhone } from '../utils/formatters';
@@ -48,16 +43,6 @@ const ClienteForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const isEditing = Boolean(id);
-  const [enderecoDialogOpen, setEnderecoDialogOpen] = useState(false);
-  const [novoEndereco, setNovoEndereco] = useState({
-    cep: '',
-    rua: '',
-    numero: '',
-    complemento: '',
-    bairro: '',
-    cidade: '',
-    estado: ''
-  });
 
   const [formData, setFormData] = useState<ClienteForm>({
     nome: '',
@@ -143,41 +128,6 @@ const ClienteForm: React.FC = () => {
     }));
   };
 
-  const handleNovoEnderecoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setNovoEndereco(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleNovoEnderecoSubmit = async () => {
-    try {
-      await api.post(`/enderecos/cliente/${id}`, novoEndereco);
-      setSnackbar({
-        open: true,
-        message: 'Endereço adicionado com sucesso!',
-        severity: 'success'
-      });
-      setEnderecoDialogOpen(false);
-      setNovoEndereco({
-        cep: '',
-        rua: '',
-        numero: '',
-        complemento: '',
-        bairro: '',
-        cidade: '',
-        estado: ''
-      });
-    } catch (error) {
-      setSnackbar({
-        open: true,
-        message: 'Erro ao adicionar endereço',
-        severity: 'error'
-      });
-    }
-  };
-
   const validateForm = () => {
     if (!formData.nome.trim()) {
       setError('Nome é obrigatório');
@@ -255,48 +205,18 @@ const ClienteForm: React.FC = () => {
     }
   };
 
-  const handleSnackbarClose = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
-
-  const buscarCep = async () => {
-    if (!formData.cep || formData.cep.length < 8) return;
-    try {
-      const response = await fetch(`https://viacep.com.br/ws/${formData.cep.replace(/\D/g, '')}/json/`);
-      const data = await response.json();
-      if (data.erro) {
-        setError('CEP não encontrado');
-        setFormData(prev => ({ ...prev, rua: '', bairro: '', cidade: '', estado: '' }));
-      } else {
-        setFormData(prev => ({
-          ...prev,
-          rua: data.logradouro || '',
-          bairro: data.bairro || '',
-          cidade: data.localidade || '',
-          estado: data.uf || ''
-        }));
-      }
-    } catch (e) {
-      setError('Erro ao buscar CEP');
-    }
-  };
-
   if (loading) {
     return <Typography>Carregando...</Typography>;
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f6fa' }}>
-      <Paper elevation={4} sx={{ p: 4, borderRadius: 4, minWidth: 400, maxWidth: 600, width: '100%' }}>
-        <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 700, mb: 3 }}>
+    <Box sx={{ p: 3 }}>
+      <Paper sx={{ p: 3 }}>
+        <Typography variant="h5" gutterBottom>
           {isEditing ? 'Editar Cliente' : 'Novo Cliente'}
         </Typography>
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
-        <Box component="form" onSubmit={handleSubmit} autoComplete="off">
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        <Box component="form" onSubmit={handleSubmit}>
           <TextField
             label="Nome"
             name="nome"
@@ -304,7 +224,6 @@ const ClienteForm: React.FC = () => {
             onChange={handleChange}
             fullWidth
             margin="normal"
-            disabled={isEditing && !formData.permissoes?.podeEditar}
             required
           />
           <TextField
@@ -314,35 +233,16 @@ const ClienteForm: React.FC = () => {
             onChange={handleCPFChange}
             fullWidth
             margin="normal"
-            disabled={isEditing && !formData.permissoes?.podeEditar}
             required
           />
-          {formData.tenant && (
-            <>
-              <TextField
-                label="Empresa"
-                value={formData.tenant.nome}
-                fullWidth
-                margin="normal"
-                disabled
-              />
-              <TextField
-                label="CNPJ da Empresa"
-                value={formData.tenant.cnpj}
-                fullWidth
-                margin="normal"
-                disabled
-              />
-            </>
-          )}
           <TextField
             label="Email"
             name="email"
+            type="email"
             value={formData.email}
             onChange={handleChange}
             fullWidth
             margin="normal"
-            disabled={isEditing && !formData.permissoes?.podeEditar}
             required
           />
           <TextField
@@ -352,24 +252,8 @@ const ClienteForm: React.FC = () => {
             onChange={handlePhoneChange}
             fullWidth
             margin="normal"
-            disabled={isEditing && !formData.permissoes?.podeEditar}
             required
           />
-          <FormControlLabel
-            control={
-              <Switch
-                checked={formData.ativo}
-                onChange={handleChange}
-                name="ativo"
-                color="primary"
-                disabled={isEditing && !formData.permissoes?.podeEditar}
-              />
-            }
-            label="Ativo"
-          />
-          <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
-            Endereço Principal
-          </Typography>
           <TextField
             label="CEP"
             name="cep"
@@ -377,7 +261,6 @@ const ClienteForm: React.FC = () => {
             onChange={handleChange}
             fullWidth
             margin="normal"
-            disabled={isEditing && !formData.permissoes?.podeEditar}
             required
           />
           <TextField
@@ -387,7 +270,6 @@ const ClienteForm: React.FC = () => {
             onChange={handleChange}
             fullWidth
             margin="normal"
-            disabled={isEditing && !formData.permissoes?.podeEditar}
             required
           />
           <TextField
@@ -397,7 +279,6 @@ const ClienteForm: React.FC = () => {
             onChange={handleChange}
             fullWidth
             margin="normal"
-            disabled={isEditing && !formData.permissoes?.podeEditar}
             required
           />
           <TextField
@@ -407,7 +288,6 @@ const ClienteForm: React.FC = () => {
             onChange={handleChange}
             fullWidth
             margin="normal"
-            disabled={isEditing && !formData.permissoes?.podeEditar}
           />
           <TextField
             label="Bairro"
@@ -416,7 +296,6 @@ const ClienteForm: React.FC = () => {
             onChange={handleChange}
             fullWidth
             margin="normal"
-            disabled={isEditing && !formData.permissoes?.podeEditar}
             required
           />
           <TextField
@@ -426,7 +305,6 @@ const ClienteForm: React.FC = () => {
             onChange={handleChange}
             fullWidth
             margin="normal"
-            disabled={isEditing && !formData.permissoes?.podeEditar}
             required
           />
           <TextField
@@ -436,115 +314,37 @@ const ClienteForm: React.FC = () => {
             onChange={handleChange}
             fullWidth
             margin="normal"
-            disabled={isEditing && !formData.permissoes?.podeEditar}
             required
           />
-          {isEditing && !formData.permissoes?.podeEditar && (
-            <Button
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{ mt: 2 }}
-              onClick={() => setEnderecoDialogOpen(true)}
-            >
-              Adicionar Novo Endereço
-            </Button>
-          )}
-          {formData.permissoes?.podeEditar && (
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{ mt: 2, borderRadius: 2, fontWeight: 700, fontSize: 18 }}
-              disabled={loading}
-            >
-              {loading ? 'Salvando...' : 'Salvar Cliente'}
-            </Button>
-          )}
+          <FormControlLabel
+            control={
+              <Switch
+                checked={formData.ativo}
+                onChange={handleChange}
+                name="ativo"
+                color="primary"
+              />
+            }
+            label="Ativo"
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 2 }}
+            disabled={loading}
+          >
+            {loading ? 'Salvando...' : (isEditing ? 'Atualizar' : 'Criar')}
+          </Button>
         </Box>
       </Paper>
-
-      <Dialog open={enderecoDialogOpen} onClose={() => setEnderecoDialogOpen(false)}>
-        <DialogTitle>Adicionar Novo Endereço</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="CEP"
-            name="cep"
-            value={novoEndereco.cep}
-            onChange={handleNovoEnderecoChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <TextField
-            label="Rua"
-            name="rua"
-            value={novoEndereco.rua}
-            onChange={handleNovoEnderecoChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <TextField
-            label="Número"
-            name="numero"
-            value={novoEndereco.numero}
-            onChange={handleNovoEnderecoChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <TextField
-            label="Complemento"
-            name="complemento"
-            value={novoEndereco.complemento}
-            onChange={handleNovoEnderecoChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Bairro"
-            name="bairro"
-            value={novoEndereco.bairro}
-            onChange={handleNovoEnderecoChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <TextField
-            label="Cidade"
-            name="cidade"
-            value={novoEndereco.cidade}
-            onChange={handleNovoEnderecoChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <TextField
-            label="Estado"
-            name="estado"
-            value={novoEndereco.estado}
-            onChange={handleNovoEnderecoChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEnderecoDialogOpen(false)}>Cancelar</Button>
-          <Button onClick={handleNovoEnderecoSubmit} variant="contained" color="primary">
-            Adicionar
-          </Button>
-        </DialogActions>
-      </Dialog>
-
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
-        onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
       >
-        <Alert onClose={() => setSnackbar(prev => ({ ...prev, open: false }))} severity={snackbar.severity}>
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity}>
           {snackbar.message}
         </Alert>
       </Snackbar>

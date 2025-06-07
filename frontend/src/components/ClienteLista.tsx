@@ -19,8 +19,6 @@ import {
   DialogActions,
   Snackbar,
   Alert,
-  TextField,
-  InputAdornment,
   Chip,
   Tooltip,
 } from '@mui/material';
@@ -29,7 +27,6 @@ import {
   Delete as DeleteIcon,
   Add as AddIcon,
   Receipt as ReceiptIcon,
-  Search as SearchIcon,
 } from '@mui/icons-material';
 import { formatCPF } from '../utils/formatters';
 import api from '../services/api';
@@ -68,12 +65,11 @@ const ClienteLista: React.FC = () => {
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [totalItems, setTotalItems] = useState(0);
-  const [searchDialogOpen, setSearchDialogOpen] = useState(false);
-  const [clienteBusca, setClienteBusca] = useState<Cliente | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   const fetchClientes = async () => {
     try {
+      setLoading(true);
       const response = await api.get<PaginatedResponse<Cliente>>('/clientes', {
         params: {
           page: page + 1,
@@ -82,6 +78,7 @@ const ClienteLista: React.FC = () => {
       });
       setClientes(response.data.clientes);
       setTotalItems(response.data.total);
+      setError(null);
     } catch (err) {
       setError('Erro ao carregar clientes');
     } finally {
@@ -100,7 +97,6 @@ const ClienteLista: React.FC = () => {
 
   const handleDeleteConfirm = async () => {
     if (!selectedCliente) return;
-
     try {
       await api.delete(`/clientes/${selectedCliente.id}`);
       setSuccessMessage('Cliente excluído com sucesso!');
@@ -127,29 +123,8 @@ const ClienteLista: React.FC = () => {
     setPage(0);
   };
 
-  const handleSearchClick = (cliente: Cliente) => {
-    setClienteBusca(cliente);
-    setSearchDialogOpen(true);
-  };
-
-  const handleSearchDialogClose = () => {
-    setSearchDialogOpen(false);
-    setClienteBusca(null);
-  };
-
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-  };
-
-  const handleSearch = () => {
-    setPage(0);
-    fetchClientes();
-  };
-
-  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
   };
 
   const filteredClientes = clientes.filter(cliente => {
@@ -163,171 +138,143 @@ const ClienteLista: React.FC = () => {
   });
 
   if (loading) {
-    return <div>Carregando...</div>;
+    return <Typography>Carregando...</Typography>;
+  }
+
+  if (error) {
+    return <Typography color="error">{error}</Typography>;
   }
 
   return (
-    <Box sx={{ p: 0, width: '100%', display: 'flex', justifyContent: 'center' }}>
-      <Paper elevation={4} sx={{ width: '100%', maxWidth: 1200, p: 4, borderRadius: 4, boxShadow: '0 4px 24px 0 rgba(25, 118, 210, 0.10)' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: 'center', flex: 1 }}>
-            Clientes
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-            onClick={() => navigate('/clientes/novo')}
-            sx={{ ml: 2, borderRadius: 3, fontWeight: 700, fontSize: 16, px: 3, py: 1.2, boxShadow: '0 2px 8px #1976d220' }}
-          >
-            Novo Cliente
-          </Button>
-        </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, justifyContent: 'center' }}>
-          <TextField
-            label="Buscar cliente"
-            variant="outlined"
-            size="medium"
-            value={searchTerm}
-            onChange={handleSearchInputChange}
-            onKeyDown={handleSearchKeyDown}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={handleSearch}>
-                    <SearchIcon />
-                  </IconButton>
-                </InputAdornment>
-              )
-            }}
-            sx={{ width: 350, borderRadius: 2, background: '#fff' }}
-          />
-        </Box>
-        <TableContainer component={Box} sx={{ borderRadius: 3, boxShadow: '0 2px 8px #1976d210' }}>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ background: 'linear-gradient(90deg, #1976d2 60%, #43a047 100%)' }}>
-                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Nome</TableCell>
-                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Email</TableCell>
-                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Telefone</TableCell>
-                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>CPF</TableCell>
-                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Status</TableCell>
-                <TableCell align="right" sx={{ color: '#fff', fontWeight: 700 }}>Ações</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredClientes.map((cliente, idx) => (
-                <TableRow key={cliente.id} sx={{ background: idx % 2 === 0 ? '#f5f6fa' : '#fff' }}>
-                  <TableCell>{cliente.nome}</TableCell>
-                  <TableCell>{cliente.email}</TableCell>
-                  <TableCell>{cliente.telefone}</TableCell>
-                  <TableCell>{formatCPF(cliente.cpf)}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label={cliente.ativo ? 'Ativo' : 'Inativo'}
-                      color={cliente.ativo ? 'success' : 'default'}
-                      size="small"
-                      sx={{ fontWeight: 700, fontSize: 13 }}
-                    />
-                  </TableCell>
-                  <TableCell align="right">
-                    {cliente.permissoes.podeEditar && (
-                      <Tooltip title="Editar">
-                        <IconButton color="primary" onClick={() => navigate(`/clientes/${cliente.id}`)} size="large">
-                          <EditIcon fontSize="medium" />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-                    <Tooltip title="Dívidas">
-                      <IconButton color="primary" onClick={() => navigate(`/clientes/${cliente.id}/dividas`)} size="large">
-                        <ReceiptIcon fontSize="medium" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Consultar">
-                      <IconButton color="primary" onClick={() => handleSearchClick(cliente)} size="large">
-                        <SearchIcon fontSize="medium" />
-                      </IconButton>
-                    </Tooltip>
-                    {cliente.permissoes.podeExcluir && (
-                      <Tooltip title="Excluir">
-                        <IconButton color="error" onClick={() => handleDeleteClick(cliente)} size="large">
-                          <DeleteIcon fontSize="medium" />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          <Pagination
-            totalItems={totalItems}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handlePageChange}
-            onRowsPerPageChange={handleRowsPerPageChange}
-          />
-        </TableContainer>
-
-        <Dialog
-          open={deleteDialogOpen}
-          onClose={handleDeleteCancel}
+    <Box sx={{ p: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+        <Typography variant="h4" component="h1">
+          Clientes
+        </Typography>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => navigate('/clientes/novo')}
         >
-          <DialogTitle>Confirmar Exclusão</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Tem certeza que deseja excluir o cliente {selectedCliente?.nome}?
-              Esta ação não pode ser desfeita e excluirá também todas as dívidas associadas.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleDeleteCancel}>Cancelar</Button>
-            <Button onClick={handleDeleteConfirm} color="error" autoFocus>
-              Excluir
-            </Button>
-          </DialogActions>
-        </Dialog>
-
-        <Dialog open={searchDialogOpen} onClose={handleSearchDialogClose} maxWidth="sm" fullWidth>
-          <DialogTitle>Consulta de Cliente</DialogTitle>
-          <DialogContent>
-            {clienteBusca ? (
-              <Box>
-                <Typography variant="subtitle1"><strong>Nome:</strong> {clienteBusca.nome}</Typography>
-                <Typography variant="subtitle1"><strong>Email:</strong> {clienteBusca.email}</Typography>
-                <Typography variant="subtitle1"><strong>Telefone:</strong> {clienteBusca.telefone}</Typography>
-                <Typography variant="subtitle1"><strong>CPF:</strong> {formatCPF(clienteBusca.cpf)}</Typography>
-                <Typography variant="subtitle1"><strong>Status:</strong> {clienteBusca.ativo ? 'Ativo' : 'Inativo'}</Typography>
-              </Box>
-            ) : (
-              <Typography>Carregando...</Typography>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleSearchDialogClose} color="primary">Fechar</Button>
-          </DialogActions>
-        </Dialog>
-
-        <Snackbar
-          open={!!error || !!successMessage}
-          autoHideDuration={6000}
+          Novo Cliente
+        </Button>
+      </Box>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, justifyContent: 'flex-end' }}>
+        <input
+          type="text"
+          placeholder="Buscar cliente..."
+          value={searchTerm}
+          onChange={handleSearchInputChange}
+          style={{
+            padding: '8px 12px',
+            borderRadius: 6,
+            border: '1px solid #ccc',
+            fontSize: 16,
+            width: 260,
+            marginRight: 8
+          }}
+        />
+      </Box>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Nome</TableCell>
+              <TableCell>Email</TableCell>
+              <TableCell>Telefone</TableCell>
+              <TableCell>CPF</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell align="right">Ações</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {filteredClientes.map((cliente) => (
+              <TableRow key={cliente.id}>
+                <TableCell>{cliente.nome}</TableCell>
+                <TableCell>{cliente.email}</TableCell>
+                <TableCell>{cliente.telefone}</TableCell>
+                <TableCell>{formatCPF(cliente.cpf)}</TableCell>
+                <TableCell>
+                  <Chip
+                    label={cliente.ativo ? 'Ativo' : 'Inativo'}
+                    color={cliente.ativo ? 'success' : 'default'}
+                    size="small"
+                    sx={{ fontWeight: 700, fontSize: 13 }}
+                  />
+                </TableCell>
+                <TableCell align="right">
+                  {cliente.permissoes.podeEditar && (
+                    <IconButton
+                      color="primary"
+                      onClick={() => navigate(`/clientes/${cliente.id}`)}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  )}
+                  <IconButton
+                    color="primary"
+                    onClick={() => navigate(`/clientes/${cliente.id}/dividas`)}
+                  >
+                    <ReceiptIcon />
+                  </IconButton>
+                  {cliente.permissoes.podeExcluir && (
+                    <IconButton
+                      color="error"
+                      onClick={() => handleDeleteClick(cliente)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        <Pagination
+          totalItems={totalItems}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={handlePageChange}
+          onRowsPerPageChange={handleRowsPerPageChange}
+        />
+      </TableContainer>
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleDeleteCancel}
+      >
+        <DialogTitle>Confirmar Exclusão</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Tem certeza que deseja excluir o cliente {selectedCliente?.nome}?
+            Esta ação não pode ser desfeita e excluirá também todas as dívidas associadas.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteCancel}>Cancelar</Button>
+          <Button onClick={handleDeleteConfirm} color="error" autoFocus>
+            Excluir
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Snackbar
+        open={!!error || !!successMessage}
+        autoHideDuration={6000}
+        onClose={() => {
+          setError(null);
+          setSuccessMessage(null);
+        }}
+      >
+        <Alert
           onClose={() => {
             setError(null);
             setSuccessMessage(null);
           }}
+          severity={error ? 'error' : 'success'}
+          sx={{ width: '100%' }}
         >
-          <Alert
-            onClose={() => {
-              setError(null);
-              setSuccessMessage(null);
-            }}
-            severity={error ? 'error' : 'success'}
-            sx={{ width: '100%' }}
-          >
-            {error || successMessage}
-          </Alert>
-        </Snackbar>
-      </Paper>
+          {error || successMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

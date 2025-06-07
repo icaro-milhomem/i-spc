@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { ModalProvider } from '../contexts/ModalContext';
 import Layout from '../components/Layout';
@@ -16,7 +16,10 @@ import { RecuperarSenha } from '../components/RecuperarSenha';
 import { RedefinirSenha } from '../components/RedefinirSenha';
 import { ConsultaCPF } from '../pages/ConsultaCPF';
 import AdminTenants from '../pages/AdminTenants';
+import AdminGateway from '../pages/AdminGateway';
+import AdminConfig from '../pages/AdminConfig';
 import RegisterEmpresa from '../pages/RegisterEmpresa';
+import SuperAdminLayout from '../components/SuperAdminLayout';
 
 interface PrivateRouteProps {
   children: React.ReactNode;
@@ -57,9 +60,23 @@ const AppRoutes: React.FC = () => {
           <Route path="/redefinir-senha/:token" element={<RedefinirSenha />} />
           <Route path="/register-empresa" element={<RegisterEmpresa />} />
 
-          {/* Rota exclusiva do superadmin */}
+          {/* Rotas do superadmin */}
           {(user as any)?.role === 'superadmin' && (
-            <Route path="/admin/tenants" element={<AdminTenants />} />
+            <Route
+              path="/admin"
+              element={
+                <PrivateRoute>
+                  <SuperAdminLayout>
+                    <Outlet />
+                  </SuperAdminLayout>
+                </PrivateRoute>
+              }
+            >
+              <Route path="tenants" element={<AdminTenants />} />
+              <Route path="gateway" element={<AdminGateway />} />
+              <Route path="config" element={<AdminConfig />} />
+              <Route path="perfil" element={<Perfil />} />
+            </Route>
           )}
 
           {/* Rotas normais, só para quem NÃO é superadmin */}

@@ -435,9 +435,9 @@ const DividaForm: React.FC = () => {
             margin="normal"
             required
           />
-          {clientes.length > 0 && clientes.find(c => c.id === formData.clienteId) &&
-            clientes.find(c => c.id === formData.clienteId)?.permissoes &&
-            !clientes.find(c => c.id === formData.clienteId)?.permissoes.podeEditar && (
+          {(() => {
+            const cliente = clientes.find(c => c.id === formData.clienteId);
+            return clientes.length > 0 && cliente?.permissoes?.podeEditar === false && (
               <Button
                 variant="contained"
                 color="primary"
@@ -447,7 +447,8 @@ const DividaForm: React.FC = () => {
               >
                 Adicionar Novo Endereço
               </Button>
-          )}
+            );
+          })()}
           <Dialog open={enderecoDialogOpen} onClose={() => setEnderecoDialogOpen(false)}>
             <DialogTitle>Adicionar Novo Endereço</DialogTitle>
             <DialogContent>

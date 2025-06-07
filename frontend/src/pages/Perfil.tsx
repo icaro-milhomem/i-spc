@@ -11,11 +11,10 @@ import {
   Snackbar,
   Avatar,
   Input,
+  CircularProgress,
 } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
-import Layout from '../components/Layout';
-import SuperAdminLayout from '../components/SuperAdminLayout';
 
 export const Perfil: React.FC = () => {
   const { user, updateUser } = useAuth();
@@ -42,9 +41,44 @@ export const Perfil: React.FC = () => {
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Verificar tamanho do arquivo (máximo 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        setError('A imagem deve ter no máximo 2MB');
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (ev) => {
-        setAvatar(ev.target?.result as string);
+        const img = new Image();
+        img.onload = () => {
+          // Criar um canvas para redimensionar a imagem
+          const canvas = document.createElement('canvas');
+          const MAX_SIZE = 200; // Tamanho máximo da imagem
+          let width = img.width;
+          let height = img.height;
+          
+          if (width > height) {
+            if (width > MAX_SIZE) {
+              height *= MAX_SIZE / width;
+              width = MAX_SIZE;
+            }
+          } else {
+            if (height > MAX_SIZE) {
+              width *= MAX_SIZE / height;
+              height = MAX_SIZE;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // Converter para JPEG com qualidade 0.7
+          const resizedImage = canvas.toDataURL('image/jpeg', 0.7);
+          setAvatar(resizedImage);
+        };
+        img.src = ev.target?.result as string;
       };
       reader.readAsDataURL(file);
     }
@@ -63,7 +97,7 @@ export const Perfil: React.FC = () => {
         avatar: avatar || undefined
       });
 
-      updateUser(response.data);
+      updateUser({ ...user, ...response.data });
       setSuccess('Perfil atualizado com sucesso!');
     } catch (err) {
       setError('Erro ao atualizar perfil. Tente novamente.');
@@ -105,282 +139,155 @@ export const Perfil: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log('User:', user);
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        nome: user.nome || '',
+        email: user.email || '',
+      }));
+      setAvatar(user.avatar || null);
+    }
   }, [user]);
 
-  return (
-    <>
-      {user?.role === 'superadmin' || user?.perfil === 'superadmin' ? (
-        <SuperAdminLayout>
-          <Box sx={{ p: 3 }}>
-            <Typography variant="h4" gutterBottom sx={{ textAlign: 'left' }}>
-              Meu Perfil
-            </Typography>
-            <Grid container spacing={3} alignItems="flex-start" justifyContent="flex-start">
-              <Grid item xs={12} md={6}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      Dados Pessoais
-                    </Typography>
-                    <form onSubmit={handleUpdateProfile}>
-                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
-                        <Avatar src={avatar || undefined} sx={{ width: 80, height: 80, mb: 1, fontSize: 32 }}>
-                          {formData.nome ? formData.nome.charAt(0).toUpperCase() : 'U'}
-                        </Avatar>
-                        <label htmlFor="avatar-upload">
-                          <Input
-                            id="avatar-upload"
-                            type="file"
-                            inputProps={{ accept: 'image/*' }}
-                            sx={{ display: 'none' }}
-                            onChange={handleAvatarChange}
-                          />
-                          <Button variant="outlined" component="span" size="small">
-                            Trocar Avatar
-                          </Button>
-                        </label>
-                      </Box>
-                      <TextField
-                        fullWidth
-                        label="Nome"
-                        name="nome"
-                        value={formData.nome}
-                        onChange={handleChange}
-                        margin="normal"
-                        required
-                      />
-                      <TextField
-                        fullWidth
-                        label="Email"
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        margin="normal"
-                        required
-                      />
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        color="primary"
-                        disabled={loading}
-                        sx={{ mt: 2 }}
-                      >
-                        Atualizar Dados
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      Alterar Senha
-                    </Typography>
-                    <form onSubmit={handleUpdatePassword}>
-                      <TextField
-                        fullWidth
-                        label="Senha Atual"
-                        name="senhaAtual"
-                        type="password"
-                        value={formData.senhaAtual}
-                        onChange={handleChange}
-                        margin="normal"
-                        required
-                      />
-                      <TextField
-                        fullWidth
-                        label="Nova Senha"
-                        name="novaSenha"
-                        type="password"
-                        value={formData.novaSenha}
-                        onChange={handleChange}
-                        margin="normal"
-                        required
-                      />
-                      <TextField
-                        fullWidth
-                        label="Confirmar Nova Senha"
-                        name="confirmarSenha"
-                        type="password"
-                        value={formData.confirmarSenha}
-                        onChange={handleChange}
-                        margin="normal"
-                        required
-                      />
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        color="primary"
-                        disabled={loading}
-                        sx={{ mt: 2 }}
-                      >
-                        Alterar Senha
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
-              </Grid>
-            </Grid>
-            <Snackbar
-              open={!!error || !!success}
-              autoHideDuration={6000}
-              onClose={() => {
-                setError(null);
-                setSuccess(null);
-              }}
-            >
-              <Alert
-                onClose={() => {
-                  setError(null);
-                  setSuccess(null);
-                }}
-                severity={error ? 'error' : 'success'}
-                sx={{ width: '100%' }}
-              >
-                {error || success}
-              </Alert>
-            </Snackbar>
-          </Box>
-        </SuperAdminLayout>
-      ) : (
-        <Layout>
-          <Box sx={{ p: 3 }}>
-            <Typography variant="h4" gutterBottom sx={{ textAlign: 'left' }}>
-              Meu Perfil
-            </Typography>
-            <Grid container spacing={3} alignItems="flex-start" justifyContent="flex-start">
-              <Grid item xs={12} md={6}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      Dados Pessoais
-                    </Typography>
-                    <form onSubmit={handleUpdateProfile}>
-                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
-                        <Avatar src={avatar || undefined} sx={{ width: 80, height: 80, mb: 1, fontSize: 32 }}>
-                          {formData.nome ? formData.nome.charAt(0).toUpperCase() : 'U'}
-                        </Avatar>
-                        <label htmlFor="avatar-upload">
-                          <Input
-                            id="avatar-upload"
-                            type="file"
-                            inputProps={{ accept: 'image/*' }}
-                            sx={{ display: 'none' }}
-                            onChange={handleAvatarChange}
-                          />
-                          <Button variant="outlined" component="span" size="small">
-                            Trocar Avatar
-                          </Button>
-                        </label>
-                      </Box>
-                      <TextField
-                        fullWidth
-                        label="Nome"
-                        name="nome"
-                        value={formData.nome}
-                        onChange={handleChange}
-                        margin="normal"
-                        required
-                      />
-                      <TextField
-                        fullWidth
-                        label="Email"
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        margin="normal"
-                        required
-                      />
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        color="primary"
-                        disabled={loading}
-                        sx={{ mt: 2 }}
-                      >
-                        Atualizar Dados
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      Alterar Senha
-                    </Typography>
-                    <form onSubmit={handleUpdatePassword}>
-                      <TextField
-                        fullWidth
-                        label="Senha Atual"
-                        name="senhaAtual"
-                        type="password"
-                        value={formData.senhaAtual}
-                        onChange={handleChange}
-                        margin="normal"
-                        required
-                      />
-                      <TextField
-                        fullWidth
-                        label="Nova Senha"
-                        name="novaSenha"
-                        type="password"
-                        value={formData.novaSenha}
-                        onChange={handleChange}
-                        margin="normal"
-                        required
-                      />
-                      <TextField
-                        fullWidth
-                        label="Confirmar Nova Senha"
-                        name="confirmarSenha"
-                        type="password"
-                        value={formData.confirmarSenha}
-                        onChange={handleChange}
-                        margin="normal"
-                        required
-                      />
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        color="primary"
-                        disabled={loading}
-                        sx={{ mt: 2 }}
-                      >
-                        Alterar Senha
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
-              </Grid>
-            </Grid>
-            <Snackbar
-              open={!!error || !!success}
-              autoHideDuration={6000}
-              onClose={() => {
-                setError(null);
-                setSuccess(null);
-              }}
-            >
-              <Alert
-                onClose={() => {
-                  setError(null);
-                  setSuccess(null);
-                }}
-                severity={error ? 'error' : 'success'}
-                sx={{ width: '100%' }}
-              >
-                {error || success}
-              </Alert>
-            </Snackbar>
-          </Box>
-        </Layout>
-      )}
-    </>
+  const renderContent = () => (
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" gutterBottom sx={{ textAlign: 'left' }}>
+        Meu Perfil
+      </Typography>
+      <Grid container spacing={3} alignItems="flex-start" justifyContent="flex-start">
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Dados Pessoais
+              </Typography>
+              <form onSubmit={handleUpdateProfile}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
+                  <Avatar src={avatar || undefined} sx={{ width: 80, height: 80, mb: 1, fontSize: 32 }}>
+                    {formData.nome ? formData.nome.charAt(0).toUpperCase() : 'U'}
+                  </Avatar>
+                  <label htmlFor="avatar-upload">
+                    <Input
+                      id="avatar-upload"
+                      type="file"
+                      inputProps={{ accept: 'image/*' }}
+                      sx={{ display: 'none' }}
+                      onChange={handleAvatarChange}
+                    />
+                    <Button variant="outlined" component="span" size="small">
+                      Trocar Avatar
+                    </Button>
+                  </label>
+                </Box>
+                <TextField
+                  fullWidth
+                  label="Nome"
+                  name="nome"
+                  value={formData.nome}
+                  onChange={handleChange}
+                  margin="normal"
+                  required
+                  disabled={loading}
+                />
+                <TextField
+                  fullWidth
+                  label="Email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  margin="normal"
+                  required
+                  disabled={loading}
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  fullWidth
+                  sx={{ mt: 2 }}
+                  disabled={loading}
+                >
+                  {loading ? <CircularProgress size={24} /> : 'Salvar Alterações'}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Alterar Senha
+              </Typography>
+              <form onSubmit={handleUpdatePassword}>
+                <TextField
+                  fullWidth
+                  label="Senha Atual"
+                  name="senhaAtual"
+                  type="password"
+                  value={formData.senhaAtual}
+                  onChange={handleChange}
+                  margin="normal"
+                  required
+                  disabled={loading}
+                />
+                <TextField
+                  fullWidth
+                  label="Nova Senha"
+                  name="novaSenha"
+                  type="password"
+                  value={formData.novaSenha}
+                  onChange={handleChange}
+                  margin="normal"
+                  required
+                  disabled={loading}
+                />
+                <TextField
+                  fullWidth
+                  label="Confirmar Nova Senha"
+                  name="confirmarSenha"
+                  type="password"
+                  value={formData.confirmarSenha}
+                  onChange={handleChange}
+                  margin="normal"
+                  required
+                  disabled={loading}
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  fullWidth
+                  sx={{ mt: 2 }}
+                  disabled={loading}
+                >
+                  {loading ? <CircularProgress size={24} /> : 'Alterar Senha'}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+      <Snackbar
+        open={!!error || !!success}
+        autoHideDuration={6000}
+        onClose={() => {
+          setError(null);
+          setSuccess(null);
+        }}
+      >
+        <Alert
+          onClose={() => {
+            setError(null);
+            setSuccess(null);
+          }}
+          severity={error ? 'error' : 'success'}
+          sx={{ width: '100%' }}
+        >
+          {error || success}
+        </Alert>
+      </Snackbar>
+    </Box>
   );
+
+  return renderContent();
 }; 

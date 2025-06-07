@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Box, Typography, Grid, Paper, CircularProgress } from '@mui/material';
 import { People, AttachMoney, Search, AccountBalance } from '@mui/icons-material';
-import Layout from '../components/Layout';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -64,44 +63,38 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <Layout>
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
-          <CircularProgress />
-        </Box>
-      </Layout>
+      <Typography>Carregando...</Typography>
     );
   }
 
   return (
-    <Layout>
-      <Box sx={{ p: 0, width: '100%', display: 'flex' }}>
-        <Paper elevation={4} sx={{ width: '100%', maxWidth: 1000, p: 4, borderRadius: 4, boxShadow: '0 4px 24px 0 rgba(25, 118, 210, 0.10)', mr: 'auto' }}>
-          <Typography variant="h4" sx={{ mb: 4, color: 'primary.main', fontWeight: 'bold', textAlign: 'center', letterSpacing: 1 }}>
-            Painel de Controle
-          </Typography>
-          <Grid container spacing={3} alignItems="stretch" justifyContent="center">
-            {cardData(stats).map((card) => (
-              <Grid item xs={12} sm={6} md={3} key={card.title}>
-                <Paper sx={{ p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5, minHeight: 120, borderRadius: 3, boxShadow: '0 2px 8px #1976d220' }}>
-                  <Box>{card.icon}</Box>
-                  <Typography variant="h5" sx={{ fontWeight: 700, color: 'primary.main', lineHeight: 1, fontSize: 32 }}>
-                    {card.value}
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500, textAlign: 'center' }}>
-                    {card.title}
-                  </Typography>
-                </Paper>
-              </Grid>
-            ))}
-          </Grid>
-          <Box sx={{ mt: 4 }}>
-            <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center' }}>
-              Bem-vindo, {user?.nome}! Aqui você pode acompanhar os principais indicadores do sistema.
-            </Typography>
-          </Box>
-        </Paper>
+    <Box sx={{ p: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h4" component="h1">
+          Painel de Controle
+        </Typography>
       </Box>
-    </Layout>
+      <Grid container spacing={3} alignItems="stretch" justifyContent="center" sx={{ mb: 2 }}>
+        {cardData(stats).map((card) => (
+          <Grid item xs={12} sm={6} md={3} key={card.title}>
+            <Paper sx={{ p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5, minHeight: 120, borderRadius: 3, boxShadow: '0 2px 8px #1976d220' }}>
+              <Box>{card.icon}</Box>
+              <Typography variant="h5" sx={{ fontWeight: 700, color: 'primary.main', lineHeight: 1, fontSize: 32 }}>
+                {card.value}
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500, textAlign: 'center' }}>
+                {card.title}
+              </Typography>
+            </Paper>
+          </Grid>
+        ))}
+      </Grid>
+      <Box>
+        <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center' }}>
+          Bem-vindo, {user?.nome}! Aqui você pode acompanhar os principais indicadores do sistema.
+        </Typography>
+      </Box>
+    </Box>
   );
 };
 
