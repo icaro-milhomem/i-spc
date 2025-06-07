@@ -143,6 +143,7 @@ export class AuthController {
                 email: usuario.email,
                 perfil: usuario.perfil,
                 role: usuario.role,
+                avatar: usuario.avatar,
                 permissoes
             });
         } catch (error) {

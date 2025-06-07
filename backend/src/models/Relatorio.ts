@@ -15,7 +15,7 @@ export interface RelatorioInadimplentes {
 export interface RelatorioConsultas {
   totalConsultas: number;
   consultasPorPeriodo: Array<{
-    data: Date;
+    data: string;
     quantidade: number;
   }>;
   consultas: Consulta[];

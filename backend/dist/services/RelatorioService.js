@@ -98,7 +98,7 @@ class RelatorioService {
             consultasPorDia.set(data, (consultasPorDia.get(data) || 0) + 1);
         });
         const consultasPorPeriodo = Array.from(consultasPorDia.entries()).map(([data, quantidade]) => ({
-            data: new Date(data),
+            data,
             quantidade
         }));
         console.log('Consultas por período:', consultasPorPeriodo);

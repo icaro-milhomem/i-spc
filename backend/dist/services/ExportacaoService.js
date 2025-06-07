@@ -47,7 +47,7 @@ class ExportacaoService {
             doc.moveDown();
             doc.text('Consultas por Período:');
             relatorio.consultasPorPeriodo.forEach((periodo) => {
-                doc.text(`${periodo.data.toLocaleDateString()}: ${periodo.quantidade} consultas`);
+                doc.text(`${new Date(periodo.data).toLocaleDateString()}: ${periodo.quantidade} consultas`);
             });
             doc.moveDown();
             doc.text('Detalhamento das Consultas:');

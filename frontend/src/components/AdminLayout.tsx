@@ -41,8 +41,6 @@ export default function AdminLayout({ children, menuItems }: AdminLayoutProps) {
   let logoSrc = '/img/logo-light.png';
   if (mode === 'dark') {
     logoSrc = '/img/logo-dark.png';
-  } else if (mode === 'black') {
-    logoSrc = '/img/logo-black.png';
   }
 
   const drawer = (
@@ -275,4 +273,4 @@ export default function AdminLayout({ children, menuItems }: AdminLayoutProps) {
       </Box>
     </Box>
   );
-} 
+}

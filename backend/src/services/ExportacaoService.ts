@@ -58,7 +58,7 @@ export class ExportacaoService {
       // Gráfico de Consultas por Período
       doc.text('Consultas por Período:');
       relatorio.consultasPorPeriodo.forEach((periodo) => {
-        doc.text(`${periodo.data.toLocaleDateString()}: ${periodo.quantidade} consultas`);
+        doc.text(`${new Date(periodo.data).toLocaleDateString()}: ${periodo.quantidade} consultas`);
       });
       doc.moveDown();
 

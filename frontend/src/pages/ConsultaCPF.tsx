@@ -6,7 +6,6 @@ import {
   Button,
   TextField,
   Alert,
-  CircularProgress,
   Table,
   TableBody,
   TableCell,
@@ -54,6 +53,14 @@ export const ConsultaCPF: React.FC = () => {
       }
       const response = await api.get('/clientes/consulta', { params });
       setResult(response.data);
+      // Registrar a consulta no backend
+      if (response.data && response.data.cpf) {
+        await api.post('/consultas/registrar', {
+          cpf: response.data.cpf,
+          tipo: 'consulta_cpf',
+          observacoes: 'Consulta realizada pela tela de consulta'
+        });
+      }
       setSuccessMessage('Consulta realizada com sucesso!');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Erro ao consultar');
@@ -172,4 +179,4 @@ export const ConsultaCPF: React.FC = () => {
       )}
     </Box>
   );
-}; 
+};

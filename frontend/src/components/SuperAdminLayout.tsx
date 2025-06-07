@@ -37,8 +37,6 @@ export default function SuperAdminLayout({ children, menuItems: customMenuItems,
   let logoSrc = '/img/logo-light.png';
   if (mode === 'dark') {
     logoSrc = '/img/logo-dark.png';
-  } else if (mode === 'black') {
-    logoSrc = '/img/logo-black.png';
   }
 
   const menuItems = customMenuItems || [

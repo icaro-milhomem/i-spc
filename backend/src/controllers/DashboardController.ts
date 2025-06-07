@@ -57,12 +57,17 @@ export class DashboardController {
             });
             console.log('valorTotalDividas:', valorTotalDividas);
 
+            // Adiciona a contagem de empresas (tenants)
+            const totalEmpresas = await prisma.tenant.count();
+            console.log('totalEmpresas:', totalEmpresas);
+
             return res.json({
                 totalUsuarios,
                 totalClientes,
                 totalDividas,
                 totalConsultas,
-                valorTotalDividas: valorTotalDividas._sum.valor || 0
+                valorTotalDividas: valorTotalDividas._sum.valor || 0,
+                totalEmpresas
             });
         } catch (error) {
             console.error('Erro ao obter stats:', error);

@@ -161,7 +161,7 @@ export class RelatorioService {
     });
 
     const consultasPorPeriodo = Array.from(consultasPorDia.entries()).map(([data, quantidade]) => ({
-      data: new Date(data),
+      data,
       quantidade
     }));
 

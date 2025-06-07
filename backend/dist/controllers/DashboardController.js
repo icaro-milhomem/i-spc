@@ -50,12 +50,15 @@ class DashboardController {
                 where: dividaWhere
             });
             console.log('valorTotalDividas:', valorTotalDividas);
+            const totalEmpresas = await prismaClient_1.prisma.tenant.count();
+            console.log('totalEmpresas:', totalEmpresas);
             return res.json({
                 totalUsuarios,
                 totalClientes,
                 totalDividas,
                 totalConsultas,
-                valorTotalDividas: valorTotalDividas._sum.valor || 0
+                valorTotalDividas: valorTotalDividas._sum.valor || 0,
+                totalEmpresas
             });
         }
         catch (error) {

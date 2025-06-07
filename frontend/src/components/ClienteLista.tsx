@@ -20,7 +20,6 @@ import {
   Snackbar,
   Alert,
   Chip,
-  Tooltip,
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -279,4 +278,4 @@ const ClienteLista: React.FC = () => {
   );
 };
 
-export default ClienteLista; 
+export default ClienteLista;
