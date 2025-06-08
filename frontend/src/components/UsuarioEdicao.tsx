@@ -2,19 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
-  Paper,
   Typography,
   TextField,
   Button,
   Grid,
   Alert,
   Snackbar,
-  FormControl,
-  InputLabel,
-  Select,
   MenuItem,
-  SelectChangeEvent
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import api from '../services/api';
 
 interface Usuario {
@@ -29,6 +25,7 @@ interface Usuario {
 const UsuarioEdicao: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const theme = useTheme();
   const [formData, setFormData] = useState<Usuario>({
     nome: '',
     email: '',
@@ -94,72 +91,87 @@ const UsuarioEdicao: React.FC = () => {
     }));
   };
 
-  const handlePerfilChange = (e: SelectChangeEvent<string>) => {
-    setFormData(prev => ({
-      ...prev,
-      perfil: e.target.value
-    }));
-  };
+  const isEditing = Boolean(id);
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f6fa' }}>
-      <Paper elevation={4} sx={{ p: 4, borderRadius: 4, minWidth: 400, maxWidth: 500, width: '100%' }}>
-        <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 700, mb: 3 }}>
-          {id ? 'Editar Usuário' : 'Novo Usuário'}
+    <Box sx={{ mt: -6, display: 'flex', justifyContent: 'center', background: theme.palette.background.default, minHeight: '100vh' }}>
+      <Box sx={{ width: '100%', minWidth: 544, maxWidth: 1044, display: 'flex', flexDirection: 'column', justifyContent: 'center', boxSizing: 'border-box' }}>
+        <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 700, mb: 2, color: theme.palette.text.primary }}>
+          {isEditing ? 'Editar Usuário' : 'Novo Usuário'}
         </Typography>
-        <form onSubmit={handleSubmit} autoComplete="off">
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        <Box component="form" onSubmit={handleSubmit} autoComplete="off">
+          <Grid container spacing={1}>
+            <Grid item xs={12} md={6}>
               <TextField
-                fullWidth
                 label="Nome *"
                 name="nome"
                 value={formData.nome}
                 onChange={handleChange}
+                fullWidth
                 required
-                sx={{ borderRadius: 2 }}
+                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+                InputProps={{ style: { color: theme.palette.text.primary } }}
+                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} md={6}>
               <TextField
-                fullWidth
                 label="Email *"
                 name="email"
-                type="email"
                 value={formData.email}
                 onChange={handleChange}
+                fullWidth
                 required
-                sx={{ borderRadius: 2 }}
+                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+                InputProps={{ style: { color: theme.palette.text.primary } }}
+                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} md={6}>
               <TextField
-                fullWidth
-                label="Senha *"
+                label="Senha"
                 name="senha"
                 type="password"
-                value={formData.senha || ''}
+                value={formData.senha}
                 onChange={handleChange}
-                required={!id}
-                helperText={id ? "Deixe em branco para manter a senha atual" : "Obrigatório para novo usuário"}
-                sx={{ borderRadius: 2 }}
+                fullWidth
+                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+                InputProps={{ style: { color: theme.palette.text.primary } }}
+                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
               />
             </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Papel"
+                name="perfil"
+                value={formData.perfil}
+                onChange={handleChange}
+                fullWidth
+                required
+                select
+                sx={{ borderRadius: 2, color: theme.palette.text.primary }}
+                InputProps={{ style: { color: theme.palette.text.primary } }}
+                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
+              >
+                <MenuItem value="admin">Administrador</MenuItem>
+                <MenuItem value="usuario">Usuário</MenuItem>
+              </TextField>
+            </Grid>
             <Grid item xs={12}>
-              <FormControl fullWidth margin="normal" sx={{ borderRadius: 2 }}>
-                <InputLabel>Papel</InputLabel>
-                <Select
-                  name="perfil"
-                  value={formData.perfil}
-                  onChange={handlePerfilChange}
-                  label="Papel"
-                  required
-                  sx={{ borderRadius: 2 }}
-                >
-                  <MenuItem value="admin">Administrador</MenuItem>
-                  <MenuItem value="usuario">Usuário</MenuItem>
-                </Select>
-              </FormControl>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <input
+                  type="checkbox"
+                  id="ativo"
+                  name="ativo"
+                  checked={formData.ativo}
+                  onChange={e => setFormData(prev => ({ ...prev, ativo: e.target.checked }))}
+                  style={{ width: 20, height: 20 }}
+                />
+                <label htmlFor="ativo" style={{ color: theme.palette.text.primary, fontWeight: 500, fontSize: 16 }}>
+                  Ativo
+                </label>
+              </Box>
             </Grid>
             <Grid item xs={12}>
               <Button
@@ -169,25 +181,20 @@ const UsuarioEdicao: React.FC = () => {
                 fullWidth
                 sx={{ mt: 2, borderRadius: 2, fontWeight: 700, fontSize: 18 }}
               >
-                Salvar
+                {isEditing ? 'Atualizar' : 'Cadastrar'}
               </Button>
             </Grid>
           </Grid>
-        </form>
-        {error && (
-          <Alert severity="error" sx={{ mt: 2 }}>
-            {error}
-          </Alert>
-        )}
+        </Box>
         <Snackbar
           open={success}
           autoHideDuration={2000}
           onClose={() => setSuccess(false)}
           message="Usuário salvo com sucesso!"
         />
-      </Paper>
+      </Box>
     </Box>
   );
 };
 
-export default UsuarioEdicao; 
+export default UsuarioEdicao;

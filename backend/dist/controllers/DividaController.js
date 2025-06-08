@@ -47,8 +47,12 @@ class DividaController {
                     protocolo: '',
                     empresa: empresa.nome,
                     cnpj_empresa: empresa.cnpj,
-                    status_negativado: false
+                    status_negativado: true
                 }
+            });
+            await prismaClient_1.prisma.cliente.update({
+                where: { id: cliente_id },
+                data: { status: 'inadimplente' }
             });
             const data = new Date(divida.data_cadastro);
             const protocolo = `${data.getFullYear()}${String(data.getMonth() + 1).padStart(2, '0')}${String(data.getDate()).padStart(2, '0')}${String(data.getHours()).padStart(2, '0')}${String(data.getMinutes()).padStart(2, '0')}${String(data.getSeconds()).padStart(2, '0')}-${divida.id}`;
@@ -152,7 +156,8 @@ class DividaController {
                         select: {
                             id: true,
                             nome: true,
-                            cnpj: true
+                            cnpj: true,
+                            logo: true
                         }
                     }
                 },
@@ -162,7 +167,10 @@ class DividaController {
                     data_cadastro: 'desc'
                 }
             });
-            const dividasCorrigidas = dividas.map((d) => (Object.assign(Object.assign({}, d), { data_vencimento: d.data_cadastro ? d.data_cadastro.toISOString() : '', created_at: d.data_cadastro ? d.data_cadastro.toISOString() : '', podeEditar: d.tenant_id === usuario.tenant_id })));
+            const baseUrl = process.env.API_URL || 'http://localhost:3000';
+            const dividasCorrigidas = dividas.map((d) => (Object.assign(Object.assign({}, d), { tenant: d.tenant ? Object.assign(Object.assign({}, d.tenant), { logo: d.tenant.logo
+                        ? (d.tenant.logo.startsWith('http') ? d.tenant.logo : `${baseUrl}${d.tenant.logo}`)
+                        : null }) : null, data_vencimento: d.data_cadastro ? d.data_cadastro.toISOString() : '', created_at: d.data_cadastro ? d.data_cadastro.toISOString() : '', podeEditar: d.tenant_id === usuario.tenant_id })));
             const total = await prismaClient_1.prisma.divida.count({
                 where: { cliente_id: Number(cliente_id) }
             });
@@ -198,7 +206,13 @@ class DividaController {
                 where: { id: Number(id) },
                 data: { status_negativado }
             });
-            await this.atualizarStatusCliente(divida.cliente_id);
+            const dividasNegativadas = await prismaClient_1.prisma.divida.findFirst({
+                where: { cliente_id: divida.cliente_id, status_negativado: true }
+            });
+            await prismaClient_1.prisma.cliente.update({
+                where: { id: divida.cliente_id },
+                data: { status: dividasNegativadas ? 'inadimplente' : 'ativo' }
+            });
             return res.json(dividaAtualizada);
         }
         catch (error) {

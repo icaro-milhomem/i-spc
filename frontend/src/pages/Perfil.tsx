@@ -10,14 +10,10 @@ import {
   Alert,
   Snackbar,
   Avatar,
-  Input,
   CircularProgress,
-  IconButton,
 } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
-import { getLogoUrl } from '../utils/logoUrl';
-import CloseIcon from '@mui/icons-material/Close';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -229,6 +225,21 @@ export const Perfil: React.FC = () => {
     }
   }, [user]);
 
+  // Exibe a logo corretamente, seja preview local ou logo do backend
+  const getLogoPreview = () => {
+    if (logoFile) {
+      // Preview local do arquivo selecionado
+      return logoEmpresa;
+    }
+    if (logoEmpresa) {
+      // Se já for uma URL absoluta (começa com http), retorna direto
+      if (logoEmpresa.startsWith('http')) return logoEmpresa;
+      // Se for caminho relativo, monta a URL absoluta
+      return `${API_URL.replace(/\/$/, '')}/${logoEmpresa.replace(/^\//, '')}`;
+    }
+    return null;
+  };
+
   const renderContent = () => (
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" gutterBottom sx={{ textAlign: 'left' }}>
@@ -265,9 +276,9 @@ export const Perfil: React.FC = () => {
                       </label>
                     </Box>
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      {logoEmpresa ? (
+                      {(logoEmpresa || logoFile) ? (
                         <Avatar
-                          src={logoEmpresa}
+                          src={getLogoPreview() || undefined}
                           sx={{ width: 80, height: 80, mb: 1, fontSize: '2rem', borderRadius: '50%' }}
                           alt="Logo da empresa"
                         />
@@ -292,9 +303,21 @@ export const Perfil: React.FC = () => {
                           size="small"
                           sx={{ mt: 1 }}
                         >
-                          {logoEmpresa ? 'Alterar Logo' : 'Selecionar Logo'}
+                          {(logoEmpresa || logoFile) ? 'Alterar Logo' : 'Selecionar Logo'}
                         </Button>
                       </label>
+                      {logoFile && (
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          size="small"
+                          sx={{ mt: 1, minWidth: 120 }}
+                          onClick={handleUploadLogoEmpresa}
+                          disabled={logoLoading}
+                        >
+                          {logoLoading ? <CircularProgress size={18} /> : 'Salvar Logo'}
+                        </Button>
+                      )}
                     </Box>
                   </Box>
                 ) : (

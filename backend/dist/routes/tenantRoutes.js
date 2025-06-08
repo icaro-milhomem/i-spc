@@ -15,16 +15,26 @@ router.get('/minha', auth_1.authenticateJWT, async (req, res) => {
     try {
         const usuario = req.user;
         if (!usuario || !usuario.tenant_id) {
-            return res.status(401).json({ error: 'Usuário não autenticado corretamente.' });
+            return res.json({ nome: '', cnpj: '', logo: null });
         }
         const empresa = await prismaClient_1.prisma.tenant.findUnique({
             where: { id: usuario.tenant_id },
-            select: { nome: true, cnpj: true }
+            select: { nome: true, cnpj: true, logo: true }
         });
         if (!empresa) {
             return res.status(404).json({ error: 'Empresa não encontrada.' });
         }
-        res.json(empresa);
+        const baseUrl = process.env.API_URL || 'http://localhost:3000';
+        const logo = empresa.logo
+            ? empresa.logo.startsWith('http')
+                ? empresa.logo
+                : `${baseUrl}${empresa.logo}`
+            : null;
+        res.json({
+            nome: empresa.nome,
+            cnpj: empresa.cnpj,
+            logo
+        });
     }
     catch (error) {
         console.error('Erro ao buscar empresa:', error);

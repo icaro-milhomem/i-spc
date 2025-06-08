@@ -284,5 +284,30 @@ class UsuarioController {
             return res.status(500).json({ error: 'Erro interno do servidor' });
         }
     }
+    async alterarSenha(req, res) {
+        try {
+            if (!req.user || !req.user.id) {
+                return res.status(401).json({ error: 'Usuário não autenticado' });
+            }
+            const { senhaAtual, novaSenha } = req.body;
+            if (!senhaAtual || !novaSenha) {
+                return res.status(400).json({ error: 'Senha atual e nova senha são obrigatórias' });
+            }
+            const usuario = await prismaClient_1.prisma.usuario.findUnique({ where: { id: req.user.id } });
+            if (!usuario) {
+                return res.status(404).json({ error: 'Usuário não encontrado' });
+            }
+            const senhaConfere = await (0, bcryptjs_1.compare)(senhaAtual, usuario.senha);
+            if (!senhaConfere) {
+                return res.status(400).json({ error: 'Senha atual incorreta' });
+            }
+            const novaSenhaHash = await (0, bcryptjs_1.hash)(novaSenha, 8);
+            await prismaClient_1.prisma.usuario.update({ where: { id: req.user.id }, data: { senha: novaSenhaHash } });
+            return res.json({ message: 'Senha alterada com sucesso!' });
+        }
+        catch (error) {
+            return res.status(500).json({ error: 'Erro ao alterar senha' });
+        }
+    }
 }
 exports.UsuarioController = UsuarioController;

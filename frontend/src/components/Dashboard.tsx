@@ -70,8 +70,8 @@ const Dashboard: React.FC = () => {
   };
 
   const handleSearch = async () => {
-    if (!cpf || cpf.length !== 11) {
-      setError('CPF inválido');
+    if (!cpf) {
+      setError('Digite o CPF ou nome do cliente');
       return;
     }
 
@@ -84,7 +84,7 @@ const Dashboard: React.FC = () => {
       setResultado(response.data);
       carregarEstatisticas();
     } catch (error) {
-      setError('Erro ao consultar CPF');
+      setError('Erro ao consultar cliente');
     } finally {
       setLoading(false);
     }
@@ -121,16 +121,16 @@ const Dashboard: React.FC = () => {
         <Grid item xs={12}>
           <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
             <Typography component="h2" variant="h6" color="primary" gutterBottom>
-              Consulta de CPF
+              Consulta de Cliente
             </Typography>
             <Box sx={{ display: 'flex', gap: 2 }}>
               <TextField
                 fullWidth
-                label="CPF"
+                label="CPF ou Nome"
                 variant="outlined"
                 value={cpf}
-                onChange={(e) => setCpf(e.target.value.replace(/\D/g, ''))}
-                placeholder="Digite o CPF (apenas números)"
+                onChange={(e) => setCpf(e.target.value)}
+                placeholder="Buscar por CPF ou nome do cliente..."
                 error={!!error}
                 helperText={error}
                 disabled={loading}

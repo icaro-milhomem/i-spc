@@ -62,7 +62,7 @@ class RelatorioService {
                 descricao: d.descricao || '',
                 valor: Number(d.valor),
                 data_vencimento: d.data_cadastro ? d.data_cadastro.toISOString() : '',
-                status: d.status_negativado ? 'pendente' : 'pago',
+                status: 'pendente',
                 protocolo: d.protocolo || '',
                 empresa: d.empresa || '',
                 cnpj_empresa: d.cnpj_empresa || ''

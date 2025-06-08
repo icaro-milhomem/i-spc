@@ -21,7 +21,7 @@ import {
   Chip,
   Paper
 } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, Done as DoneIcon } from '@mui/icons-material';
 import api from '../services/api';
 import { Pagination } from './Pagination';
 import { formatCurrency, formatDate } from '../utils/formatters';
@@ -115,15 +115,8 @@ const DividaLista: React.FC = () => {
     setSelectedDivida(null);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pago':
-        return 'success';
-      case 'atrasado':
-        return 'error';
-      default:
-        return 'warning';
-    }
+  const getStatusColor = (status_negativado: boolean) => {
+    return status_negativado ? 'warning' : 'success';
   };
 
   const handlePageChange = (newPage: number) => {
@@ -133,6 +126,16 @@ const DividaLista: React.FC = () => {
   const handleRowsPerPageChange = (newRowsPerPage: number) => {
     setRowsPerPage(newRowsPerPage);
     setPage(0);
+  };
+
+  const handleQuitarDivida = async (dividaId: number) => {
+    try {
+      await api.patch(`/dividas/${dividaId}/status`, { status_negativado: false });
+      setSuccessMessage('Dívida quitada com sucesso!');
+      fetchDividas();
+    } catch (err) {
+      setError('Erro ao quitar dívida. Tente novamente.');
+    }
   };
 
   if (loading) {
@@ -177,8 +180,8 @@ const DividaLista: React.FC = () => {
                 <TableCell>{formatDate(divida.data_vencimento)}</TableCell>
                 <TableCell>
                   <Chip
-                    label={(divida.status || '').toUpperCase()}
-                    color={getStatusColor(divida.status || '')}
+                    label={divida.status_negativado ? 'PENDENTE' : 'PAGO'}
+                    color={getStatusColor(divida.status_negativado)}
                     size="small"
                     sx={{ fontWeight: 700, fontSize: 13 }}
                   />
@@ -199,6 +202,15 @@ const DividaLista: React.FC = () => {
                       onClick={() => handleDeleteClick(divida)}
                     >
                       <DeleteIcon />
+                    </IconButton>
+                  )}
+                  {divida.podeEditar && divida.status_negativado && (
+                    <IconButton
+                      color="success"
+                      onClick={() => handleQuitarDivida(divida.id)}
+                      title="Quitar Dívida"
+                    >
+                      <DoneIcon />
                     </IconButton>
                   )}
                 </TableCell>

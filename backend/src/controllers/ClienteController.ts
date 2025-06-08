@@ -116,7 +116,19 @@ export class ClienteController {
           ...(nome ? { nome: { contains: String(nome), mode: 'insensitive' } } : {})
         },
         include: {
-          dividas: true
+          dividas: {
+            where: { status_negativado: true },
+            include: {
+              tenant: {
+                select: {
+                  id: true,
+                  nome: true,
+                  cnpj: true,
+                  logo: true
+                }
+              }
+            }
+          }
         }
       });
 
@@ -124,7 +136,24 @@ export class ClienteController {
         throw new AppError('Cliente não encontrado', 404);
       }
 
-      return res.json(cliente);
+      // Corrige datas e monta URL da logo
+      const baseUrl = process.env.API_URL || 'http://localhost:3000';
+      const clienteComDividasCorrigidas = {
+        ...cliente,
+        dividas: cliente.dividas.map((d: any) => ({
+          ...d,
+          tenant: d.tenant ? {
+            ...d.tenant,
+            logo: d.tenant.logo
+              ? (d.tenant.logo.startsWith('http') ? d.tenant.logo : `${baseUrl}${d.tenant.logo}`)
+              : null
+          } : null,
+          data_vencimento: d.data_cadastro ? d.data_cadastro.toISOString() : '',
+          created_at: d.data_cadastro ? d.data_cadastro.toISOString() : ''
+        }))
+      };
+
+      return res.json(clienteComDividasCorrigidas);
     } catch (error) {
       if (error instanceof AppError) {
         return res.status(error.statusCode).json({ error: error.message });

@@ -26,6 +26,12 @@ interface Divida {
   protocolo?: string;
   empresa?: string;
   cnpj_empresa?: string;
+  tenant?: {
+    id: number;
+    nome: string;
+    cnpj: string;
+    logo: string;
+  };
 }
 
 export const ConsultaCPF: React.FC = () => {
@@ -83,16 +89,16 @@ export const ConsultaCPF: React.FC = () => {
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, justifyContent: 'flex-end' }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'center' }}>
           <TextField
-            label="Nome ou CPF"
+            placeholder="Buscar por CPF ou nome do cliente..."
             value={busca}
             onChange={e => setBusca(e.target.value)}
-            sx={{ borderRadius: 2, mr: 2, width: 320 }}
+            sx={{ width: 260, mr: 2 }}
+            autoComplete="off"
           />
           <Button
             variant="contained"
             color="primary"
             type="submit"
-            sx={{ height: 56, fontWeight: 700, fontSize: 16 }}
           >
             Buscar
           </Button>
@@ -139,6 +145,7 @@ export const ConsultaCPF: React.FC = () => {
               <Table>
                 <TableHead>
                   <TableRow>
+                    <TableCell>Logo</TableCell>
                     <TableCell>Protocolo</TableCell>
                     <TableCell>Empresa</TableCell>
                     <TableCell>CNPJ da Empresa</TableCell>
@@ -150,9 +157,18 @@ export const ConsultaCPF: React.FC = () => {
                 <TableBody>
                   {result.dividas.map((divida: Divida) => (
                     <TableRow key={divida.id}>
+                      <TableCell>
+                        {divida.tenant && divida.tenant.logo ? (
+                          <img src={divida.tenant.logo} alt="Logo da empresa" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', background: '#222' }} />
+                        ) : (
+                          <Box sx={{ width: 40, height: 40, borderRadius: '50%', bgcolor: 'grey.800', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 18 }}>
+                            —
+                          </Box>
+                        )}
+                      </TableCell>
                       <TableCell>{divida.protocolo || '—'}</TableCell>
-                      <TableCell>{divida.empresa || '—'}</TableCell>
-                      <TableCell>{divida.cnpj_empresa || '—'}</TableCell>
+                      <TableCell>{divida.empresa || divida.tenant?.nome || '—'}</TableCell>
+                      <TableCell>{divida.cnpj_empresa || divida.tenant?.cnpj || '—'}</TableCell>
                       <TableCell>
                         {new Intl.NumberFormat('pt-BR', {
                           style: 'currency',

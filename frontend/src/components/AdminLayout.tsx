@@ -81,7 +81,7 @@ export default function AdminLayout({ children, menuItems }: AdminLayoutProps) {
           alt="Logo" 
           sx={{ 
             width: 180, 
-            height: 110, 
+            height: 110,
             objectFit: 'contain', 
             display: 'block', 
             maxWidth: '95%', 
@@ -252,7 +252,6 @@ export default function AdminLayout({ children, menuItems }: AdminLayoutProps) {
           },
         }}
       >
-        <Toolbar />
         <Box sx={{ overflowY: 'auto', overflowX: 'hidden', height: '100%' }}>
           {drawer}
         </Box>

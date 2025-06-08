@@ -116,7 +116,7 @@ export class RelatorioService {
           descricao: d.descricao || '',
           valor: Number(d.valor),
           data_vencimento: d.data_cadastro ? d.data_cadastro.toISOString() : '',
-          status: d.status_negativado ? 'pendente' : 'pago',
+          status: 'pendente',
           protocolo: d.protocolo || '',
           empresa: d.empresa || '',
           cnpj_empresa: d.cnpj_empresa || ''
@@ -187,7 +187,7 @@ export class RelatorioService {
       include: { cliente: true }
     });
     const dividas: DividaRelatorio[] = dividasDb.map((d) => {
-      const status: string = d.status_negativado ? 'pago' : 'pendente';
+      const status: string = d.status_negativado ? 'pendente' : 'pago';
       return {
         id: d.id,
         id_cliente: d.cliente_id,

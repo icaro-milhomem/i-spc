@@ -79,7 +79,7 @@ export default function SuperAdminLayout({ children, menuItems: customMenuItems,
           p: 0,
           pb: 0,
           minHeight: 140,
-          boxShadow: '0 2px 12px 0 rgba(25, 118, 210, 0.10)', // relevo sutil
+          boxShadow: '0 2px 12px 0 rgba(25, 118, 210, 0.10)',
           bgcolor: theme => theme.palette.background.paper,
           borderBottomLeftRadius: 16,
           borderBottomRightRadius: 16,
@@ -241,7 +241,6 @@ export default function SuperAdminLayout({ children, menuItems: customMenuItems,
           },
         }}
       >
-        <Toolbar />
         <Box sx={{ overflowY: 'auto', overflowX: 'hidden', height: '100%' }}>
           {drawer}
         </Box>

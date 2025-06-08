@@ -185,7 +185,7 @@ class TenantController {
         try {
             const usuario = req.user;
             if (!usuario || !usuario.tenant_id) {
-                return res.status(401).json({ error: 'Usuário não autenticado.' });
+                return res.status(200).json({ logo: null, message: 'Superadmin não possui empresa para salvar logo.' });
             }
             const file = req.file;
             if (!file) {
@@ -196,7 +196,9 @@ class TenantController {
                 where: { id: usuario.tenant_id },
                 data: { logo: logoPath }
             });
-            res.json({ logo: logoPath });
+            const baseUrl = process.env.API_URL || 'http://localhost:3000';
+            const logoUrl = `${baseUrl}/uploads/logos/${file.filename}`;
+            res.json({ logo: logoUrl });
         }
         catch (error) {
             console.error('Erro ao fazer upload da logo:', error);

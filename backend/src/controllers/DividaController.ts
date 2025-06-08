@@ -54,8 +54,13 @@ export class DividaController {
           protocolo: '', // temporário
           empresa: empresa.nome,
           cnpj_empresa: empresa.cnpj,
-          status_negativado: false
+          status_negativado: true
         }
+      });
+      // Atualiza o status do cliente para 'inadimplente'
+      await prisma.cliente.update({
+        where: { id: cliente_id },
+        data: { status: 'inadimplente' }
       });
       // Gera o protocolo baseado na data de criação e ID
       const data = new Date(divida.data_cadastro);
@@ -98,7 +103,7 @@ export class DividaController {
     try {
       const { cpf_cnpj } = req.params;
       const dividas = await prisma.divida.findMany({
-        where: { cpf_cnpj_devedor: cpf_cnpj },
+        where: { cpf_cnpj_devedor: cpf_cnpj, status_negativado: true },
         include: { cliente: true, tenant: { select: { nome: true } } }
       });
       res.json(dividas);
@@ -143,6 +148,14 @@ export class DividaController {
         return res.status(403).json({ error: 'Acesso negado' });
       }
       await prisma.divida.delete({ where: { id } });
+      // Atualiza status do cliente automaticamente
+      const dividasNegativadas = await prisma.divida.findFirst({
+        where: { cliente_id: divida.cliente_id, status_negativado: true }
+      });
+      await prisma.cliente.update({
+        where: { id: divida.cliente_id },
+        data: { status: dividasNegativadas ? 'inadimplente' : 'ativo' }
+      });
       res.json({ message: 'Dívida removida com sucesso!' });
     } catch (error) {
       console.error('Erro ao remover dívida:', error);
@@ -175,7 +188,8 @@ export class DividaController {
             select: {
               id: true,
               nome: true,
-              cnpj: true
+              cnpj: true,
+              logo: true
             }
           }
         },
@@ -186,9 +200,16 @@ export class DividaController {
         }
       });
 
-      // Corrige datas
+      // Corrige datas e monta URL da logo
+      const baseUrl = process.env.API_URL || 'http://localhost:3000';
       const dividasCorrigidas = dividas.map((d) => ({
         ...d,
+        tenant: d.tenant ? {
+          ...d.tenant,
+          logo: d.tenant.logo
+            ? (d.tenant.logo.startsWith('http') ? d.tenant.logo : `${baseUrl}${d.tenant.logo}`)
+            : null
+        } : null,
         data_vencimento: d.data_cadastro ? d.data_cadastro.toISOString() : '',
         created_at: d.data_cadastro ? d.data_cadastro.toISOString() : '',
         podeEditar: d.tenant_id === usuario.tenant_id
@@ -236,7 +257,14 @@ export class DividaController {
       });
 
       // Atualiza status do cliente
-      await this.atualizarStatusCliente(divida.cliente_id);
+      // Se não houver mais dívidas negativadas, status = 'ativo'
+      const dividasNegativadas = await prisma.divida.findFirst({
+        where: { cliente_id: divida.cliente_id, status_negativado: true }
+      });
+      await prisma.cliente.update({
+        where: { id: divida.cliente_id },
+        data: { status: dividasNegativadas ? 'inadimplente' : 'ativo' }
+      });
 
       return res.json(dividaAtualizada);
     } catch (error) {

@@ -2,18 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
-  Paper,
   Typography,
   TextField,
   Button,
   Alert,
   Snackbar,
   FormControlLabel,
-  Switch
+  Switch,
+  Grid
 } from '@mui/material';
 import api from '../services/api';
 import { formatCPF, formatPhone } from '../utils/formatters';
 import { validateCPF } from '../utils/validators';
+import { useTheme } from '@mui/material/styles';
 
 interface ClienteForm {
   nome: string;
@@ -43,6 +44,7 @@ const ClienteForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const isEditing = Boolean(id);
+  const theme = useTheme();
 
   const [formData, setFormData] = useState<ClienteForm>({
     nome: '',
@@ -210,135 +212,180 @@ const ClienteForm: React.FC = () => {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="h5" gutterBottom>
+    <Box sx={{ mt: -6, display: 'flex', justifyContent: 'center', background: theme.palette.background.default, minHeight: '100vh' }}>
+      <Box sx={{ width: '100%', minWidth: 544, maxWidth: 1044, display: 'flex', flexDirection: 'column', justifyContent: 'center', boxSizing: 'border-box' }}>
+        <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 700, mb: 2, color: theme.palette.text.primary }}>
           {isEditing ? 'Editar Cliente' : 'Novo Cliente'}
         </Typography>
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-        <Box component="form" onSubmit={handleSubmit}>
-          <TextField
-            label="Nome"
-            name="nome"
-            value={formData.nome}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <TextField
-            label="CPF"
-            name="cpf"
-            value={formData.cpf}
-            onChange={handleCPFChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <TextField
-            label="Email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <TextField
-            label="Telefone"
-            name="telefone"
-            value={formData.telefone}
-            onChange={handlePhoneChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <TextField
-            label="CEP"
-            name="cep"
-            value={formData.cep}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <TextField
-            label="Rua"
-            name="rua"
-            value={formData.rua}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <TextField
-            label="Número"
-            name="numero"
-            value={formData.numero}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <TextField
-            label="Complemento"
-            name="complemento"
-            value={formData.complemento}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Bairro"
-            name="bairro"
-            value={formData.bairro}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <TextField
-            label="Cidade"
-            name="cidade"
-            value={formData.cidade}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <TextField
-            label="Estado"
-            name="estado"
-            value={formData.estado}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <FormControlLabel
-            control={
-              <Switch
-                checked={formData.ativo}
+        <Box component="form" onSubmit={handleSubmit} autoComplete="off">
+          <Grid container spacing={1}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Nome *"
+                name="nome"
+                value={formData.nome}
                 onChange={handleChange}
-                name="ativo"
-                color="primary"
+                fullWidth
+                required
+                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+                InputProps={{ style: { color: theme.palette.text.primary } }}
+                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
               />
-            }
-            label="Ativo"
-          />
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-            sx={{ mt: 2 }}
-            disabled={loading}
-          >
-            {loading ? 'Salvando...' : (isEditing ? 'Atualizar' : 'Criar')}
-          </Button>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="CPF *"
+                name="cpf"
+                value={formData.cpf}
+                onChange={handleCPFChange}
+                fullWidth
+                required
+                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+                InputProps={{ style: { color: theme.palette.text.primary } }}
+                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Email *"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                fullWidth
+                required
+                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+                InputProps={{ style: { color: theme.palette.text.primary } }}
+                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Telefone *"
+                name="telefone"
+                value={formData.telefone}
+                onChange={handlePhoneChange}
+                fullWidth
+                required
+                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+                InputProps={{ style: { color: theme.palette.text.primary } }}
+                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="CEP"
+                name="cep"
+                value={formData.cep}
+                onChange={handleChange}
+                fullWidth
+                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+                InputProps={{ style: { color: theme.palette.text.primary } }}
+                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Rua"
+                name="rua"
+                value={formData.rua}
+                onChange={handleChange}
+                fullWidth
+                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+                InputProps={{ style: { color: theme.palette.text.primary } }}
+                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Número"
+                name="numero"
+                value={formData.numero}
+                onChange={handleChange}
+                fullWidth
+                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+                InputProps={{ style: { color: theme.palette.text.primary } }}
+                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Complemento"
+                name="complemento"
+                value={formData.complemento}
+                onChange={handleChange}
+                fullWidth
+                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+                InputProps={{ style: { color: theme.palette.text.primary } }}
+                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Bairro"
+                name="bairro"
+                value={formData.bairro}
+                onChange={handleChange}
+                fullWidth
+                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+                InputProps={{ style: { color: theme.palette.text.primary } }}
+                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Cidade"
+                name="cidade"
+                value={formData.cidade}
+                onChange={handleChange}
+                fullWidth
+                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+                InputProps={{ style: { color: theme.palette.text.primary } }}
+                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Estado"
+                name="estado"
+                value={formData.estado}
+                onChange={handleChange}
+                fullWidth
+                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+                InputProps={{ style: { color: theme.palette.text.primary } }}
+                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={formData.ativo}
+                    onChange={handleChange}
+                    name="ativo"
+                    color="primary"
+                  />
+                }
+                label="Ativo"
+                sx={{ color: theme.palette.text.primary }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+                sx={{ mt: 2, borderRadius: 2, fontWeight: 700, fontSize: 18 }}
+                disabled={loading}
+              >
+                {loading ? 'Salvando...' : (isEditing ? 'Atualizar' : 'Cadastrar')}
+              </Button>
+            </Grid>
+          </Grid>
         </Box>
-      </Paper>
+      </Box>
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}

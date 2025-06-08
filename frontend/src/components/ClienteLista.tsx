@@ -20,6 +20,7 @@ import {
   Snackbar,
   Alert,
   Chip,
+  TextField,
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -44,6 +45,7 @@ interface Cliente {
     podeAdicionarEndereco: boolean;
     podeAdicionarDivida: boolean;
   };
+  status: string;
 }
 
 interface PaginatedResponse<T> {
@@ -159,19 +161,48 @@ const ClienteLista: React.FC = () => {
         </Button>
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, justifyContent: 'flex-end' }}>
-        <input
-          type="text"
-          placeholder="Buscar cliente..."
+        <TextField
+          placeholder="Buscar cliente por nome ou CPF..."
           value={searchTerm}
           onChange={handleSearchInputChange}
-          style={{
-            padding: '8px 12px',
-            borderRadius: 6,
-            border: '1px solid #ccc',
-            fontSize: 16,
-            width: 260,
-            marginRight: 8
+          sx={{
+            borderRadius: 2,
+            width: 320,
+            mr: 2,
+            '& .MuiOutlinedInput-root': {
+              background: 'rgba(255,255,255,0.03)',
+              color: '#fff',
+              borderRadius: 2,
+              fontSize: 18,
+              fontWeight: 500,
+              '& fieldset': {
+                borderColor: '#00bcd4',
+              },
+              '&:hover fieldset': {
+                borderColor: '#00bcd4',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#00bcd4',
+              },
+            },
+            '& input': {
+              color: '#fff',
+              fontSize: 18,
+              fontWeight: 500,
+            },
+            '& input::placeholder': {
+              color: '#ccc',
+              opacity: 1,
+            },
           }}
+          InputProps={{
+            style: { color: '#fff', fontSize: 18, fontWeight: 500 },
+          }}
+          inputProps={{
+            style: { color: '#fff', fontSize: 18, fontWeight: 500 },
+            autoComplete: 'off',
+          }}
+          autoComplete="off"
         />
       </Box>
       <TableContainer component={Paper}>
@@ -195,8 +226,20 @@ const ClienteLista: React.FC = () => {
                 <TableCell>{formatCPF(cliente.cpf)}</TableCell>
                 <TableCell>
                   <Chip
-                    label={cliente.ativo ? 'Ativo' : 'Inativo'}
-                    color={cliente.ativo ? 'success' : 'default'}
+                    label={
+                      cliente.status === 'ativo'
+                        ? 'Ativo'
+                        : cliente.status === 'inadimplente'
+                        ? 'Inadimplente'
+                        : 'Inativo'
+                    }
+                    color={
+                      cliente.status === 'ativo'
+                        ? 'success'
+                        : cliente.status === 'inadimplente'
+                        ? 'error'
+                        : 'default'
+                    }
                     size="small"
                     sx={{ fontWeight: 700, fontSize: 13 }}
                   />

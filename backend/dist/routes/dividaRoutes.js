@@ -11,4 +11,8 @@ router.put('/editar/:id', auth_1.authenticateJWT, DividaController_1.DividaContr
 router.delete('/remover/:id', auth_1.authenticateJWT, DividaController_1.DividaController.remover);
 router.get('/:id', auth_1.authenticateJWT, DividaController_1.DividaController.buscarPorId);
 router.put('/:id', auth_1.authenticateJWT, DividaController_1.DividaController.editar);
+router.patch('/:id/status', auth_1.authenticateJWT, (req, res) => {
+    const controller = new DividaController_1.DividaController();
+    return controller.atualizarStatus(req, res);
+});
 exports.default = router;
