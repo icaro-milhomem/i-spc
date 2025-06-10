@@ -13,6 +13,7 @@ import {
   TableHead,
   TableRow,
   Snackbar,
+  Chip,
 } from '@mui/material';
 import api from '../services/api';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -181,7 +182,42 @@ export const ConsultaCPF: React.FC = () => {
                           ? new Date(divida.data_vencimento || divida.dataVencimento).toLocaleDateString('pt-BR')
                           : '—'}
                       </TableCell>
-                      <TableCell>{divida.status}</TableCell>
+                      <TableCell>
+                        <Chip
+                          label={divida.status ? divida.status.toUpperCase() : 'PENDENTE'}
+                          color={
+                            divida.status === 'PENDENTE'
+                              ? 'warning'
+                              : divida.status === 'PAGO'
+                              ? 'success'
+                              : divida.status === 'CANCELADO'
+                              ? 'default'
+                              : 'default'
+                          }
+                          sx={{
+                            fontWeight: 700,
+                            fontSize: 13,
+                            px: 2,
+                            borderRadius: 2,
+                            color:
+                              divida.status === 'PENDENTE'
+                                ? '#fff'
+                                : divida.status === 'PAGO'
+                                ? '#fff'
+                                : divida.status === 'CANCELADO'
+                                ? '#fff'
+                                : undefined,
+                            backgroundColor:
+                              divida.status === 'PENDENTE'
+                                ? '#ff9800'
+                                : divida.status === 'PAGO'
+                                ? '#43a047'
+                                : divida.status === 'CANCELADO'
+                                ? '#757575'
+                                : undefined,
+                          }}
+                        />
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
