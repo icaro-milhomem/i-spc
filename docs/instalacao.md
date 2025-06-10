@@ -56,6 +56,17 @@ JWT_EXPIRES_IN=24h
 LOG_LEVEL=debug
 ```
 
+## Limpesa do do cache NPM
+```bash
+npm cache verify
+```
+```bash
+npm cache clean --force && rm -rf node_modules && rm package-lock.json
+```
+
+```bash
+rm -rf node_modules package-lock.json && cd ../backend && rm -rf node_modules package-lock.json
+```
 ## 5. Rode as migrações e o seed do banco
 
 ```bash

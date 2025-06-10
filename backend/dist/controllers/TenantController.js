@@ -140,45 +140,67 @@ class TenantController {
         try {
             const { nome, cnpj, razao_social, cep, endereco, numero, bairro, cidade, uf, email, senha } = req.body;
             if (!nome || !cnpj || !razao_social || !cep || !endereco || !numero || !bairro || !cidade || !uf || !email || !senha) {
+                console.log('Dados obrigatórios ausentes:', { nome, cnpj, razao_social, cep, endereco, numero, bairro, cidade, uf, email });
                 return res.status(400).json({ error: 'Dados obrigatórios ausentes' });
+            }
+            const cnpjExistente = await prismaClient_1.prisma.tenant.findUnique({
+                where: { cnpj }
+            });
+            if (cnpjExistente) {
+                console.log('CNPJ já cadastrado:', cnpj);
+                return res.status(400).json({ error: `CNPJ já cadastrado para a empresa: ${cnpjExistente.nome}` });
             }
             const papelAdmin = await prismaClient_1.prisma.papel.findUnique({
                 where: { nome: 'admin' },
                 include: { permissoes: true }
             });
             if (!papelAdmin) {
+                console.error('Papel de administrador não encontrado');
                 return res.status(500).json({ error: 'Papel de administrador não encontrado' });
             }
-            const novoTenant = await prismaClient_1.prisma.tenant.create({
-                data: { nome, cnpj, razao_social, cep, endereco, numero, bairro, cidade, uf }
-            });
-            const senhaHash = await bcryptjs_1.default.hash(senha, 10);
-            await prismaClient_1.prisma.usuario.create({
-                data: {
-                    nome: 'Admin',
-                    email,
-                    senha: senhaHash,
-                    perfil: 'admin',
-                    role: 'admin',
-                    tenant_id: novoTenant.id,
-                    ativo: true,
-                    papeis: {
-                        connect: [{ id: papelAdmin.id }]
-                    }
-                },
-                include: {
-                    papeis: {
-                        include: {
-                            permissoes: true
+            const resultado = await prismaClient_1.prisma.$transaction(async (prisma) => {
+                const novoTenant = await prisma.tenant.create({
+                    data: { nome, cnpj, razao_social, cep, endereco, numero, bairro, cidade, uf }
+                });
+                const senhaHash = await bcryptjs_1.default.hash(senha, 10);
+                const novoAdmin = await prisma.usuario.create({
+                    data: {
+                        nome: 'Admin',
+                        email,
+                        senha: senhaHash,
+                        perfil: 'admin',
+                        role: 'admin',
+                        tenant_id: novoTenant.id,
+                        ativo: true,
+                        papeis: {
+                            connect: [{ id: papelAdmin.id }]
+                        }
+                    },
+                    include: {
+                        papeis: {
+                            include: {
+                                permissoes: true
+                            }
                         }
                     }
-                }
+                });
+                return { tenant: novoTenant, admin: novoAdmin };
             });
-            res.status(201).json({ message: 'Empresa e admin criados com sucesso!' });
+            console.log('Empresa e admin criados com sucesso:', {
+                tenantId: resultado.tenant.id,
+                adminId: resultado.admin.id
+            });
+            res.status(201).json({
+                message: 'Empresa e admin criados com sucesso!',
+                tenantId: resultado.tenant.id
+            });
         }
         catch (error) {
-            console.error('Erro ao registrar tenant:', error);
-            res.status(500).json({ error: 'Erro ao registrar empresa' });
+            console.error('Erro detalhado ao registrar tenant:', error);
+            res.status(500).json({
+                error: 'Erro ao registrar empresa',
+                details: error instanceof Error ? error.message : 'Erro desconhecido'
+            });
         }
     }
     static async uploadLogo(req, res) {

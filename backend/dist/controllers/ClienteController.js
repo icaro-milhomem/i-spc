@@ -100,6 +100,7 @@ class ClienteController {
                 where: Object.assign(Object.assign({}, (cpf ? { cpf: String(cpf) } : {})), (nome ? { nome: { contains: String(nome), mode: 'insensitive' } } : {})),
                 include: {
                     dividas: {
+                        where: { status_negativado: true },
                         include: {
                             tenant: {
                                 select: {

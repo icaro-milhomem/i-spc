@@ -16,8 +16,16 @@ export interface Divida {
   id: number;
   descricao: string;
   valor: number;
-  data: string;
+  data_vencimento: string;
   status: string;
+  status_negativado: boolean;
+  created_at: string;
+  podeEditar: boolean;
+  tenant: {
+    id: number;
+    nome: string;
+    cnpj: string;
+  };
 }
 
 export interface ConsultaResult {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Typography, TextField, Button, Paper, Alert, Grid } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { validateCNPJ } from '../utils/cnpj-validation';
 import Input from '@mui/material/Input';
@@ -9,6 +10,7 @@ import { getLogoUrl } from '../utils/logoUrl';
 
 export default function RegisterEmpresa() {
   const theme = useTheme();
+  const navigate = useNavigate();
   const [nome, setNome] = useState('');
   const [razaoSocial, setRazaoSocial] = useState('');
   const [cnpj, setCnpj] = useState('');
@@ -58,7 +60,7 @@ export default function RegisterEmpresa() {
     }
     try {
       // Cadastro da empresa
-      await api.post('/tenants', {
+      await api.post('/tenants/register', {
         nome,
         cnpj,
         razao_social: razaoSocial,
@@ -68,10 +70,8 @@ export default function RegisterEmpresa() {
         bairro,
         cidade,
         uf,
-        admin: {
-          email,
-          senha
-        }
+        email,
+        senha
       });
       // Upload da logo, se houver
       if (logo) {
@@ -89,7 +89,8 @@ export default function RegisterEmpresa() {
       setSuccess(true);
       setTimeout(() => {
         setSuccess(false);
-        // Redirecionar ou limpar formulário
+        // Redirecionar para a página de login
+        navigate('/login');
       }, 1200);
     } catch (err: any) {
       // Verifica se o erro é de CNPJ já cadastrado

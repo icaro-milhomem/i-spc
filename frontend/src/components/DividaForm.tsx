@@ -17,9 +17,11 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  Grid
 } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
+import { useTheme } from '@mui/material/styles';
 import api from '../services/api';
 
 interface Divida {
@@ -54,6 +56,7 @@ const OPCOES_SERVICOS = [
 const DividaForm: React.FC = () => {
   const { id: clienteId, idDivida } = useParams<{ id: string; idDivida?: string }>();
   const navigate = useNavigate();
+  const theme = useTheme();
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [formData, setFormData] = useState<Divida>({
     clienteId: '',
@@ -351,148 +354,337 @@ const DividaForm: React.FC = () => {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f6fa' }}>
-      <Paper elevation={4} sx={{ p: 4, borderRadius: 4, minWidth: 400, maxWidth: 600, width: '100%' }}>
-        <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 700, mb: 3 }}>
-          {idDivida ? 'Editar Dívida' : 'Nova Dívida'}
+    <Box sx={{ mt: -6, display: 'flex', justifyContent: 'center', background: theme.palette.background.default, minHeight: '100vh' }}>
+      <Box sx={{ width: '100%', minWidth: 544, maxWidth: 1044, display: 'flex', flexDirection: 'column', justifyContent: 'center', boxSizing: 'border-box' }}>
+        <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 700, mb: 2, color: theme.palette.text.primary }}>
+          {idDivida && idDivida !== 'nova' ? 'Editar Dívida' : 'Nova Dívida'}
         </Typography>
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
-        {success && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            Dívida salva com sucesso!
-          </Alert>
-        )}
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {success && <Alert severity="success" sx={{ mb: 2 }}>Dívida salva com sucesso!</Alert>}
         <Box component="form" onSubmit={handleSubmit} autoComplete="off">
-          <FormControl fullWidth margin="normal">
-            <InputLabel id="clienteId-label">Cliente</InputLabel>
-            <Select
-              labelId="clienteId-label"
-              id="clienteId"
-              name="clienteId"
-              value={formData.clienteId}
-              onChange={handleChange}
-              disabled={submitting}
-              required
-            >
-              {clientes.map(cliente => (
-                <MenuItem key={cliente.id} value={cliente.id}>
-                  {cliente.nome} - {cliente.cpf}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <TextField
-            label="Nome do Devedor"
-            name="nome_devedor"
-            value={formData.nome_devedor}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            disabled
-            required
-          />
-          <TextField
-            label="CPF/CNPJ do Devedor"
-            name="cpf_cnpj_devedor"
-            value={formData.cpf_cnpj_devedor}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            disabled
-            required
-          />
-          <TextField
-            label="Protocolo"
-            name="protocolo"
-            value={formData.protocolo ?? ''}
-            InputLabelProps={{ shrink: true }}
-            InputProps={{ readOnly: true }}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <TextField
-            label="Empresa"
-            name="empresa"
-            value={formData.empresa ?? ''}
-            InputLabelProps={{ shrink: true }}
-            InputProps={{ readOnly: true }}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <TextField
-            label="CNPJ da Empresa"
-            name="cnpj_empresa"
-            value={formData.cnpj_empresa ?? ''}
-            InputLabelProps={{ shrink: true }}
-            InputProps={{ readOnly: true }}
-            fullWidth
-            margin="normal"
-            required
-          />
-          {(() => {
-            const cliente = clientes.find(c => c.id === formData.clienteId);
-            return clientes.length > 0 && cliente?.permissoes?.podeEditar === false && (
-              <Button
-                variant="contained"
-                color="primary"
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <InputLabel>Cliente</InputLabel>
+                <Select
+                  value={formData.clienteId}
+                  name="clienteId"
+                  onChange={handleChange}
+                  required
+                  sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+                >
+                  {clientes.map((cliente) => (
+                    <MenuItem key={cliente.id} value={cliente.id}>
+                      {cliente.nome} - {cliente.cpf}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Nome do Devedor"
+                name="nome_devedor"
+                value={formData.nome_devedor}
+                onChange={handleChange}
                 fullWidth
-                sx={{ mt: 2, mb: 2 }}
-                onClick={() => setEnderecoDialogOpen(true)}
-              >
-                Adicionar Novo Endereço
-              </Button>
-            );
-          })()}
-          <Dialog open={enderecoDialogOpen} onClose={() => setEnderecoDialogOpen(false)}>
-            <DialogTitle>Adicionar Novo Endereço</DialogTitle>
-            <DialogContent>
-              <TextField label="CEP" name="cep" value={novoEndereco.cep} onChange={handleNovoEnderecoChange} onBlur={handleNovoEnderecoCepBlur} fullWidth margin="normal" required />
-              <TextField label="Rua" name="rua" value={novoEndereco.rua} onChange={handleNovoEnderecoChange} fullWidth margin="normal" required />
-              <TextField label="Número" name="numero" value={novoEndereco.numero} onChange={handleNovoEnderecoChange} fullWidth margin="normal" required />
-              <TextField label="Complemento" name="complemento" value={novoEndereco.complemento} onChange={handleNovoEnderecoChange} fullWidth margin="normal" />
-              <TextField label="Bairro" name="bairro" value={novoEndereco.bairro} onChange={handleNovoEnderecoChange} fullWidth margin="normal" required />
-              <TextField label="Cidade" name="cidade" value={novoEndereco.cidade} onChange={handleNovoEnderecoChange} fullWidth margin="normal" required />
-              <TextField label="Estado" name="estado" value={novoEndereco.estado} onChange={handleNovoEnderecoChange} fullWidth margin="normal" required />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setEnderecoDialogOpen(false)}>Cancelar</Button>
-              <Button onClick={handleNovoEnderecoSubmit} variant="contained" color="primary">Adicionar</Button>
-            </DialogActions>
-          </Dialog>
-          <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
-            Serviços
-          </Typography>
-          <Box display="flex" gap={2} mb={2}>
-            {OPCOES_SERVICOS.map(servico => (
+                required
+                disabled={Boolean(clienteId)}
+                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+                InputProps={{ style: { color: theme.palette.text.primary } }}
+                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="CPF/CNPJ do Devedor"
+                name="cpf_cnpj_devedor"
+                value={formData.cpf_cnpj_devedor}
+                onChange={handleChange}
+                fullWidth
+                required
+                disabled={Boolean(clienteId)}
+                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+                InputProps={{ style: { color: theme.palette.text.primary } }}
+                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={4}>
+              <TextField
+                label="Protocolo"
+                name="protocolo"
+                value={formData.protocolo ?? ''}
+                InputLabelProps={{ shrink: true }}
+                InputProps={{ readOnly: true }}
+                fullWidth
+                required
+                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={4}>
+              <TextField
+                label="Empresa"
+                name="empresa"
+                value={formData.empresa ?? ''}
+                InputLabelProps={{ shrink: true }}
+                InputProps={{ readOnly: true }}
+                fullWidth
+                required
+                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={4}>
+              <TextField
+                label="CNPJ da Empresa"
+                name="cnpj_empresa"
+                value={formData.cnpj_empresa ?? ''}
+                InputLabelProps={{ shrink: true }}
+                InputProps={{ readOnly: true }}
+                fullWidth
+                required
+                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+              />
+            </Grid>
+
+            {(() => {
+              const cliente = clientes.find(c => c.id === formData.clienteId);
+              return clientes.length > 0 && cliente?.permissoes?.podeEditar === false && (
+                <Grid item xs={12}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    onClick={() => setEnderecoDialogOpen(true)}
+                    sx={{ borderRadius: 2 }}
+                  >
+                    Adicionar Novo Endereço
+                  </Button>
+                </Grid>
+              );
+            })()}
+
+            <Grid item xs={12}>
+              <Typography variant="subtitle1" gutterBottom sx={{ mt: 2, color: theme.palette.text.primary }}>
+                Serviços
+              </Typography>
+              <Box display="flex" gap={2} mb={2} flexWrap="wrap">
+                {OPCOES_SERVICOS.map(servico => (
+                  <FormControlLabel
+                    key={servico.key}
+                    control={
+                      <Checkbox
+                        checked={servicos[servico.key].checked}
+                        onChange={() => {
+                          handleServicoCheck(servico.key);
+                          if (!servicos[servico.key].checked) setServicoEditando(servico.key);
+                        }}
+                        color="primary"
+                        disabled={submitting}
+                      />
+                    }
+                    label={servico.label}
+                  />
+                ))}
+              </Box>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Valor"
+                name="valor"
+                value={Number(formData.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                onChange={handleChange}
+                fullWidth
+                disabled
+                required
+                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+                InputProps={{ style: { color: theme.palette.text.primary } }}
+                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Data de Vencimento"
+                name="dataVencimento"
+                type="date"
+                value={formData.dataVencimento}
+                onChange={handleChange}
+                fullWidth
+                disabled={submitting}
+                InputLabelProps={{ shrink: true }}
+                required
+                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+                InputProps={{ style: { color: theme.palette.text.primary } }}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={formData.status}
+                  name="status"
+                  onChange={handleChange}
+                  disabled={submitting}
+                  required
+                  sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+                >
+                  <MenuItem value="PENDENTE">Pendente</MenuItem>
+                  <MenuItem value="PAGO">Pago</MenuItem>
+                  <MenuItem value="CANCELADO">Cancelado</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                label="Descrição"
+                name="descricao"
+                value={formData.descricao ?? ''}
+                onChange={handleChange}
+                fullWidth
+                multiline
+                rows={4}
+                required
+                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
+                InputProps={{ style: { color: theme.palette.text.primary } }}
+                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
               <FormControlLabel
-                key={servico.key}
                 control={
-                  <Checkbox
-                    checked={servicos[servico.key].checked}
-                    onChange={() => {
-                      handleServicoCheck(servico.key);
-                      if (!servicos[servico.key].checked) setServicoEditando(servico.key);
-                    }}
+                  <Switch
+                    checked={formData.ativo}
+                    onChange={handleChange}
+                    name="ativo"
                     color="primary"
                     disabled={submitting}
                   />
                 }
-                label={servico.label}
+                label="Ativo"
               />
-            ))}
-          </Box>
-          <Dialog open={!!servicoEditando} onClose={() => setServicoEditando(null)}>
-            <DialogTitle>Preencha os dados do serviço</DialogTitle>
-            <DialogContent>
-              {servicoEditando && OPCOES_SERVICOS.find(s => s.key === servicoEditando)?.campos.map(campo => (
+            </Grid>
+
+            <Grid item xs={12}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+                disabled={submitting}
+                sx={{ mt: 2, borderRadius: 2, fontWeight: 700, fontSize: 18 }}
+              >
+                {submitting ? 'Salvando...' : 'Salvar Dívida'}
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
+      </Box>
+
+      <Dialog open={enderecoDialogOpen} onClose={() => setEnderecoDialogOpen(false)}>
+        <DialogTitle>Adicionar Novo Endereço</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            <Grid item xs={12}>
+              <TextField
+                label="CEP"
+                name="cep"
+                value={novoEndereco.cep}
+                onChange={handleNovoEnderecoChange}
+                onBlur={handleNovoEnderecoCepBlur}
+                fullWidth
+                required
+                sx={{ borderRadius: 2 }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Rua"
+                name="rua"
+                value={novoEndereco.rua}
+                onChange={handleNovoEnderecoChange}
+                fullWidth
+                required
+                sx={{ borderRadius: 2 }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Número"
+                name="numero"
+                value={novoEndereco.numero}
+                onChange={handleNovoEnderecoChange}
+                fullWidth
+                required
+                sx={{ borderRadius: 2 }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Complemento"
+                name="complemento"
+                value={novoEndereco.complemento}
+                onChange={handleNovoEnderecoChange}
+                fullWidth
+                sx={{ borderRadius: 2 }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Bairro"
+                name="bairro"
+                value={novoEndereco.bairro}
+                onChange={handleNovoEnderecoChange}
+                fullWidth
+                required
+                sx={{ borderRadius: 2 }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Cidade"
+                name="cidade"
+                value={novoEndereco.cidade}
+                onChange={handleNovoEnderecoChange}
+                fullWidth
+                required
+                sx={{ borderRadius: 2 }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Estado"
+                name="estado"
+                value={novoEndereco.estado}
+                onChange={handleNovoEnderecoChange}
+                fullWidth
+                required
+                sx={{ borderRadius: 2 }}
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEnderecoDialogOpen(false)}>Cancelar</Button>
+          <Button onClick={handleNovoEnderecoSubmit} variant="contained" color="primary">Adicionar</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={!!servicoEditando} onClose={() => setServicoEditando(null)}>
+        <DialogTitle>Preencha os dados do serviço</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            {servicoEditando && OPCOES_SERVICOS.find(s => s.key === servicoEditando)?.campos.map(campo => (
+              <Grid item xs={12} key={campo}>
                 <TextField
-                  key={campo}
                   label={campo.charAt(0).toUpperCase() + campo.slice(1)}
                   name={campo}
                   type={campo === 'data' && servicoEditando === 'mensalidade' ? 'month' : 'text'}
@@ -503,85 +695,16 @@ const DividaForm: React.FC = () => {
                     handleServicoCampoChange(servicoEditando, campo, valor);
                   }}
                   fullWidth
-                  margin="normal"
+                  sx={{ borderRadius: 2 }}
                 />
-              ))}
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setServicoEditando(null)}>OK</Button>
-            </DialogActions>
-          </Dialog>
-          <TextField
-            label="Valor"
-            name="valor"
-            value={Number(formData.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            disabled
-            required
-          />
-          <TextField
-            label="Data de Vencimento"
-            name="dataVencimento"
-            type="date"
-            value={formData.dataVencimento}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            disabled={submitting}
-            InputLabelProps={{ shrink: true }}
-            required
-          />
-          <TextField
-            label="Descrição"
-            name="descricao"
-            value={formData.descricao ?? ''}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <FormControl fullWidth margin="normal">
-            <InputLabel id="status-label">Status</InputLabel>
-            <Select
-              labelId="status-label"
-              id="status"
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              disabled={submitting}
-              required
-            >
-              <MenuItem value="PENDENTE">Pendente</MenuItem>
-              <MenuItem value="PAGO">Pago</MenuItem>
-              <MenuItem value="CANCELADO">Cancelado</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={formData.ativo}
-                onChange={handleChange}
-                name="ativo"
-                color="primary"
-                disabled={submitting}
-              />
-            }
-            label="Ativo"
-          />
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-            sx={{ mt: 2, borderRadius: 2, fontWeight: 700, fontSize: 18 }}
-            disabled={submitting}
-          >
-            {submitting ? 'Salvando...' : 'Salvar Dívida'}
-          </Button>
-        </Box>
-      </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setServicoEditando(null)}>OK</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

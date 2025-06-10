@@ -150,8 +150,21 @@ export class TenantController {
   static async register(req: Request, res: Response) {
     try {
       const { nome, cnpj, razao_social, cep, endereco, numero, bairro, cidade, uf, email, senha } = req.body;
+      
+      // Validação dos campos obrigatórios
       if (!nome || !cnpj || !razao_social || !cep || !endereco || !numero || !bairro || !cidade || !uf || !email || !senha) {
+        console.log('Dados obrigatórios ausentes:', { nome, cnpj, razao_social, cep, endereco, numero, bairro, cidade, uf, email });
         return res.status(400).json({ error: 'Dados obrigatórios ausentes' });
+      }
+
+      // Verifica se o CNPJ já existe
+      const cnpjExistente = await prisma.tenant.findUnique({
+        where: { cnpj }
+      });
+
+      if (cnpjExistente) {
+        console.log('CNPJ já cadastrado:', cnpj);
+        return res.status(400).json({ error: `CNPJ já cadastrado para a empresa: ${cnpjExistente.nome}` });
       }
 
       // Buscar o papel de admin
@@ -159,43 +172,61 @@ export class TenantController {
         where: { nome: 'admin' },
         include: { permissoes: true }
       });
+
       if (!papelAdmin) {
+        console.error('Papel de administrador não encontrado');
         return res.status(500).json({ error: 'Papel de administrador não encontrado' });
       }
 
-      // Cria o tenant
-      const novoTenant = await prisma.tenant.create({
-        data: { nome, cnpj, razao_social, cep, endereco, numero, bairro, cidade, uf }
-      });
+      // Usa uma transação para garantir a consistência dos dados
+      const resultado = await prisma.$transaction(async (prisma) => {
+        // Cria o tenant
+        const novoTenant = await prisma.tenant.create({
+          data: { nome, cnpj, razao_social, cep, endereco, numero, bairro, cidade, uf }
+        });
 
-      // Cria o admin vinculado ao tenant com o papel de admin
-      const senhaHash = await bcrypt.hash(senha, 10);
-      await prisma.usuario.create({
-        data: {
-          nome: 'Admin',
-          email,
-          senha: senhaHash,
-          perfil: 'admin',
-          role: 'admin',
-          tenant_id: novoTenant.id,
-          ativo: true,
-          papeis: {
-            connect: [{ id: papelAdmin.id }]
-          }
-        },
-        include: {
-          papeis: {
-            include: {
-              permissoes: true
+        // Cria o admin vinculado ao tenant com o papel de admin
+        const senhaHash = await bcrypt.hash(senha, 10);
+        const novoAdmin = await prisma.usuario.create({
+          data: {
+            nome: 'Admin',
+            email,
+            senha: senhaHash,
+            perfil: 'admin',
+            role: 'admin',
+            tenant_id: novoTenant.id,
+            ativo: true,
+            papeis: {
+              connect: [{ id: papelAdmin.id }]
+            }
+          },
+          include: {
+            papeis: {
+              include: {
+                permissoes: true
+              }
             }
           }
-        }
+        });
+
+        return { tenant: novoTenant, admin: novoAdmin };
       });
 
-      res.status(201).json({ message: 'Empresa e admin criados com sucesso!' });
+      console.log('Empresa e admin criados com sucesso:', { 
+        tenantId: resultado.tenant.id,
+        adminId: resultado.admin.id 
+      });
+
+      res.status(201).json({ 
+        message: 'Empresa e admin criados com sucesso!',
+        tenantId: resultado.tenant.id
+      });
     } catch (error) {
-      console.error('Erro ao registrar tenant:', error);
-      res.status(500).json({ error: 'Erro ao registrar empresa' });
+      console.error('Erro detalhado ao registrar tenant:', error);
+      res.status(500).json({ 
+        error: 'Erro ao registrar empresa',
+        details: error instanceof Error ? error.message : 'Erro desconhecido'
+      });
     }
   }
 

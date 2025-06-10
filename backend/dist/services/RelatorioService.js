@@ -121,7 +121,7 @@ class RelatorioService {
             include: { cliente: true }
         });
         const dividas = dividasDb.map((d) => {
-            const status = d.status_negativado ? 'pago' : 'pendente';
+            const status = d.status_negativado ? 'pendente' : 'pago';
             return {
                 id: d.id,
                 id_cliente: d.cliente_id,

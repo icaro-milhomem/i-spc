@@ -15,6 +15,8 @@ import api from '../services/api';
 import { formatCPF, formatPhone } from '../utils/formatters';
 import { validateCPF } from '../utils/validators';
 import { useTheme } from '@mui/material/styles';
+import { formatCEP } from '../utils/cep';
+import { Add as AddIcon } from '@mui/icons-material';
 
 interface ClienteForm {
   nome: string;
@@ -112,6 +114,48 @@ const ClienteForm: React.FC = () => {
       ...prev,
       [name]: name === 'ativo' ? checked : value
     }));
+  };
+
+  const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const cep = e.target.value.replace(/\D/g, '');
+    setFormData(prev => ({
+      ...prev,
+      cep: formatCEP(cep)
+    }));
+  };
+
+  const handleCepBlur = async () => {
+    const cepLimpo = formData.cep.replace(/\D/g, '');
+    console.log('CEP limpo:', cepLimpo);
+    
+    if (cepLimpo.length !== 8) {
+      console.log('CEP inválido: deve ter 8 dígitos');
+      return;
+    }
+
+    try {
+      console.log('Buscando CEP:', cepLimpo);
+      const res = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+      const data = await res.json();
+      console.log('Resposta da API:', data);
+
+      if (data.erro) {
+        console.log('CEP não encontrado');
+        setError('CEP não encontrado');
+        return;
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        rua: data.logradouro || '',
+        bairro: data.bairro || '',
+        cidade: data.localidade || '',
+        estado: data.uf || ''
+      }));
+    } catch (e) {
+      console.error('Erro ao buscar CEP:', e);
+      setError('Erro ao buscar CEP. Tente novamente.');
+    }
   };
 
   const handleCPFChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -220,142 +264,142 @@ const ClienteForm: React.FC = () => {
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         <Box component="form" onSubmit={handleSubmit} autoComplete="off">
           <Grid container spacing={1}>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Nome *"
-                name="nome"
-                value={formData.nome}
-                onChange={handleChange}
-                fullWidth
-                required
-                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
-                InputProps={{ style: { color: theme.palette.text.primary } }}
-                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
-              />
+            <Grid container spacing={1} sx={{ mt: 1, mb: 2 }}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Nome * *"
+                  name="nome"
+                  value={formData.nome}
+                  onChange={handleChange}
+                  fullWidth
+                  size="small"
+                  margin="dense"
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="CPF * *"
+                  name="cpf"
+                  value={formData.cpf}
+                  onChange={handleCPFChange}
+                  fullWidth
+                  size="small"
+                  margin="dense"
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Email * *"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  fullWidth
+                  size="small"
+                  margin="dense"
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Telefone * *"
+                  name="telefone"
+                  value={formData.telefone}
+                  onChange={handlePhoneChange}
+                  fullWidth
+                  size="small"
+                  margin="dense"
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="CPF *"
-                name="cpf"
-                value={formData.cpf}
-                onChange={handleCPFChange}
-                fullWidth
-                required
-                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
-                InputProps={{ style: { color: theme.palette.text.primary } }}
-                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Email *"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                fullWidth
-                required
-                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
-                InputProps={{ style: { color: theme.palette.text.primary } }}
-                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Telefone *"
-                name="telefone"
-                value={formData.telefone}
-                onChange={handlePhoneChange}
-                fullWidth
-                required
-                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
-                InputProps={{ style: { color: theme.palette.text.primary } }}
-                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="CEP"
-                name="cep"
-                value={formData.cep}
-                onChange={handleChange}
-                fullWidth
-                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
-                InputProps={{ style: { color: theme.palette.text.primary } }}
-                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Rua"
-                name="rua"
-                value={formData.rua}
-                onChange={handleChange}
-                fullWidth
-                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
-                InputProps={{ style: { color: theme.palette.text.primary } }}
-                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Número"
-                name="numero"
-                value={formData.numero}
-                onChange={handleChange}
-                fullWidth
-                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
-                InputProps={{ style: { color: theme.palette.text.primary } }}
-                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Complemento"
-                name="complemento"
-                value={formData.complemento}
-                onChange={handleChange}
-                fullWidth
-                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
-                InputProps={{ style: { color: theme.palette.text.primary } }}
-                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Bairro"
-                name="bairro"
-                value={formData.bairro}
-                onChange={handleChange}
-                fullWidth
-                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
-                InputProps={{ style: { color: theme.palette.text.primary } }}
-                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Cidade"
-                name="cidade"
-                value={formData.cidade}
-                onChange={handleChange}
-                fullWidth
-                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
-                InputProps={{ style: { color: theme.palette.text.primary } }}
-                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Estado"
-                name="estado"
-                value={formData.estado}
-                onChange={handleChange}
-                fullWidth
-                sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
-                InputProps={{ style: { color: theme.palette.text.primary } }}
-                InputLabelProps={{ style: { color: theme.palette.text.secondary } }}
-              />
+            <Grid container spacing={1} sx={{ mt: 1, mb: 2 }}>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  label="CEP"
+                  name="cep"
+                  value={formData.cep}
+                  onChange={handleCepChange}
+                  onBlur={handleCepBlur}
+                  fullWidth
+                  size="small"
+                  margin="dense"
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={8}>
+                <TextField
+                  label="Rua"
+                  name="rua"
+                  value={formData.rua}
+                  onChange={handleChange}
+                  fullWidth
+                  size="small"
+                  margin="dense"
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  label="Número"
+                  name="numero"
+                  value={formData.numero}
+                  onChange={handleChange}
+                  fullWidth
+                  size="small"
+                  margin="dense"
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  label="Complemento"
+                  name="complemento"
+                  value={formData.complemento}
+                  onChange={handleChange}
+                  fullWidth
+                  size="small"
+                  margin="dense"
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  label="Bairro"
+                  name="bairro"
+                  value={formData.bairro}
+                  onChange={handleChange}
+                  fullWidth
+                  size="small"
+                  margin="dense"
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Cidade"
+                  name="cidade"
+                  value={formData.cidade}
+                  onChange={handleChange}
+                  fullWidth
+                  size="small"
+                  margin="dense"
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Estado"
+                  name="estado"
+                  value={formData.estado}
+                  onChange={handleChange}
+                  fullWidth
+                  size="small"
+                  margin="dense"
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
             </Grid>
             <Grid item xs={12}>
               <FormControlLabel
@@ -372,16 +416,18 @@ const ClienteForm: React.FC = () => {
               />
             </Grid>
             <Grid item xs={12}>
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                fullWidth
-                sx={{ mt: 2, borderRadius: 2, fontWeight: 700, fontSize: 18 }}
-                disabled={loading}
-              >
-                {loading ? 'Salvando...' : (isEditing ? 'Atualizar' : 'Cadastrar')}
-              </Button>
+              <Box display="flex" justifyContent="center" mt={3}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  startIcon={<AddIcon />}
+                  size="large"
+                  sx={{ borderRadius: 2, fontWeight: 700, fontSize: 18, px: 4, py: 1 }}
+                >
+                  Atualizar
+                </Button>
+              </Box>
             </Grid>
           </Grid>
         </Box>

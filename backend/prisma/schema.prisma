@@ -84,6 +84,13 @@ model Cliente {
   email        String?
   telefone     String?
   endereco     String?
+  cep          String?
+  rua          String?
+  numero       String?
+  complemento  String?
+  bairro       String?
+  cidade       String?
+  estado       String?
   status       String        @default("ativo")
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")

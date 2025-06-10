@@ -32,6 +32,7 @@ interface Divida {
   descricao: string;
   data_vencimento: string;
   status: string;
+  status_negativado: boolean;
   created_at: string;
   podeEditar: boolean;
   tenant: {

@@ -86,7 +86,7 @@ class DividaController {
         try {
             const { cpf_cnpj } = req.params;
             const dividas = await prismaClient_1.prisma.divida.findMany({
-                where: { cpf_cnpj_devedor: cpf_cnpj },
+                where: { cpf_cnpj_devedor: cpf_cnpj, status_negativado: true },
                 include: { cliente: true, tenant: { select: { nome: true } } }
             });
             res.json(dividas);
@@ -129,6 +129,13 @@ class DividaController {
                 return res.status(403).json({ error: 'Acesso negado' });
             }
             await prismaClient_1.prisma.divida.delete({ where: { id } });
+            const dividasNegativadas = await prismaClient_1.prisma.divida.findFirst({
+                where: { cliente_id: divida.cliente_id, status_negativado: true }
+            });
+            await prismaClient_1.prisma.cliente.update({
+                where: { id: divida.cliente_id },
+                data: { status: dividasNegativadas ? 'inadimplente' : 'ativo' }
+            });
             res.json({ message: 'Dívida removida com sucesso!' });
         }
         catch (error) {
