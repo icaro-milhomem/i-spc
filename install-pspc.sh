@@ -63,7 +63,7 @@ npx prisma migrate deploy
 
 # 11. Rodar backend com PM2
 pm2 delete pspc-backend || true
-pm2 start dist/index.js --name pspc-backend || pm2 start index.js --name pspc-backend
+pm2 start dist/server.js --name pspc-backend
 
 # 12. Rodar frontend (serve)
 cd ../frontend
