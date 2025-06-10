@@ -19,7 +19,7 @@ npm install -g pm2 serve
 # 5. Criar .env do backend se não existir
 cd backend
 if [ ! -f .env ]; then
-  echo "DATABASE_URL=postgresql://usuario:senha@localhost:5432/pspc" > .env
+  echo "DATABASE_URL=postgresql://pspc_user:senha@localhost:5432/pspc" > .env
   echo "JWT_SECRET=$(openssl rand -hex 32)" >> .env
   echo "API_URL=https://pspc.com.br" >> .env
   echo "FRONTEND_URL=https://pspc.com.br" >> .env
@@ -45,8 +45,20 @@ fi
 echo "Fazendo backup do banco de dados..."
 sudo -u postgres pg_dump pspc > /tmp/pspc_backup_$(date +%Y%m%d_%H%M%S).sql || echo "Banco não existe ainda."
 
-# 10. Banco de dados
-sudo -u postgres psql -c "CREATE DATABASE pspc;" || echo "Banco já existe."
+# 10. Banco de dados: criar usuário e banco conforme .env
+# Extrai usuário e senha do .env
+DB_URL=$(grep DATABASE_URL .env | cut -d '=' -f2)
+DB_USER=$(echo $DB_URL | sed -E 's|postgresql://([^:]+):.*|\1|')
+DB_PASS=$(echo $DB_URL | sed -E 's|postgresql://[^:]+:([^@]+)@.*|\1|')
+DB_NAME=$(echo $DB_URL | sed -E 's|.*/([a-zA-Z0-9_]+)(\?.*)?$|\1|')
+
+sudo -u postgres psql -tc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER'" | grep -q 1 || \
+  sudo -u postgres psql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASS';"
+sudo -u postgres psql -c "ALTER USER $DB_USER WITH SUPERUSER;" || true
+sudo -u postgres psql -lqt | cut -d \| -f 1 | grep -qw $DB_NAME || \
+  sudo -u postgres psql -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;"
+sudo -u postgres psql -c "ALTER DATABASE $DB_NAME OWNER TO $DB_USER;"
+
 npx prisma migrate deploy
 
 # 11. Rodar backend com PM2
