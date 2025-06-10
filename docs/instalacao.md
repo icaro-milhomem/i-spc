@@ -60,7 +60,7 @@ LOG_LEVEL=debug
 ```bash
 npm cache verify
 ```
-```bash
+``bash
 npm cache clean --force && rm -rf node_modules && rm package-lock.json
 ```
 
@@ -71,6 +71,7 @@ rm -rf node_modules package-lock.json && cd ../backend && rm -rf node_modules pa
 
 ```bash
 npx prisma migrate deploy
+npx prisma migrate dev
 npx ts-node prisma/seed.ts
 npx prisma db seed
 ```
