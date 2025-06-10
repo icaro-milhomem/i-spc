@@ -120,6 +120,7 @@ model Divida {
   empresa               String?
   cnpj_empresa          String?
   status_negativado     Boolean  @default(false)
+  data_vencimento       DateTime?
 
   tenant   Tenant   @relation(fields: [tenant_id], references: [id])
   usuario  Usuario  @relation(fields: [usuario_id], references: [id])

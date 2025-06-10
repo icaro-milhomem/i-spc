@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
-  Paper,
   Typography,
   TextField,
   Button,
@@ -133,18 +132,19 @@ const DividaForm: React.FC = () => {
     OPCOES_SERVICOS.forEach(servico => {
       if (servicos[servico.key].checked) {
         let desc = servico.label;
+        if (servicos[servico.key].valor) {
+          desc += ` R$ ${servicos[servico.key].valor}`;
+        }
         if (servico.key === 'mensalidade' && servicos[servico.key].data) {
           let mes = '', ano = '';
           const data = servicos[servico.key].data || '';
           if (data.includes('-')) {
-            // Formato YYYY-MM ou YYYY-MM-DD
             const partes = data.split('-');
             if (partes.length >= 2) {
               ano = partes[0];
               mes = partes[1];
             }
           } else if (data.includes('/')) {
-            // Formato DD/MM/YYYY
             const partes = data.split('/');
             if (partes.length === 3) {
               mes = partes[1];
@@ -190,8 +190,10 @@ const DividaForm: React.FC = () => {
       setFormData(prev => ({
         ...prev,
         clienteId: dados.cliente_id || '',
-        valor: dados.valor || 0,
-        dataVencimento: dados.data_vencimento ? new Date(dados.data_vencimento).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        valor: dados.valor ? Number(dados.valor) : 0,
+        dataVencimento: dados.data_vencimento
+          ? new Date(dados.data_vencimento).toISOString().split('T')[0]
+          : prev.dataVencimento,
         status: dados.status ? dados.status.toUpperCase() : 'PENDENTE',
         descricao: dados.descricao || '',
         ativo: typeof dados.ativo === 'boolean' ? dados.ativo : true,
@@ -236,8 +238,9 @@ const DividaForm: React.FC = () => {
         cliente_id: formData.clienteId,
         nome_devedor: formData.nome_devedor,
         cpf_cnpj_devedor: formData.cpf_cnpj_devedor,
-        valor: valorTotal.toFixed(2),
-        descricao: descricaoServicos || formData.descricao
+        valor: valorTotal > 0 ? valorTotal.toFixed(2) : formData.valor,
+        descricao: descricaoServicos || formData.descricao,
+        data_vencimento: formData.dataVencimento ? new Date(formData.dataVencimento).toISOString().split('T')[0] : undefined
       };
       console.log('Payload enviado para o backend:', payload);
       if (idDivida && idDivida !== 'nova') {
@@ -456,11 +459,10 @@ const DividaForm: React.FC = () => {
               return clientes.length > 0 && cliente?.permissoes?.podeEditar === false && (
                 <Grid item xs={12}>
                   <Button
-                    variant="contained"
+                    variant="outlined"
                     color="primary"
-                    fullWidth
+                    sx={{ mb: 2, mr: 2, width: 'auto', px: 4, py: 1, borderRadius: 2 }}
                     onClick={() => setEnderecoDialogOpen(true)}
-                    sx={{ borderRadius: 2 }}
                   >
                     Adicionar Novo Endereço
                   </Button>

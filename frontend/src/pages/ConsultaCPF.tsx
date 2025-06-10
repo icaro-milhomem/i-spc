@@ -22,6 +22,7 @@ interface Divida {
   id: number;
   valor: number;
   dataVencimento: string;
+  data_vencimento?: string;
   status: string;
   protocolo?: string;
   empresa?: string;
@@ -176,8 +177,8 @@ export const ConsultaCPF: React.FC = () => {
                         }).format(divida.valor)}
                       </TableCell>
                       <TableCell>
-                        {divida.dataVencimento && !isNaN(new Date(divida.dataVencimento).getTime())
-                          ? new Date(divida.dataVencimento).toLocaleDateString('pt-BR')
+                        {(divida.data_vencimento || divida.dataVencimento) && !isNaN(new Date(divida.data_vencimento || divida.dataVencimento).getTime())
+                          ? new Date(divida.data_vencimento || divida.dataVencimento).toLocaleDateString('pt-BR')
                           : '—'}
                       </TableCell>
                       <TableCell>{divida.status}</TableCell>

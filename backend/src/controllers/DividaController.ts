@@ -29,7 +29,7 @@ export class DividaController {
       if (!usuario || usuario.tenant_id === undefined) {
         return res.status(400).json({ error: 'Usuário não autenticado corretamente.' });
       }
-      const { cliente_id, nome_devedor, cpf_cnpj_devedor, valor, descricao } = req.body;
+      const { cliente_id, nome_devedor, cpf_cnpj_devedor, valor, descricao, data_vencimento } = req.body;
       if (!cliente_id || !valor) {
         return res.status(400).json({ error: 'Dados obrigatórios ausentes' });
       }
@@ -51,6 +51,7 @@ export class DividaController {
           cpf_cnpj_devedor,
           valor,
           descricao,
+          data_vencimento: data_vencimento ? new Date(data_vencimento) : null,
           protocolo: '', // temporário
           empresa: empresa.nome,
           cnpj_empresa: empresa.cnpj,
@@ -124,10 +125,10 @@ export class DividaController {
       if (divida.tenant_id !== usuario.tenant_id) {
         return res.status(403).json({ error: 'Acesso negado' });
       }
-      const { nome_devedor, cpf_cnpj_devedor, valor, descricao, status_negativado } = req.body;
+      const { nome_devedor, cpf_cnpj_devedor, valor, descricao, status_negativado, data_vencimento } = req.body;
       const dividaAtualizada = await prisma.divida.update({
         where: { id },
-        data: { nome_devedor, cpf_cnpj_devedor, valor, descricao, status_negativado }
+        data: { nome_devedor, cpf_cnpj_devedor, valor, descricao, status_negativado, data_vencimento: data_vencimento ? new Date(data_vencimento) : null }
       });
       res.json(dividaAtualizada);
     } catch (error) {
@@ -210,7 +211,7 @@ export class DividaController {
             ? (d.tenant.logo.startsWith('http') ? d.tenant.logo : `${baseUrl}${d.tenant.logo}`)
             : null
         } : null,
-        data_vencimento: d.data_cadastro ? d.data_cadastro.toISOString() : '',
+        data_vencimento: d.data_vencimento ? d.data_vencimento.toISOString() : '',
         created_at: d.data_cadastro ? d.data_cadastro.toISOString() : '',
         podeEditar: d.tenant_id === usuario.tenant_id
       }));

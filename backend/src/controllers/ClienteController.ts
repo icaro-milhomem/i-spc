@@ -148,7 +148,7 @@ export class ClienteController {
               ? (d.tenant.logo.startsWith('http') ? d.tenant.logo : `${baseUrl}${d.tenant.logo}`)
               : null
           } : null,
-          data_vencimento: d.data_cadastro ? d.data_cadastro.toISOString() : '',
+          data_vencimento: d.data_vencimento ? d.data_vencimento.toISOString() : '',
           created_at: d.data_cadastro ? d.data_cadastro.toISOString() : ''
         }))
       };
@@ -221,10 +221,10 @@ export class ClienteController {
         }
       });
 
-      res.json(clienteAtualizado);
+      return res.json(clienteAtualizado);
     } catch (error) {
       console.error('Erro ao atualizar cliente:', error);
-      res.status(500).json({ error: 'Erro ao atualizar cliente' });
+      return res.status(500).json({ error: 'Erro ao atualizar cliente' });
     }
   }
 

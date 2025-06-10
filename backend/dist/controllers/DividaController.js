@@ -24,7 +24,7 @@ class DividaController {
             if (!usuario || usuario.tenant_id === undefined) {
                 return res.status(400).json({ error: 'Usuário não autenticado corretamente.' });
             }
-            const { cliente_id, nome_devedor, cpf_cnpj_devedor, valor, descricao } = req.body;
+            const { cliente_id, nome_devedor, cpf_cnpj_devedor, valor, descricao, data_vencimento } = req.body;
             if (!cliente_id || !valor) {
                 return res.status(400).json({ error: 'Dados obrigatórios ausentes' });
             }
@@ -44,6 +44,7 @@ class DividaController {
                     cpf_cnpj_devedor,
                     valor,
                     descricao,
+                    data_vencimento: data_vencimento ? new Date(data_vencimento) : null,
                     protocolo: '',
                     empresa: empresa.nome,
                     cnpj_empresa: empresa.cnpj,

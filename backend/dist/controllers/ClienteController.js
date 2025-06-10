@@ -136,25 +136,23 @@ class ClienteController {
             const { id } = req.params;
             const { nome, cpf, email, telefone, cep, rua, numero, complemento, bairro, cidade, estado } = req.body;
             if (!nome || !cpf) {
-                throw new AppError_1.AppError('Nome e CPF são obrigatórios', 400);
+                return res.status(400).json({ error: 'Nome e CPF são obrigatórios' });
             }
-            const cliente = await prismaClient_1.prisma.cliente.findUnique({ where: { id: Number(id) } });
+            const cliente = await prismaClient_1.prisma.cliente.findUnique({
+                where: { id: Number(id) }
+            });
             if (!cliente) {
-                throw new AppError_1.AppError('Cliente não encontrado', 404);
+                return res.status(404).json({ error: 'Cliente não encontrado' });
             }
-            const cpfExistente = await prismaClient_1.prisma.cliente.findFirst({ where: { cpf, id: { not: Number(id) } } });
-            if (cpfExistente) {
-                throw new AppError_1.AppError('CPF já cadastrado', 400);
+            const clienteExistente = await prismaClient_1.prisma.cliente.findFirst({
+                where: {
+                    cpf,
+                    id: { not: Number(id) }
+                }
+            });
+            if (clienteExistente) {
+                return res.status(400).json({ error: 'Já existe um cliente com este CPF' });
             }
-            const endereco = [
-                rua,
-                numero ? `, ${numero}` : '',
-                complemento ? `, ${complemento}` : '',
-                bairro ? `, ${bairro}` : '',
-                cidade ? `, ${cidade}` : '',
-                estado ? ` - ${estado}` : '',
-                cep ? `, CEP: ${cep}` : ''
-            ].join('').replace(/^,\s*/, '');
             const clienteAtualizado = await prismaClient_1.prisma.cliente.update({
                 where: { id: Number(id) },
                 data: {
@@ -162,17 +160,20 @@ class ClienteController {
                     cpf,
                     email,
                     telefone,
-                    endereco
+                    cep,
+                    rua,
+                    numero,
+                    complemento,
+                    bairro,
+                    cidade,
+                    estado
                 }
             });
             return res.json(clienteAtualizado);
         }
         catch (error) {
-            if (error instanceof AppError_1.AppError) {
-                return res.status(error.statusCode).json({ error: error.message });
-            }
             console.error('Erro ao atualizar cliente:', error);
-            return res.status(500).json({ error: 'Erro interno do servidor' });
+            return res.status(500).json({ error: 'Erro ao atualizar cliente' });
         }
     }
     async buscarPorId(req, res) {
