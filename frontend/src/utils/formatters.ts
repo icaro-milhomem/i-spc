@@ -1,8 +1,9 @@
-export const formatCurrency = (value: number): string => {
+export const formatCurrency = (value: string | number): string => {
+  const number = typeof value === 'string' ? parseFloat(value) : value;
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL'
-  }).format(value);
+  }).format(number);
 };
 
 export const formatCPF = (cpf: string): string => {
@@ -18,10 +19,7 @@ export const formatPhone = (phone: string): string => {
 };
 
 export const formatDate = (date: string): string => {
-  if (!date) return '—';
-  const d = new Date(date);
-  if (isNaN(d.getTime())) return '—';
-  return d.toLocaleDateString('pt-BR');
+  return new Date(date).toLocaleDateString('pt-BR');
 };
 
 export const formatDateTime = (date: string | Date): string => {

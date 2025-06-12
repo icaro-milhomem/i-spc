@@ -1,38 +1,67 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
   headers: {
     'Content-Type': 'application/json'
   }
 });
 
-// Interceptor para adicionar o token de autenticação
+// Configura o token inicial se existir
+const token = localStorage.getItem('token');
+if (token) {
+  api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  console.log('Token inicial configurado');
+}
+
+// Interceptor para requisições
 api.interceptors.request.use(
   (config) => {
+    // Adiciona o token de autenticação
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    console.log('Requisição:', config.method?.toUpperCase(), config.url, config.data);
+
+    // Log da requisição
+    console.log('🚀 Requisição:', {
+      method: config.method?.toUpperCase(),
+      url: config.url,
+      data: config.data,
+      params: config.params
+    });
+
     return config;
   },
   (error) => {
-    console.error('Erro na requisição:', error);
+    console.error('❌ Erro na requisição:', error);
     return Promise.reject(error);
   }
 );
 
-// Interceptor para tratar erros de autenticação
+// Interceptor para respostas
 api.interceptors.response.use(
   (response) => {
-    console.log('Resposta:', response.status, response.data);
+    // Log da resposta
+    console.log('✅ Resposta:', {
+      status: response.status,
+      data: response.data
+    });
     return response;
   },
   (error) => {
-    console.error('Erro na resposta:', error.response?.status, error.response?.data);
+    // Log do erro
+    console.error('❌ Erro na resposta:', {
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    });
+
+    // Trata erros de autenticação
     if (error.response?.status === 401) {
+      console.log('🔒 Sessão expirada, redirecionando para login');
       localStorage.removeItem('token');
+      delete api.defaults.headers.common['Authorization'];
       window.location.href = '/login';
     }
     return Promise.reject(error);

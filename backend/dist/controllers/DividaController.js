@@ -1,8 +1,12 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DividaController = void 0;
 const prismaClient_1 = require("../database/prismaClient");
 const AppError_1 = require("../utils/AppError");
+const CacheService_1 = __importDefault(require("../services/CacheService"));
 class DividaController {
     async atualizarStatusCliente(clienteId) {
         const dividaNegativada = await prismaClient_1.prisma.divida.findFirst({
@@ -61,6 +65,8 @@ class DividaController {
                 where: { id: divida.id },
                 data: { protocolo }
             });
+            await DividaController.cacheService.deletePattern(`dividas:cliente:${cliente_id}:*`);
+            await DividaController.cacheService.deletePattern(`dividas:consulta:*`);
             res.status(201).json(dividaAtualizada);
         }
         catch (error) {
@@ -107,11 +113,13 @@ class DividaController {
             if (divida.tenant_id !== usuario.tenant_id) {
                 return res.status(403).json({ error: 'Acesso negado' });
             }
-            const { nome_devedor, cpf_cnpj_devedor, valor, descricao, status_negativado } = req.body;
+            const { nome_devedor, cpf_cnpj_devedor, valor, descricao, status_negativado, data_vencimento } = req.body;
             const dividaAtualizada = await prismaClient_1.prisma.divida.update({
                 where: { id },
-                data: { nome_devedor, cpf_cnpj_devedor, valor, descricao, status_negativado }
+                data: { nome_devedor, cpf_cnpj_devedor, valor, descricao, status_negativado, data_vencimento: data_vencimento ? new Date(data_vencimento) : null }
             });
+            await DividaController.cacheService.deletePattern(`dividas:cliente:${divida.cliente_id}:*`);
+            await DividaController.cacheService.deletePattern(`dividas:consulta:*`);
             res.json(dividaAtualizada);
         }
         catch (error) {
@@ -137,6 +145,8 @@ class DividaController {
                 where: { id: divida.cliente_id },
                 data: { status: dividasNegativadas ? 'inadimplente' : 'ativo' }
             });
+            await DividaController.cacheService.deletePattern(`dividas:cliente:/cliente/${divida.cliente_id}*`);
+            await DividaController.cacheService.deletePattern(`dividas:consulta:*`);
             res.json({ message: 'Dívida removida com sucesso!' });
         }
         catch (error) {
@@ -151,9 +161,14 @@ class DividaController {
             const page = Number(req.query.page) || 1;
             const limit = Number(req.query.limit) || 10;
             const usuario = req.user;
-            const cliente = await prismaClient_1.prisma.cliente.findUnique({
-                where: { id: Number(cliente_id) }
-            });
+            const [cliente, total] = await Promise.all([
+                prismaClient_1.prisma.cliente.findUnique({
+                    where: { id: Number(cliente_id) }
+                }),
+                prismaClient_1.prisma.divida.count({
+                    where: { cliente_id: Number(cliente_id) }
+                })
+            ]);
             if (!cliente) {
                 throw new AppError_1.AppError('Cliente não encontrado', 404);
             }
@@ -178,10 +193,7 @@ class DividaController {
             const baseUrl = process.env.API_URL || 'http://localhost:3000';
             const dividasCorrigidas = dividas.map((d) => (Object.assign(Object.assign({}, d), { tenant: d.tenant ? Object.assign(Object.assign({}, d.tenant), { logo: d.tenant.logo
                         ? (d.tenant.logo.startsWith('http') ? d.tenant.logo : `${baseUrl}${d.tenant.logo}`)
-                        : null }) : null, data_vencimento: d.data_cadastro ? d.data_cadastro.toISOString() : '', created_at: d.data_cadastro ? d.data_cadastro.toISOString() : '', podeEditar: d.tenant_id === usuario.tenant_id })));
-            const total = await prismaClient_1.prisma.divida.count({
-                where: { cliente_id: Number(cliente_id) }
-            });
+                        : null }) : null, data_vencimento: d.data_vencimento ? d.data_vencimento.toISOString() : '', created_at: d.data_cadastro ? d.data_cadastro.toISOString() : '', podeEditar: d.tenant_id === usuario.tenant_id })));
             return res.json({
                 data: dividasCorrigidas,
                 total,
@@ -221,6 +233,8 @@ class DividaController {
                 where: { id: divida.cliente_id },
                 data: { status: dividasNegativadas ? 'inadimplente' : 'ativo' }
             });
+            await DividaController.cacheService.deletePattern(`dividas:cliente:${divida.cliente_id}:*`);
+            await DividaController.cacheService.deletePattern(`dividas:consulta:*`);
             return res.json(dividaAtualizada);
         }
         catch (error) {
@@ -251,6 +265,8 @@ class DividaController {
                 }
             });
             await this.atualizarStatusCliente(Number(cliente_id));
+            await DividaController.cacheService.deletePattern(`dividas:cliente:${cliente_id}:*`);
+            await DividaController.cacheService.deletePattern(`dividas:consulta:*`);
             return res.json(dividaAtualizada);
         }
         catch (error) {
@@ -294,3 +310,4 @@ class DividaController {
     }
 }
 exports.DividaController = DividaController;
+DividaController.cacheService = CacheService_1.default.getInstance();

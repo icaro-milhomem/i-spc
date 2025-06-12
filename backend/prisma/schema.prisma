@@ -8,48 +8,48 @@ datasource db {
 }
 
 model Tenant {
-  id        Int      @id @default(autoincrement())
-  nome      String
-  cnpj      String?  @unique
-  razao_social String?
-  cep       String?
-  endereco  String?
-  numero    String?
-  bairro    String?
-  cidade    String?
-  uf        String?
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  usuarios  Usuario[]
-  dividas   Divida[]
-  clientes  Cliente[]
+  id                        Int                      @id @default(autoincrement())
+  nome                      String
+  createdAt                 DateTime                 @default(now()) @map("created_at")
+  updatedAt                 DateTime                 @updatedAt @map("updated_at")
+  bairro                    String?
+  cep                       String?
+  cidade                    String?
+  cnpj                      String?                  @unique
+  endereco                  String?
+  numero                    String?
+  razao_social              String?
+  uf                        String?
+  logo                      String?
+  dividas                   Divida[]
+  clientes                  Cliente[]
   enderecos_empresa_cliente EnderecoClienteEmpresa[]
-  logo      String?  @db.Text // Caminho ou URL da logo da empresa
+  usuarios                  Usuario[]
 
   @@map("tenants")
 }
 
 model Usuario {
-  id        Int      @id @default(autoincrement())
-  nome      String
-  email     String   @unique
-  senha     String
-  perfil    String   @default("usuario")
-  role      String?
-  avatar    String?  @db.Text
-  tenant_id Int?
-  tenant    Tenant?  @relation(fields: [tenant_id], references: [id])
-  ativo     Boolean  @default(true)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  backups   Backup[]
-  logs      Log[]
-  papeis    Papel[]  @relation("UsuarioPapel")
-  dividas   Divida[]
-  criado_por_id Int?
-  criado_por   Usuario? @relation("UsuarioCriador", fields: [criado_por_id], references: [id])
-  criados      Usuario[] @relation("UsuarioCriador")
+  id               Int       @id @default(autoincrement())
+  nome             String
+  email            String    @unique
+  senha            String
+  perfil           String    @default("usuario")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  ativo            Boolean   @default(true)
+  role             String?
+  tenant_id        Int?
+  criado_por_id    Int?
+  avatar           String?
+  dividas          Divida[]
+  backups          Backup[]
   clientes_criados Cliente[] @relation("UsuarioCriadorCliente")
+  logs             Log[]
+  criado_por       Usuario?  @relation("UsuarioCriador", fields: [criado_por_id], references: [id])
+  criados          Usuario[] @relation("UsuarioCriador")
+  tenant           Tenant?   @relation(fields: [tenant_id], references: [id])
+  papeis           Papel[]   @relation("UsuarioPapel")
 
   @@map("usuarios")
 }
@@ -78,54 +78,53 @@ model Permissao {
 }
 
 model Cliente {
-  id           Int           @id @default(autoincrement())
-  nome         String
-  cpf          String        @unique
-  email        String?
-  telefone     String?
-  endereco     String?
-  cep          String?
-  rua          String?
-  numero       String?
-  complemento  String?
-  bairro       String?
-  cidade       String?
-  estado       String?
-  status       String        @default("ativo")
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @updatedAt @map("updated_at")
-  dividas      Divida[]
-  notificacoes Notificacao[]
-  consultas    Consulta[]
-  criado_por_id Int?
-  criado_por   Usuario? @relation("UsuarioCriadorCliente", fields: [criado_por_id], references: [id])
-  tenant_id    Int?
-  tenant       Tenant?  @relation(fields: [tenant_id], references: [id])
+  id                        Int                      @id @default(autoincrement())
+  nome                      String
+  cpf                       String                   @unique
+  email                     String?
+  telefone                  String?
+  endereco                  String?
+  status                    String                   @default("ativo")
+  createdAt                 DateTime                 @default(now()) @map("created_at")
+  updatedAt                 DateTime                 @updatedAt @map("updated_at")
+  criado_por_id             Int?
+  tenant_id                 Int?
+  bairro                    String?
+  cep                       String?
+  cidade                    String?
+  complemento               String?
+  estado                    String?
+  numero                    String?
+  rua                       String?
+  dividas                   Divida[]
+  criado_por                Usuario?                 @relation("UsuarioCriadorCliente", fields: [criado_por_id], references: [id])
+  tenant                    Tenant?                  @relation(fields: [tenant_id], references: [id])
+  consultas                 Consulta[]
   enderecos_empresa_cliente EnderecoClienteEmpresa[]
+  notificacoes              Notificacao[]
 
   @@map("clientes")
 }
 
 model Divida {
-  id                    Int      @id @default(autoincrement())
-  tenant_id             Int
-  usuario_id            Int
-  cliente_id            Int
-  nome_devedor          String
-  cpf_cnpj_devedor      String
-  valor                 Decimal
-  descricao             String?
-  data_cadastro         DateTime @default(now())
-  protocolo             String?   @unique
-  empresa               String?
-  cnpj_empresa          String?
-  status_negativado     Boolean  @default(false)
-  data_vencimento       DateTime?
-
-  tenant   Tenant   @relation(fields: [tenant_id], references: [id])
-  usuario  Usuario  @relation(fields: [usuario_id], references: [id])
-  cliente  Cliente  @relation(fields: [cliente_id], references: [id])
-  notificacoes Notificacao[]
+  id                Int           @id @default(autoincrement())
+  tenant_id         Int
+  usuario_id        Int
+  cliente_id        Int
+  nome_devedor      String
+  cpf_cnpj_devedor  String
+  valor             Decimal
+  descricao         String?
+  data_cadastro     DateTime      @default(now())
+  status_negativado Boolean       @default(false)
+  cnpj_empresa      String?
+  empresa           String?
+  protocolo         String?       @unique
+  data_vencimento   DateTime?
+  cliente           Cliente       @relation(fields: [cliente_id], references: [id])
+  tenant            Tenant        @relation(fields: [tenant_id], references: [id])
+  usuario           Usuario       @relation(fields: [usuario_id], references: [id])
+  notificacoes      Notificacao[]
 }
 
 model Notificacao {
@@ -203,7 +202,6 @@ model EnderecoClienteEmpresa {
   tenant_id   Int
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
-
   cliente     Cliente  @relation(fields: [cliente_id], references: [id])
   tenant      Tenant   @relation(fields: [tenant_id], references: [id])
 

@@ -117,10 +117,39 @@ class ClienteController {
             if (!cliente) {
                 throw new AppError_1.AppError('Cliente não encontrado', 404);
             }
+            const enderecosAdicionais = await prismaClient_1.prisma.enderecoClienteEmpresa.findMany({
+                where: { cliente_id: cliente.id },
+                include: {
+                    tenant: {
+                        select: {
+                            id: true,
+                            nome: true,
+                            cnpj: true
+                        }
+                    }
+                }
+            });
+            let enderecoObj;
+            if (cliente.endereco && cliente.endereco.trim()) {
+                const enderecoParts = cliente.endereco.split(',').map((part) => part.trim());
+                const [cep = '', rua = '', numero = '', complemento = '', bairro = '', cidade = '', estado = ''] = enderecoParts;
+                enderecoObj = { cep, rua, numero, complemento, bairro, cidade, estado };
+            }
+            else {
+                enderecoObj = {
+                    cep: cliente.cep || '',
+                    rua: cliente.rua || '',
+                    numero: cliente.numero || '',
+                    complemento: cliente.complemento || '',
+                    bairro: cliente.bairro || '',
+                    cidade: cliente.cidade || '',
+                    estado: cliente.estado || ''
+                };
+            }
             const baseUrl = process.env.API_URL || 'http://localhost:3000';
-            const clienteComDividasCorrigidas = Object.assign(Object.assign({}, cliente), { dividas: cliente.dividas.map((d) => (Object.assign(Object.assign({}, d), { tenant: d.tenant ? Object.assign(Object.assign({}, d.tenant), { logo: d.tenant.logo
+            const clienteComDividasCorrigidas = Object.assign(Object.assign({}, cliente), { endereco: enderecoObj, enderecosAdicionais, dividas: cliente.dividas.map((d) => (Object.assign(Object.assign({}, d), { tenant: d.tenant ? Object.assign(Object.assign({}, d.tenant), { logo: d.tenant.logo
                             ? (d.tenant.logo.startsWith('http') ? d.tenant.logo : `${baseUrl}${d.tenant.logo}`)
-                            : null }) : null, data_vencimento: d.data_cadastro ? d.data_cadastro.toISOString() : '', created_at: d.data_cadastro ? d.data_cadastro.toISOString() : '' }))) });
+                            : null }) : null, data_vencimento: d.data_vencimento ? d.data_vencimento.toISOString() : '', created_at: d.data_cadastro ? d.data_cadastro.toISOString() : '' }))) });
             return res.json(clienteComDividasCorrigidas);
         }
         catch (error) {

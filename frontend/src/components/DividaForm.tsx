@@ -36,6 +36,14 @@ interface Divida {
   protocolo?: string;
   empresa?: string;
   cnpj_empresa?: string;
+  status_negativado?: boolean;
+  created_at?: string;
+  podeEditar?: boolean;
+  tenant?: {
+    id: number;
+    nome: string;
+    cnpj: string;
+  };
 }
 
 interface Cliente {
@@ -61,18 +69,17 @@ const DividaForm: React.FC = () => {
     clienteId: '',
     valor: 0,
     dataVencimento: new Date().toISOString().split('T')[0],
-    status: 'PENDENTE',
     descricao: '',
     ativo: true,
     nome_devedor: '',
-    cpf_cnpj_devedor: ''
+    cpf_cnpj_devedor: '',
+    status: 'PENDENTE'
   });
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [servicos, setServicos] = useState<{ [key: string]: { checked: boolean; valor: string; marca?: string; data?: string } }>({
     roteador: { checked: false, valor: '', marca: '' },
-    mensalidade: { checked: false, valor: '', data: '' },
+    mensalidade: { checked: false, valor: '', data: new Date().toISOString().slice(0, 7) },
     onu: { checked: false, valor: '', marca: '' },
     ont: { checked: false, valor: '', marca: '' }
   });
@@ -201,7 +208,11 @@ const DividaForm: React.FC = () => {
         cpf_cnpj_devedor: dados.cpf_cnpj_devedor || '',
         protocolo: dados.protocolo || '',
         empresa: dados.empresa || '',
-        cnpj_empresa: dados.cnpj_empresa || ''
+        cnpj_empresa: dados.cnpj_empresa || '',
+        status_negativado: dados.status_negativado,
+        created_at: dados.created_at,
+        podeEditar: dados.podeEditar,
+        tenant: dados.tenant
       }));
     } catch (error: any) {
       if (error.response?.status === 404) {
@@ -218,22 +229,34 @@ const DividaForm: React.FC = () => {
     e.preventDefault();
     if (submitting) return;
     setSubmitting(true);
-    setError(null);
+    
     try {
       // Monta descrição e valor total a partir dos serviços marcados
       const descricaoServicos = OPCOES_SERVICOS.filter(s => servicos[s.key].checked)
         .map(s => {
+          const servico = servicos[s.key];
+          if (!servico) return '';
+
           if (s.key === 'mensalidade') {
-            return 'Mensalidade';
+            const valor = servico.valor ? `R$ ${servico.valor}` : '';
+            const data = servico.data ? servico.data.split('-') : [];
+            const mes = data[1] || '';
+            const ano = data[0] || '';
+            return `Mensalidade ${valor}: ${mes}/${ano}`;
           } else {
-            const valor = servicos[s.key].valor ? `R$ ${servicos[s.key].valor}` : '';
-            const marca = servicos[s.key].marca ? `Marca: ${servicos[s.key].marca}` : '';
+            const valor = servico.valor ? `R$ ${servico.valor}` : '';
+            const marca = servico.marca ? `Marca: ${servico.marca}` : '';
             return [s.label, valor, marca].filter(Boolean).join(' ');
           }
         })
         .join(' | ');
+
       const valorTotal = OPCOES_SERVICOS.filter(s => servicos[s.key].checked)
-        .reduce((acc, s) => acc + valorMonetarioParaNumero(servicos[s.key].valor), 0);
+        .reduce((acc, s) => {
+          const servico = servicos[s.key];
+          return servico ? acc + valorMonetarioParaNumero(servico.valor) : acc;
+        }, 0);
+
       const payload = {
         cliente_id: formData.clienteId,
         nome_devedor: formData.nome_devedor,
@@ -242,19 +265,27 @@ const DividaForm: React.FC = () => {
         descricao: descricaoServicos || formData.descricao,
         data_vencimento: formData.dataVencimento ? new Date(formData.dataVencimento).toISOString().split('T')[0] : undefined
       };
+
       console.log('Payload enviado para o backend:', payload);
+
       if (idDivida && idDivida !== 'nova') {
         await api.put(`/dividas/${idDivida}`, payload);
       } else {
         await api.post('/dividas', payload);
       }
-      setSuccess(true);
-      setTimeout(() => {
-        navigate(`/clientes/${formData.clienteId}/dividas`);
-      }, 2000);
-    } catch (error) {
-      setError('Erro ao salvar dívida');
-      console.error('Erro:', error);
+
+      // Invalida o cache antes de redirecionar
+      const keys = Object.keys(localStorage);
+      keys.forEach(key => {
+        if (key.startsWith('dividas_cache')) {
+          localStorage.removeItem(key);
+        }
+      });
+
+      // Redireciona imediatamente
+      navigate(`/clientes/${formData.clienteId}/dividas`);
+    } catch (error: any) {
+      setError(error.response?.data?.error || 'Erro ao salvar dívida');
     } finally {
       setSubmitting(false);
     }
@@ -286,6 +317,14 @@ const DividaForm: React.FC = () => {
     });
   };
 
+  const handleServicoCampoChange = (key: string, campo: string, valor: string) => {
+    if (campo === 'valor') {
+      // Formata automaticamente o valor monetário
+      valor = formatarValorMonetario(valor);
+    }
+    setServicos(prev => ({ ...prev, [key]: { ...prev[key], [campo]: valor } }));
+  };
+
   // Função para formatar valor monetário ao digitar
   function formatarValorMonetario(valor: string) {
     // Remove tudo que não for número
@@ -299,12 +338,11 @@ const DividaForm: React.FC = () => {
     return `${Number(parteInteira)}${parteDecimal ? ',' + parteDecimal : ''}`;
   }
 
-  const handleServicoCampoChange = (key: string, campo: string, valor: string) => {
-    if (campo === 'valor') {
-      // Formata automaticamente o valor monetário
-      valor = formatarValorMonetario(valor);
+  const handleServicoEdit = (key: string) => {
+    const servico = servicos[key];
+    if (servico) {
+      setServicoEditando(key);
     }
-    setServicos(prev => ({ ...prev, [key]: { ...prev[key], [campo]: valor } }));
   };
 
   // Função para converter valor monetário string para número
@@ -350,7 +388,6 @@ const DividaForm: React.FC = () => {
       await api.post(`/enderecos/cliente/${formData.clienteId}`, novoEndereco);
       setEnderecoDialogOpen(false);
       setNovoEndereco({ cep: '', rua: '', numero: '', complemento: '', bairro: '', cidade: '', estado: '' });
-      setSuccess(true);
     } catch (error) {
       setError('Erro ao adicionar endereço');
     }
@@ -363,7 +400,6 @@ const DividaForm: React.FC = () => {
           {idDivida && idDivida !== 'nova' ? 'Editar Dívida' : 'Nova Dívida'}
         </Typography>
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-        {success && <Alert severity="success" sx={{ mb: 2 }}>Dívida salva com sucesso!</Alert>}
         <Box component="form" onSubmit={handleSubmit} autoComplete="off">
           <Grid container spacing={2}>
             <Grid item xs={12}>
@@ -483,7 +519,7 @@ const DividaForm: React.FC = () => {
                         checked={servicos[servico.key].checked}
                         onChange={() => {
                           handleServicoCheck(servico.key);
-                          if (!servicos[servico.key].checked) setServicoEditando(servico.key);
+                          if (!servicos[servico.key].checked) handleServicoEdit(servico.key);
                         }}
                         color="primary"
                         disabled={submitting}
@@ -524,24 +560,6 @@ const DividaForm: React.FC = () => {
                 sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
                 InputProps={{ style: { color: theme.palette.text.primary } }}
               />
-            </Grid>
-
-            <Grid item xs={12}>
-              <FormControl fullWidth>
-                <InputLabel>Status</InputLabel>
-                <Select
-                  value={formData.status}
-                  name="status"
-                  onChange={handleChange}
-                  disabled={submitting}
-                  required
-                  sx={{ borderRadius: 2, input: { color: theme.palette.text.primary }, label: { color: theme.palette.text.secondary } }}
-                >
-                  <MenuItem value="PENDENTE">Pendente</MenuItem>
-                  <MenuItem value="PAGO">Pago</MenuItem>
-                  <MenuItem value="CANCELADO">Cancelado</MenuItem>
-                </Select>
-              </FormControl>
             </Grid>
 
             <Grid item xs={12}>
@@ -684,23 +702,42 @@ const DividaForm: React.FC = () => {
         <DialogTitle>Preencha os dados do serviço</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            {servicoEditando && OPCOES_SERVICOS.find(s => s.key === servicoEditando)?.campos.map(campo => (
-              <Grid item xs={12} key={campo}>
-                <TextField
-                  label={campo.charAt(0).toUpperCase() + campo.slice(1)}
-                  name={campo}
-                  type={campo === 'data' && servicoEditando === 'mensalidade' ? 'month' : 'text'}
-                  // @ts-ignore
-                  value={campo === 'valor' ? formatarValorMonetario(String(servicos[servicoEditando][campo] ?? '')) : (servicos[servicoEditando][campo] ?? '')}
-                  onChange={e => {
-                    const valor = campo === 'valor' ? formatarValorMonetario(e.target.value) : e.target.value;
-                    handleServicoCampoChange(servicoEditando, campo, valor);
-                  }}
-                  fullWidth
-                  sx={{ borderRadius: 2 }}
-                />
-              </Grid>
-            ))}
+            {servicoEditando && OPCOES_SERVICOS.find(s => s.key === servicoEditando)?.campos.map(campo => {
+              const servico = servicos[servicoEditando];
+              if (!servico) return null;
+
+              let valor = '';
+              if (campo === 'valor') {
+                valor = formatarValorMonetario(String(servico.valor ?? ''));
+              } else if (campo === 'data' && servicoEditando === 'mensalidade') {
+                valor = servico.data || '';
+              } else if (campo === 'marca') {
+                valor = servico.marca || '';
+              }
+
+              return (
+                <Grid item xs={12} key={campo}>
+                  <TextField
+                    label={campo.charAt(0).toUpperCase() + campo.slice(1)}
+                    name={campo}
+                    type={campo === 'data' && servicoEditando === 'mensalidade' ? 'month' : 'text'}
+                    value={valor}
+                    onChange={e => {
+                      let novoValor = e.target.value;
+                      if (campo === 'valor') {
+                        novoValor = novoValor.replace(/[^\d,\.]/g, '');
+                      }
+                      handleServicoCampoChange(servicoEditando, campo, novoValor);
+                    }}
+                    fullWidth
+                    sx={{ borderRadius: 2, mb: 2 }}
+                    InputLabelProps={{
+                      shrink: true
+                    }}
+                  />
+                </Grid>
+              );
+            })}
           </Grid>
         </DialogContent>
         <DialogActions>

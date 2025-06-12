@@ -136,10 +136,44 @@ export class ClienteController {
         throw new AppError('Cliente não encontrado', 404);
       }
 
+      // Busca endereços adicionais
+      const enderecosAdicionais = await prisma.enderecoClienteEmpresa.findMany({
+        where: { cliente_id: cliente.id },
+        include: {
+          tenant: {
+            select: {
+              id: true,
+              nome: true,
+              cnpj: true
+            }
+          }
+        }
+      });
+
+      // Formata o endereço principal
+      let enderecoObj;
+      if (cliente.endereco && cliente.endereco.trim()) {
+        const enderecoParts = cliente.endereco.split(',').map((part: string) => part.trim());
+        const [cep = '', rua = '', numero = '', complemento = '', bairro = '', cidade = '', estado = ''] = enderecoParts;
+        enderecoObj = { cep, rua, numero, complemento, bairro, cidade, estado };
+      } else {
+        enderecoObj = {
+          cep: cliente.cep || '',
+          rua: cliente.rua || '',
+          numero: cliente.numero || '',
+          complemento: cliente.complemento || '',
+          bairro: cliente.bairro || '',
+          cidade: cliente.cidade || '',
+          estado: cliente.estado || ''
+        };
+      }
+
       // Corrige datas e monta URL da logo
       const baseUrl = process.env.API_URL || 'http://localhost:3000';
       const clienteComDividasCorrigidas = {
         ...cliente,
+        endereco: enderecoObj,
+        enderecosAdicionais,
         dividas: cliente.dividas.map((d: any) => ({
           ...d,
           tenant: d.tenant ? {

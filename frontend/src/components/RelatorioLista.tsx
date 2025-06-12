@@ -44,6 +44,17 @@ interface PaginatedResponse<T> {
   limit: number;
 }
 
+// Função utilitária para agrupar por empresa
+function agruparPorEmpresa(relatorios: any[]) {
+  return relatorios.reduce((acc, relatorio) => {
+    // Tenta usar relatorio.tenant.nome, relatorio.empresa ou 'Sem empresa'
+    const empresa = relatorio.tenant?.nome || relatorio.empresa || 'Sem empresa';
+    if (!acc[empresa]) acc[empresa] = [];
+    acc[empresa].push(relatorio);
+    return acc;
+  }, {} as Record<string, any[]>);
+}
+
 const RelatorioLista: React.FC = () => {
   const [relatorios, setRelatorios] = useState<Relatorio[]>([]);
   const [loading, setLoading] = useState(true);
@@ -115,6 +126,9 @@ const RelatorioLista: React.FC = () => {
     return <div>Carregando...</div>;
   }
 
+  // Agrupa os relatórios por empresa
+  const relatoriosPorEmpresa = agruparPorEmpresa(relatorios);
+
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
@@ -129,52 +143,59 @@ const RelatorioLista: React.FC = () => {
         </Button>
       </Box>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Título</TableCell>
-              <TableCell>Tipo</TableCell>
-              <TableCell>Data Início</TableCell>
-              <TableCell>Data Fim</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell align="right">Ações</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {relatorios.map((relatorio) => (
-              <TableRow key={relatorio.id}>
-                <TableCell>{relatorio.titulo}</TableCell>
-                <TableCell>{relatorio.tipo}</TableCell>
-                <TableCell>{formatDate(relatorio.dataInicio)}</TableCell>
-                <TableCell>{formatDate(relatorio.dataFim)}</TableCell>
-                <TableCell>{relatorio.status}</TableCell>
-                <TableCell align="right">
-                  <IconButton
-                    color="primary"
-                    onClick={() => navigate(`/relatorios/${relatorio.id}`)}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    color="error"
-                    onClick={() => handleDeleteClick(relatorio)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <Pagination
-          totalItems={totalItems}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handleRowsPerPageChange}
-        />
-      </TableContainer>
+      {/* Renderiza os grupos de relatórios por empresa */}
+      {Object.entries(relatoriosPorEmpresa).map(([empresa, lista]) => (
+        <Box key={empresa} sx={{ mb: 4 }}>
+          <h3>{empresa}</h3>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Título</TableCell>
+                  <TableCell>Tipo</TableCell>
+                  <TableCell>Data Início</TableCell>
+                  <TableCell>Data Fim</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell align="right">Ações</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {(lista as any[]).map((relatorio: any) => (
+                  <TableRow key={relatorio.id}>
+                    <TableCell>{relatorio.titulo}</TableCell>
+                    <TableCell>{relatorio.tipo}</TableCell>
+                    <TableCell>{formatDate(relatorio.dataInicio)}</TableCell>
+                    <TableCell>{formatDate(relatorio.dataFim)}</TableCell>
+                    <TableCell>{relatorio.status}</TableCell>
+                    <TableCell align="right">
+                      <IconButton
+                        color="primary"
+                        onClick={() => navigate(`/relatorios/${relatorio.id}`)}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        color="error"
+                        onClick={() => handleDeleteClick(relatorio)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      ))}
+
+      <Pagination
+        totalItems={totalItems}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
+      />
 
       <Dialog
         open={deleteDialogOpen}

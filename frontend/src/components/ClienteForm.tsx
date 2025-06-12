@@ -195,6 +195,30 @@ const ClienteForm: React.FC = () => {
       setError('Telefone é obrigatório');
       return false;
     }
+    if (!formData.cep.trim()) {
+      setError('CEP é obrigatório');
+      return false;
+    }
+    if (!formData.rua.trim()) {
+      setError('Rua é obrigatória');
+      return false;
+    }
+    if (!formData.numero.trim()) {
+      setError('Número é obrigatório');
+      return false;
+    }
+    if (!formData.bairro.trim()) {
+      setError('Bairro é obrigatório');
+      return false;
+    }
+    if (!formData.cidade.trim()) {
+      setError('Cidade é obrigatória');
+      return false;
+    }
+    if (!formData.estado.trim()) {
+      setError('Estado é obrigatório');
+      return false;
+    }
     return true;
   };
 
@@ -208,19 +232,23 @@ const ClienteForm: React.FC = () => {
 
     try {
       setLoading(true);
+      const enderecoString = [
+        formData.cep,
+        formData.rua,
+        formData.numero,
+        formData.complemento,
+        formData.bairro,
+        formData.cidade,
+        formData.estado
+      ].join(', ');
+
       const data = {
         nome: formData.nome,
         cpf: formData.cpf.replace(/\D/g, ''),
         email: formData.email,
         telefone: formData.telefone.replace(/\D/g, ''),
         ativo: formData.ativo,
-        cep: formData.cep,
-        rua: formData.rua,
-        numero: formData.numero,
-        complemento: formData.complemento,
-        bairro: formData.bairro,
-        cidade: formData.cidade,
-        estado: formData.estado
+        endereco: enderecoString
       };
 
       if (isEditing) {

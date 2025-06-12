@@ -56,6 +56,7 @@ const DividaLista: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedDivida, setSelectedDivida] = useState<Divida | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -75,13 +76,17 @@ const DividaLista: React.FC = () => {
       setDividas(response.data.data);
       setTotalItems(response.data.total);
       setError(null);
-    } catch (err) {
+    } catch (err: any) {
+      if (err.__CANCEL__) {
+        return;
+      }
       setError('Erro ao carregar dívidas');
     } finally {
       setLoading(false);
     }
   };
 
+  // Carrega os dados iniciais
   useEffect(() => {
     fetchDividas();
   }, [clienteId, page, rowsPerPage]);
@@ -92,22 +97,29 @@ const DividaLista: React.FC = () => {
   };
 
   const handleDeleteConfirm = async () => {
-    if (!selectedDivida) return;
+    if (!selectedDivida || isDeleting) return;
+    
     try {
-      await api.delete(`/dividas/${selectedDivida.id}`);
+      setIsDeleting(true);
+      await api.delete(`/dividas/remover/${selectedDivida.id}`);
       setSuccessMessage('Dívida excluída com sucesso!');
-      fetchDividas();
+      await fetchDividas();
     } catch (err: any) {
+      if (err.__CANCEL__) {
+        return;
+      }
+      
       if (err.response && err.response.status === 404) {
         setSuccessMessage('Dívida já foi excluída ou não existe. Lista atualizada.');
         setError(null);
-        fetchDividas();
+        await fetchDividas();
       } else {
         setError('Erro ao excluir dívida. Tente novamente.');
       }
     } finally {
       setDeleteDialogOpen(false);
       setSelectedDivida(null);
+      setIsDeleting(false);
     }
   };
 
@@ -133,8 +145,11 @@ const DividaLista: React.FC = () => {
     try {
       await api.patch(`/dividas/${dividaId}/status`, { status_negativado: false });
       setSuccessMessage('Dívida quitada com sucesso!');
-      fetchDividas();
-    } catch (err) {
+      await fetchDividas();
+    } catch (err: any) {
+      if (err.__CANCEL__) {
+        return;
+      }
       setError('Erro ao quitar dívida. Tente novamente.');
     }
   };
@@ -201,6 +216,7 @@ const DividaLista: React.FC = () => {
                     <IconButton
                       color="error"
                       onClick={() => handleDeleteClick(divida)}
+                      disabled={isDeleting}
                     >
                       <DeleteIcon />
                     </IconButton>

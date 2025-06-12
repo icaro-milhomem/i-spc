@@ -3,8 +3,11 @@ import { JwtPayload } from '../middleware/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { prisma } from '../database/prismaClient';
 import { AppError } from '../utils/AppError';
+import CacheService from '../services/CacheService';
 
 export class DividaController {
+  private static cacheService = CacheService.getInstance();
+
   // Função auxiliar para atualizar o status do cliente
   private async atualizarStatusCliente(clienteId: number) {
     // Busca se existe alguma dívida não paga para o cliente
@@ -71,6 +74,11 @@ export class DividaController {
         where: { id: divida.id },
         data: { protocolo }
       });
+
+      // Invalida o cache relacionado a este cliente
+      await DividaController.cacheService.deletePattern(`dividas:cliente:${cliente_id}:*`);
+      await DividaController.cacheService.deletePattern(`dividas:consulta:*`);
+
       res.status(201).json(dividaAtualizada);
     } catch (error) {
       console.error('Erro ao cadastrar dívida:', error);
@@ -130,6 +138,11 @@ export class DividaController {
         where: { id },
         data: { nome_devedor, cpf_cnpj_devedor, valor, descricao, status_negativado, data_vencimento: data_vencimento ? new Date(data_vencimento) : null }
       });
+
+      // Invalida o cache relacionado a este cliente
+      await DividaController.cacheService.deletePattern(`dividas:cliente:${divida.cliente_id}:*`);
+      await DividaController.cacheService.deletePattern(`dividas:consulta:*`);
+
       res.json(dividaAtualizada);
     } catch (error) {
       console.error('Erro ao editar dívida:', error);
@@ -157,6 +170,11 @@ export class DividaController {
         where: { id: divida.cliente_id },
         data: { status: dividasNegativadas ? 'inadimplente' : 'ativo' }
       });
+
+      // Invalida o cache relacionado a este cliente
+      await DividaController.cacheService.deletePattern(`dividas:cliente:/cliente/${divida.cliente_id}*`);
+      await DividaController.cacheService.deletePattern(`dividas:consulta:*`);
+
       res.json({ message: 'Dívida removida com sucesso!' });
     } catch (error) {
       console.error('Erro ao remover dívida:', error);
@@ -172,16 +190,21 @@ export class DividaController {
       const limit = Number(req.query.limit) || 10;
       const usuario = req.user as JwtPayload;
 
-      // Verifica se o cliente existe
-      const cliente = await prisma.cliente.findUnique({
-        where: { id: Number(cliente_id) }
-      });
+      // Busca cliente e dívidas em uma única consulta
+      const [cliente, total] = await Promise.all([
+        prisma.cliente.findUnique({
+          where: { id: Number(cliente_id) }
+        }),
+        prisma.divida.count({
+          where: { cliente_id: Number(cliente_id) }
+        })
+      ]);
 
       if (!cliente) {
         throw new AppError('Cliente não encontrado', 404);
       }
 
-      // Busca todas as dívidas do cliente, independente do tenant
+      // Busca todas as dívidas do cliente com tenant em uma única consulta
       const dividas = await prisma.divida.findMany({
         where: { cliente_id: Number(cliente_id) },
         include: {
@@ -215,10 +238,6 @@ export class DividaController {
         created_at: d.data_cadastro ? d.data_cadastro.toISOString() : '',
         podeEditar: d.tenant_id === usuario.tenant_id
       }));
-
-      const total = await prisma.divida.count({
-        where: { cliente_id: Number(cliente_id) }
-      });
 
       return res.json({
         data: dividasCorrigidas,
@@ -267,6 +286,10 @@ export class DividaController {
         data: { status: dividasNegativadas ? 'inadimplente' : 'ativo' }
       });
 
+      // Invalida o cache relacionado a este cliente
+      await DividaController.cacheService.deletePattern(`dividas:cliente:${divida.cliente_id}:*`);
+      await DividaController.cacheService.deletePattern(`dividas:consulta:*`);
+
       return res.json(dividaAtualizada);
     } catch (error) {
       if (error instanceof AppError) {
@@ -302,6 +325,10 @@ export class DividaController {
 
       // Atualiza status do cliente
       await this.atualizarStatusCliente(Number(cliente_id));
+
+      // Invalida o cache relacionado a este cliente
+      await DividaController.cacheService.deletePattern(`dividas:cliente:${cliente_id}:*`);
+      await DividaController.cacheService.deletePattern(`dividas:consulta:*`);
 
       return res.json(dividaAtualizada);
     } catch (error) {

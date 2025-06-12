@@ -49,6 +49,23 @@ interface RelatorioInadimplentes {
   inadimplentes: Inadimplente[];
 }
 
+// Agrupa todas as dívidas por empresa
+function obterDividasPorEmpresa(inadimplentes: Inadimplente[]) {
+  const dividasPorEmpresa: Record<string, any[]> = {};
+  inadimplentes.forEach((inadimplente) => {
+    inadimplente.dividas.forEach((divida) => {
+      const empresa = divida.empresa || 'Sem empresa';
+      if (!dividasPorEmpresa[empresa]) dividasPorEmpresa[empresa] = [];
+      dividasPorEmpresa[empresa].push({
+        cliente: inadimplente.cliente,
+        divida,
+        ultimaConsulta: inadimplente.ultimaConsulta
+      });
+    });
+  });
+  return dividasPorEmpresa;
+}
+
 export const RelatorioInadimplentes: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -127,6 +144,9 @@ export const RelatorioInadimplentes: React.FC = () => {
     return null;
   }
 
+  // Obtem as dívidas agrupadas por empresa
+  const dividasPorEmpresa = obterDividasPorEmpresa(relatorio.inadimplentes);
+
   return (
     <Box p={0}>
       <Paper sx={{ p: 3 }}>
@@ -161,64 +181,44 @@ export const RelatorioInadimplentes: React.FC = () => {
           </Typography>
         </Box>
 
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Cliente</TableCell>
-                <TableCell>CPF</TableCell>
-                <TableCell>Telefone</TableCell>
-                <TableCell>Dívidas</TableCell>
-                <TableCell>Protocolo</TableCell>
-                <TableCell>Empresa</TableCell>
-                <TableCell>CNPJ da Empresa</TableCell>
-                <TableCell>Valor Total</TableCell>
-                <TableCell>Última Consulta</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {relatorio.inadimplentes.map((inadimplente) => (
-                <TableRow key={inadimplente.cliente.id}>
-                  <TableCell>{inadimplente.cliente.nome}</TableCell>
-                  <TableCell>{inadimplente.cliente.cpf}</TableCell>
-                  <TableCell>{inadimplente.cliente.telefone}</TableCell>
-                  <TableCell>
-                    {inadimplente.dividas.map((divida) => (
-                      <div key={divida.id}>
-                        {divida.descricao} ({formatCurrency(divida.valor)})
-                      </div>
-                    ))}
-                  </TableCell>
-                  <TableCell>
-                    {inadimplente.dividas.map((divida) => (
-                      <div key={divida.id}>{divida.protocolo || '—'}</div>
-                    ))}
-                  </TableCell>
-                  <TableCell>
-                    {inadimplente.dividas.map((divida) => (
-                      <div key={divida.id}>{divida.empresa || '—'}</div>
-                    ))}
-                  </TableCell>
-                  <TableCell>
-                    {inadimplente.dividas.map((divida) => (
-                      <div key={divida.id}>{divida.cnpj_empresa || '—'}</div>
-                    ))}
-                  </TableCell>
-                  <TableCell>
-                    {formatCurrency(
-                      inadimplente.dividas.reduce((total, divida) => total + divida.valor, 0)
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {inadimplente.ultimaConsulta
-                      ? new Date(inadimplente.ultimaConsulta.data_consulta).toLocaleDateString()
-                      : 'N/A'}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        {/* Renderiza as dívidas agrupadas por empresa */}
+        {Object.entries(dividasPorEmpresa).map(([empresa, dividas]) => (
+          <Box key={empresa} mb={4}>
+            <Typography variant="h5" sx={{ mb: 2 }}>{empresa}</Typography>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Cliente</TableCell>
+                    <TableCell>CPF</TableCell>
+                    <TableCell>Telefone</TableCell>
+                    <TableCell>Descrição da Dívida</TableCell>
+                    <TableCell>Protocolo</TableCell>
+                    <TableCell>Empresa</TableCell>
+                    <TableCell>CNPJ da Empresa</TableCell>
+                    <TableCell>Valor</TableCell>
+                    <TableCell>Última Consulta</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {(dividas as any[]).map(({ cliente, divida, ultimaConsulta }) => (
+                    <TableRow key={divida.id}>
+                      <TableCell>{cliente.nome}</TableCell>
+                      <TableCell>{cliente.cpf}</TableCell>
+                      <TableCell>{cliente.telefone}</TableCell>
+                      <TableCell>{divida.descricao}</TableCell>
+                      <TableCell>{divida.protocolo || '—'}</TableCell>
+                      <TableCell>{divida.empresa || '—'}</TableCell>
+                      <TableCell>{divida.cnpj_empresa || '—'}</TableCell>
+                      <TableCell>{formatCurrency(divida.valor)}</TableCell>
+                      <TableCell>{ultimaConsulta?.data_consulta || '—'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        ))}
       </Paper>
     </Box>
   );

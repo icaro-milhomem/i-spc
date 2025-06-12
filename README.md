@@ -17,6 +17,7 @@ O PSPC é um sistema web completo para provedores de internet e empresas, permit
 
 - Node.js 18+
 - PostgreSQL
+- Redis
 - Yarn ou NPM
 - (Opcional) Docker para banco de dados
 
@@ -35,8 +36,13 @@ yarn install
 cd ../frontend
 yarn install
 
+# Instale o Redis (obrigatório)
+sudo apt update && sudo apt install -y redis-server
+sudo systemctl enable redis-server
+sudo systemctl start redis-server
+
 # Configure o banco de dados
-# Edite o arquivo .env com as credenciais do PostgreSQL
+# Edite o arquivo .env com as credenciais do PostgreSQL e Redis
 
 # Rode as migrations do Prisma
 cd ../backend
@@ -49,6 +55,12 @@ yarn dev
 cd ../frontend
 yarn dev
 ```
+
+---
+
+## Observação sobre o Redis
+
+O Redis é utilizado para cache de dados e performance no backend. Certifique-se de que o serviço está rodando antes de iniciar o backend. As variáveis de ambiente do Redis estão no arquivo `.env` do backend.
 
 ---
 

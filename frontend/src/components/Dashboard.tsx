@@ -1,144 +1,201 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Grid,
   Paper,
   Typography,
-  Button,
   TextField,
-  Alert,
+  Button,
   CircularProgress,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  IconButton,
+  Alert,
 } from '@mui/material';
-import { Search as SearchIcon, Logout as LogoutIcon } from '@mui/icons-material';
-import { useAuth } from '../contexts/AuthContext';
+import { Search as SearchIcon } from '@mui/icons-material';
 import api from '../services/api';
 
-interface Cliente {
-  id: number;
-  cpf: string;
-  nome: string;
-  telefone: string;
-  status: string;
+interface Stats {
+  totalUsuarios: number;
+  totalClientes: number;
+  totalDividas: number;
+  totalConsultas: number;
+  valorTotalDividas: number;
+  totalEmpresas: number;
 }
 
-interface Divida {
-  id: number;
-  descricao: string;
-  valor: number;
+interface ConsultaPeriodo {
   data: string;
-  status: string;
+  quantidade: number;
 }
 
 interface ConsultaResult {
-  cliente: Cliente | null;
-  dividas: Divida[];
+  cpf: string;
+  nome: string;
+  dividas: Array<{
+    id: number;
+    valor: number;
+    data_vencimento: string;
+    status: string;
+  }>;
   data_consulta: string;
 }
 
 const Dashboard: React.FC = () => {
-  const navigate = useNavigate();
-  const { signOut } = useAuth();
   const [cpf, setCpf] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState<Stats | null>(null);
   const [resultado, setResultado] = useState<ConsultaResult | null>(null);
-  const [estatisticas, setEstatisticas] = useState({
-    totalClientes: 0,
-    inadimplentes: 0,
-    consultasHoje: 0,
-  });
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  useEffect(() => {
-    carregarEstatisticas();
-  }, []);
-
-  const carregarEstatisticas = async () => {
+  const fetchData = async () => {
+    if (!isInitialLoad) return;
+    
     try {
-      const response = await api.get('/estatisticas');
-      setEstatisticas(response.data);
-    } catch (error) {
-      console.error('Erro ao carregar estatísticas:', error);
+      setLoading(true);
+      setError(null);
+      
+      const [statsResponse] = await Promise.all([
+        api.get<Stats>('/dashboard/stats'),
+        api.get<{ consultasPorPeriodo: ConsultaPeriodo[] }>('/relatorios/consultas')
+      ]);
+
+      setStats(statsResponse.data);
+    } catch (err: any) {
+      if (err.__CANCEL__) {
+        return;
+      }
+      console.error('Erro ao carregar dados:', err);
+      setError('Erro ao carregar dados do dashboard');
+    } finally {
+      setLoading(false);
+      setIsInitialLoad(false);
     }
   };
 
-  const handleSearch = async () => {
-    if (!cpf) {
-      setError('Digite o CPF ou nome do cliente');
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setResultado(null);
+
+    if (!cpf.trim()) {
+      setError('CPF é obrigatório');
       return;
     }
 
-    setError('');
-    setLoading(true);
-    setResultado(null);
-
     try {
-      const response = await api.get(`/consulta/${cpf}`);
+      setLoading(true);
+      const response = await api.post<ConsultaResult>('/consultas', { cpf });
       setResultado(response.data);
-      carregarEstatisticas();
-    } catch (error) {
-      setError('Erro ao consultar cliente');
+      setError(null);
+    } catch (err: any) {
+      if (err.__CANCEL__) {
+        return;
+      }
+      console.error('Erro na consulta:', err);
+      setError('Erro ao realizar consulta. Tente novamente.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleLogout = () => {
-    signOut();
-    navigate('/login');
-  };
+  if (loading && isInitialLoad) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
-    <Box sx={{ p: 0 }}>
+    <Box sx={{ flexGrow: 1, p: 3 }}>
       <Grid container spacing={3}>
-        {/* Cabeçalho */}
         <Grid item xs={12}>
-          <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Box>
-                <Typography component="h1" variant="h4" color="primary" gutterBottom>
-                  P-SPC
-                </Typography>
-                <Typography variant="subtitle1" color="text.secondary">
-                  Proteção de Crédito para Provedores
-                </Typography>
-              </Box>
-              <IconButton color="primary" onClick={handleLogout} title="Sair">
-                <LogoutIcon />
-              </IconButton>
-            </Box>
+          <Typography variant="h4" gutterBottom>
+            Dashboard
+          </Typography>
+        </Grid>
+
+        {/* Cards de Estatísticas */}
+        <Grid item xs={12} md={4}>
+          <Paper
+            sx={{
+              p: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              height: 140,
+              borderRadius: 2,
+              boxShadow: '0 4px 24px 0 rgba(25, 118, 210, 0.10)'
+            }}
+          >
+            <Typography component="h2" variant="h6" color="primary" gutterBottom>
+              Total de Clientes
+            </Typography>
+            <Typography component="p" variant="h4">
+              {stats?.totalClientes || 0}
+            </Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Paper
+            sx={{
+              p: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              height: 140,
+              borderRadius: 2,
+              boxShadow: '0 4px 24px 0 rgba(25, 118, 210, 0.10)'
+            }}
+          >
+            <Typography component="h2" variant="h6" color="primary" gutterBottom>
+              Total de Dívidas
+            </Typography>
+            <Typography component="p" variant="h4">
+              {stats?.totalDividas || 0}
+            </Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Paper
+            sx={{
+              p: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              height: 140,
+              borderRadius: 2,
+              boxShadow: '0 4px 24px 0 rgba(25, 118, 210, 0.10)'
+            }}
+          >
+            <Typography component="h2" variant="h6" color="primary" gutterBottom>
+              Total de Consultas
+            </Typography>
+            <Typography component="p" variant="h4">
+              {stats?.totalConsultas || 0}
+            </Typography>
           </Paper>
         </Grid>
 
-        {/* Busca de CPF */}
+        {/* Formulário de Consulta */}
         <Grid item xs={12}>
-          <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-            <Typography component="h2" variant="h6" color="primary" gutterBottom>
+          <Paper sx={{ p: 3, borderRadius: 2 }}>
+            <Typography variant="h6" gutterBottom>
               Consulta de Cliente
             </Typography>
-            <Box sx={{ display: 'flex', gap: 2 }}>
+            <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
               <TextField
-                fullWidth
-                label="CPF ou Nome"
-                variant="outlined"
+                label="CPF"
                 value={cpf}
                 onChange={(e) => setCpf(e.target.value)}
-                placeholder="Buscar por CPF ou nome do cliente..."
                 error={!!error}
                 helperText={error}
-                disabled={loading}
+                sx={{ flexGrow: 1 }}
               />
               <Button
+                type="submit"
                 variant="contained"
                 startIcon={loading ? <CircularProgress size={20} /> : <SearchIcon />}
-                onClick={handleSearch}
                 sx={{ minWidth: 200 }}
                 disabled={loading}
               >
@@ -151,109 +208,56 @@ const Dashboard: React.FC = () => {
         {/* Resultado da Consulta */}
         {resultado && (
           <Grid item xs={12}>
-            <Paper sx={{ p: 2 }}>
+            <Paper sx={{ p: 3, borderRadius: 2 }}>
               <Typography variant="h6" gutterBottom>
                 Resultado da Consulta
               </Typography>
-              
-              {resultado.cliente ? (
+              <Typography variant="body1" gutterBottom>
+                <strong>CPF:</strong> {resultado.cpf}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                <strong>Nome:</strong> {resultado.nome}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                <strong>Data da Consulta:</strong> {new Date(resultado.data_consulta).toLocaleString()}
+              </Typography>
+              {resultado.dividas.length > 0 ? (
                 <>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Cliente: {resultado.cliente.nome}
+                  <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
+                    Dívidas Encontradas
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    CPF: {resultado.cliente.cpf}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Status: {resultado.cliente.status}
-                  </Typography>
-
-                  {resultado.dividas.length > 0 && (
-                    <TableContainer sx={{ mt: 2 }}>
-                      <Table>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>Descrição</TableCell>
-                            <TableCell>Valor</TableCell>
-                            <TableCell>Data</TableCell>
-                            <TableCell>Status</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {resultado.dividas.map((divida) => (
-                            <TableRow key={divida.id}>
-                              <TableCell>{divida.descricao}</TableCell>
-                              <TableCell>R$ {divida.valor.toFixed(2)}</TableCell>
-                              <TableCell>{new Date(divida.data).toLocaleDateString()}</TableCell>
-                              <TableCell>{divida.status}</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  )}
+                  <Grid container spacing={2}>
+                    {resultado.dividas.map((divida) => (
+                      <Grid item xs={12} md={4} key={divida.id}>
+                        <Paper
+                          sx={{
+                            p: 2,
+                            borderRadius: 2,
+                            bgcolor: 'background.default',
+                          }}
+                        >
+                          <Typography variant="subtitle1" gutterBottom>
+                            <strong>Valor:</strong> R$ {divida.valor.toFixed(2)}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            <strong>Vencimento:</strong> {new Date(divida.data_vencimento).toLocaleDateString()}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            <strong>Status:</strong> {divida.status}
+                          </Typography>
+                        </Paper>
+                      </Grid>
+                    ))}
+                  </Grid>
                 </>
               ) : (
-                <Alert severity="info">
-                  Nenhum registro encontrado para este CPF
+                <Alert severity="info" sx={{ mt: 2 }}>
+                  Nenhuma dívida encontrada para este CPF.
                 </Alert>
               )}
             </Paper>
           </Grid>
         )}
-
-        {/* Cards de Estatísticas */}
-        <Grid item xs={12} md={4}>
-          <Paper
-            sx={{
-              p: 2,
-              display: 'flex',
-              flexDirection: 'column',
-              height: 140,
-            }}
-          >
-            <Typography component="h2" variant="h6" color="primary" gutterBottom>
-              Total de Clientes
-            </Typography>
-            <Typography component="p" variant="h4">
-              {estatisticas.totalClientes}
-            </Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Paper
-            sx={{
-              p: 2,
-              display: 'flex',
-              flexDirection: 'column',
-              height: 140,
-            }}
-          >
-            <Typography component="h2" variant="h6" color="primary" gutterBottom>
-              Inadimplentes
-            </Typography>
-            <Typography component="p" variant="h4">
-              {estatisticas.inadimplentes}
-            </Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Paper
-            sx={{
-              p: 2,
-              display: 'flex',
-              flexDirection: 'column',
-              height: 140,
-            }}
-          >
-            <Typography component="h2" variant="h6" color="primary" gutterBottom>
-              Consultas Hoje
-            </Typography>
-            <Typography component="p" variant="h4">
-              {estatisticas.consultasHoje}
-            </Typography>
-          </Paper>
-        </Grid>
       </Grid>
     </Box>
   );

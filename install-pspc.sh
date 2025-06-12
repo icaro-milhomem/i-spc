@@ -7,7 +7,11 @@ set -e
 apt update && apt upgrade -y
 
 # 2. Instalar dependências
-apt install -y git curl nginx postgresql postgresql-contrib ufw
+apt install -y git curl nginx postgresql postgresql-contrib ufw redis-server
+
+# Iniciar e habilitar Redis
+systemctl enable redis-server
+systemctl start redis-server
 
 # 3. Instalar Node.js 22.x e npm
 curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
